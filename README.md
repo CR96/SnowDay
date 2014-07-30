@@ -8,3 +8,4 @@ and the National Weather Service (http://forecast.weather.gov/afm/PointClick.php
 
 This project was started in February 2014 as an AP Computer Science A assignment and is currently a work in progress.
 An Android version is being developed at CR96/SnowDayAndroid.
+
