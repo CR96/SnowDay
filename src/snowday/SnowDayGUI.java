@@ -19,7 +19,7 @@ import org.jsoup.select.Elements;
 
 @SuppressWarnings("serial")
 public class SnowDayGUI extends javax.swing.JFrame {
-	/**
+    /**
      * Creates new form SnowDayGUI
      */
     	
@@ -35,57 +35,57 @@ public class SnowDayGUI extends javax.swing.JFrame {
     public String[] statusLine;
     public int days;
     
-        int schoolpercent = 0;
-        int weatherpercent = 0;
-        int percent;
-        int dayrun = 0;
-        int tier1 = 0;
-        int tier2 = 0;
-        int tier3 = 0;
-        int tier4 = 0;
-        int tier5 = 0;
+    int schoolpercent = 0;
+    int weatherpercent = 0;
+    int percent;
+    int dayrun = 0;
+    int tier1 = 0;
+    int tier2 = 0;
+    int tier3 = 0;
+    int tier4 = 0;
+    int tier5 = 0;
+
+    boolean schoolNull;
+    String schooltext;
+
+    boolean GBAcademy;
+    boolean HolyFamily;
+    boolean WPAcademy;
+    boolean GISD;
+    boolean Durand; //Check for "Durand Senior Center"
+    boolean Holly;  //Check for "Holly Academy"
+    boolean Lapeer; //Check for "Chatfield School-Lapeer", "Greater Lapeer Transit Authority", "Lapeer CMH Day Programs",
+    //"Lapeer Co. Ed-Tech Center", "Lapeer County Ofices", "Lapeer District Library", "Lapeer Senior Center", and "St. Paul Lutheran-Lapeer"
+    boolean Owosso; //Check for "Owosso Senior Center", "Baker College-Owosso", and "St. Paul Catholic-Owosso"
+    boolean Beecher;
+    boolean Clio; //Check for "Clio Area Senior Center", "Clio City Hall", and "Cornerstone Clio"
+    boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", and "Montessori Academy-Davison"
+    boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", and "Fenton Montessori Academy"
+    boolean Flushing; //Check for "Flushing Senior Citizens Center" and "St. Robert-Flushing"
+    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", "Genesee Co. Mobile Meals", "Genesee Hlth Sys Day Programs", "Genesee Stem Academy", and "Genesee I.S.D."
+    boolean Kearsley;
+    boolean LKFenton;
+    boolean Linden; //Check for "Linden Charter Academy"
+    boolean Montrose; //Check for "Montrose Senior Center"
+    boolean Morris;  //Check for "Mt Morris Twp Administration" and "St. Mary's-Mt. Morris"
+    boolean SzCreek; //Check for "Swartz Creek Area Senior Ctr." and "Swartz Creek Montessori"
+    boolean Atherton;
+    boolean Bendle;
+    boolean Bentley;
+    boolean Flint; //Thankfully this is listed as "Flint Community Schools" - otherwise there would be 25 exceptions to check for.
+    boolean Goodrich;
+    boolean Carman; //Check for "Carman-Ainsworth Senior Ctr."
+    boolean GB; //Check for "Freedom Work-Grand Blanc", "Grand Blanc Academy", "Grand Blanc City Offices", "Grand Blanc Senior Center", and "Holy Family-Grand Blanc", 
         
-        boolean schoolNull;
-        String schooltext;
-        
-        boolean GBAcademy;
-        boolean HolyFamily;
-        boolean WPAcademy;
-        boolean GISD;
-        boolean Durand; //Check for "Durand Senior Center"
-        boolean Holly;  //Check for "Holly Academy"
-        boolean Lapeer; //Check for "Chatfield School-Lapeer", "Greater Lapeer Transit Authority", "Lapeer CMH Day Programs",
-        //"Lapeer Co. Ed-Tech Center", "Lapeer County Ofices", "Lapeer District Library", "Lapeer Senior Center", and "St. Paul Lutheran-Lapeer"
-        boolean Owosso; //Check for "Owosso Senior Center", "Baker College-Owosso", and "St. Paul Catholic-Owosso"
-        boolean Beecher;
-        boolean Clio; //Check for "Clio Area Senior Center", "Clio City Hall", and "Cornerstone Clio"
-        boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", and "Montessori Academy-Davison"
-        boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", and "Fenton Montessori Academy"
-        boolean Flushing; //Check for "Flushing Senior Citizens Center" and "St. Robert-Flushing"
-        boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", "Genesee Co. Mobile Meals", "Genesee Hlth Sys Day Programs", "Genesee Stem Academy", and "Genesee I.S.D."
-        boolean Kearsley;
-        boolean LKFenton;
-        boolean Linden; //Check for "Linden Charter Academy"
-        boolean Montrose; //Check for "Montrose Senior Center"
-        boolean Morris;  //Check for "Mt Morris Twp Administration" and "St. Mary's-Mt. Morris"
-        boolean SzCreek; //Check for "Swartz Creek Area Senior Ctr." and "Swartz Creek Montessori"
-        boolean Atherton;
-        boolean Bendle;
-        boolean Bentley;
-        boolean Flint; //Thankfully this is listed as "Flint Community Schools" - otherwise there would be 25 exceptions to check for.
-        boolean Goodrich;
-        boolean Carman; //Check for "Carman-Ainsworth Senior Ctr."
-        boolean GB; //Check for "Freedom Work-Grand Blanc", "Grand Blanc Academy", "Grand Blanc City Offices", "Grand Blanc Senior Center", and "Holy Family-Grand Blanc", 
-        
-        //Figure out what tomorrow is
-        //Saturday = 0, Sunday = 1
-        String today;
-        String tomorrow;
-        Date date;
-        Format formatter;
-        Calendar calendar = Calendar.getInstance();
-        int weekday = calendar.get(Calendar.DAY_OF_WEEK);
-        int month = calendar.get(Calendar.MONTH);
+    //Figure out what tomorrow is
+    //Saturday = 0, Sunday = 1
+    String today;
+    String tomorrow;
+    Date date;
+    Format formatter;
+    Calendar calendar = Calendar.getInstance();
+    int weekday = calendar.get(Calendar.DAY_OF_WEEK);
+    int month = calendar.get(Calendar.MONTH);
         
     public SnowDayGUI() {
         initComponents();
@@ -95,8 +95,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
         pack();
         
         //Make sure the user doesn't try to run the program on the weekend or during school hours
-          checkWeekend();
-          checkTime(); 
+        //checkWeekend();
+        //checkTime(); 
     }
     
     public static void main(String args[]) {
@@ -144,6 +144,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
          **Obviously return 100% if GB is already closed.
          */
         
+        //Call a reset to clear any previous data
+        Reset();
         //Date setup
         if (optToday.isSelected()) {
             dayrun = 0;
@@ -167,51 +169,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
         }
         
         /**WJRT SCHOOL CLOSINGS SCRAPER**/
-        //Scrape School Closings from WJRT with Jsoup.
-        //The following is a rigged archive from January 5th - every school referenced by this program was closed the following day.
-        //File input = new File("./Closings.htm");
-        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        WJRTScraper();
         
-        //This is a second rigged archive from December 23rd - Swartz Creek and Kearsley were closed on the day for reference.
-        //File input = new File("./ClosingsToday.htm");
-        //Document schools = Jsoup.parse(input, "UTF-8", "");
-        
-        //This third document tests for false triggers, e.g. "Owosso" shouldn't show as "closed" if only "Owosso Senior Center" is closed.
-        //This document will not trigger any closings if the code is working properly.
-        //File input = new File("./Trials.htm");
-        //Document schools = Jsoup.parse(input, "UTF-8", "");
-        
-        //Fourth html archive - every school except GB is closed (shouldn't trigger 100%)
-        File input = new File("./GBNotClosed.htm");
-        Document schools = Jsoup.parse(input, "UTF-8", "");
-        
-        //This is a blank example (no active records) - check how the program runs when nullpointerexception is thrown
-        //File input = new File("./Blank.htm");
-        //Document schools = Jsoup.parse(input, "UTF-8", "");
-        
-        
-        //This is the current listings page.
-        //Document schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
-        
-           for (Element row : schools.select("td[bgcolor]")){
-               orgName = orgName + "\n" + (row.select("font.orgname").first().text());
-               status = status + "\n" + (row.select("font.status").first().text());
-           }
-            
-        if (orgName == null || status == null) {
-            schooltext = schools.text();
-            //This shows in place of the table (as plain text) if no schools or institutions are closed.
-             if (schooltext.contains("no active records")) {
-                txtInfo.setText(txtInfo.getText() + "\nDoesn't look like *any* schools are closed.");
-             }else{
-                System.out.println("Unable to parse WJRT listings. \nIf this error persists please notify the developer.");
-                System.exit(0);
-             }
-             orgName = "DummyLine1\nDummyLine2\nDummyLine3";
-             status = "DummyLine1\nDummyLine2\nDummyLine3";
-        }
-        orgNameLine = orgName.split("\n");
-        statusLine = status.split("\n");
         
         //The first test: School Closings!
         //Decide whether to check for today's closings or tomorrow's closings.
@@ -224,52 +183,16 @@ public class SnowDayGUI extends javax.swing.JFrame {
         }
         
         //Sanity Check - make sure GB isn't actually closed before predicting
-        	checkGBClosed();
+        checkGBClosed();
         
         //Have the user input past snow days
         days = lstDays.getSelectedIndex() - 1;
-        
-        
-        
+     
         //Next Test: Weather!
         
         /**NATIONAL WEATHER SERVICE SCRAPER**/
-        //txtWeather.setText(txtWeather.getText() + "Retrieving Weather from NWS Detroit/Pontiac...");
-        //Change the percentage based on current storm/wind/temperature warnings.
+        WeatherScraper();
         
-        //Live html
-        //Document weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
-        
-        //Document with multiple preset conditions
-        File input2 = new File("./Weather.htm");
-        Document weatherdoc = Jsoup.parse(input2, "UTF-8", "");
-        
-        //Document with no warnings
-        //File input2 = new File("./WeatherTest.htm");
-        //Document weatherdoc = Jsoup.parse(input2, "UTF-8", "");
-        
-        //NullPointerException test
-        //File input2 = new File("./Blank.htm");
-        //Document weatherdoc = Jsoup.parse(input2, "UTF-8", "");
-        
-        //String weatherWarn = null;
-        Elements weatherWarn = weatherdoc.getElementsByClass("warn");
-        weathertext = weatherWarn.toString();
-        
-        if (weathertext.equals("")) {
-        	try {
-        	Element weatherNull = weatherdoc.getElementById("hazards_content");
-        	weathercheck = weatherNull.toString();
-        	if (weathercheck.contains("No Hazards in Effect")) {
-        		txtWeather.setText("No applicable weather warnings.");
-        	}
-        	}catch (NullPointerException e) {
-        		System.out.println("Unable to obtain weather. \nIf this error persists please contact the developer.");
-        		System.exit(0);
-        	}
-        }else{
-        	getWeather();
-        }
         
         //Retrieve Great Lakes Sector Radar form NWS.
         
@@ -293,8 +216,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
      */
     
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	private void initComponents() {
+    private void initComponents() {
 
         lblDay = new javax.swing.JLabel();
         lblPrev = new javax.swing.JLabel();
@@ -378,10 +300,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusCycleRoot(false);
         setIconImage(appIcon);
-        setMaximumSize(null);
         setMinimumSize(new java.awt.Dimension(800, 600));
         setName("SnowDayGUI"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(1200, 800));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -459,7 +379,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 btnExitActionPerformed(evt);
             }
         });
-        getContentPane().add(btnExit, new org.netbeans.lib.awtextra.AbsoluteConstraints(1090, 750, 92, 32));
+        getContentPane().add(btnExit, new org.netbeans.lib.awtextra.AbsoluteConstraints(1090, 750, 90, 32));
 
         txtGBAcademy.setEditable(false);
         txtGBAcademy.setColumns(1);
@@ -770,110 +690,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalculateActionPerformed
-        today = "";
-        tomorrow = "";
-        schoolpercent = 0;
-        weatherpercent = 0;
-        percent = 0;
-        tier1 = 0;
-        tier2 = 0;
-        tier3 = 0;
-        tier4 = 0;
-        tier5 = 0;
-       
-       schoolNull = false;
-       
-       GBAcademy = false;
-       WPAcademy = false;
-       HolyFamily = false;
-       GISD = false;
-       Durand = false;
-       Holly = false;
-       Lapeer = false;
-       Owosso = false;
-       Beecher = false;
-       Clio = false;
-       Davison = false; 
-       Fenton = false; 
-       Flushing = false;
-       Genesee = false;
-       Kearsley = false;
-       LKFenton = false;
-       Linden = false; 
-       Montrose = false;
-       Morris = false;
-       SzCreek = false; 
-       Atherton = false;
-       Bendle = false;
-       Bentley = false;
-       Flint = false;
-       Goodrich = false;
-       Carman = false;
-       GB = false;
-       
-        lblPercent.setText("");
-        txtInfo.setText("");
-        txtWeather.setText("");
-        nullWeather = true;
-        txtGBAcademy.setText("");
-        txtGBAcademy.setBackground(Color.WHITE);
-        txtGISD.setText("");
-        txtGISD.setBackground(Color.WHITE);
-        txtHolyFamily.setText("");
-        txtHolyFamily.setBackground(Color.WHITE);
-        txtWPAcademy.setText("");
-        txtWPAcademy.setBackground(Color.WHITE);
-        txtDurand.setText("");
-        txtDurand.setBackground(Color.WHITE);
-        txtBeecher.setText("");
-        txtBeecher.setBackground(Color.WHITE);
-        txtClio.setText("");
-        txtClio.setBackground(Color.WHITE);
-        txtDavison.setText("");
-        txtDavison.setBackground(Color.WHITE);
-        txtFenton.setText("");
-        txtFenton.setBackground(Color.WHITE);
-        txtFlushing.setText("");
-        txtFlushing.setBackground(Color.WHITE);
-        txtGenesee.setText("");
-        txtGenesee.setBackground(Color.WHITE);
-        txtKearsley.setText("");
-        txtKearsley.setBackground(Color.WHITE);
-        txtLkFenton.setText("");
-        txtLkFenton.setBackground(Color.WHITE);
-        txtLinden.setText("");
-        txtLinden.setBackground(Color.WHITE);
-        txtMontrose.setText("");
-        txtMontrose.setBackground(Color.WHITE);
-        txtMorris.setText("");
-        txtMorris.setBackground(Color.WHITE);
-        txtSzCreek.setText("");
-        txtSzCreek.setBackground(Color.WHITE);
-        txtAtherton.setText("");
-        txtAtherton.setBackground(Color.WHITE);
-        txtDurand.setText("");
-        txtDurand.setBackground(Color.WHITE);
-        txtHolly.setText("");
-        txtHolly.setBackground(Color.WHITE);
-        txtLapeer.setText("");
-        txtLapeer.setBackground(Color.WHITE);
-        txtOwosso.setText("");
-        txtOwosso.setBackground(Color.WHITE);
-        txtBendle.setText("");
-        txtBendle.setBackground(Color.WHITE);
-        txtFlint.setText("");
-        txtFlint.setBackground(Color.WHITE);
-        txtGoodrich.setText("");
-        txtGoodrich.setBackground(Color.WHITE);
-        txtCarman.setText("");
-        txtCarman.setBackground(Color.WHITE);
-        //txtGB.setText("");
-        //txtGB.setBackground(Color.WHITE);
-        btnCalculate.setEnabled(false);
-        progressBar.setValue(0);
-        progressBar.setMaximum(100);
-        progressBar.setMinimum(0);
-        
+
         try {
             SnowDayCalculate();
         } catch (IOException ex) {
@@ -883,6 +700,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }//GEN-LAST:event_btnCalculateActionPerformed
 
     private void optTomorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optTomorrowActionPerformed
@@ -953,8 +771,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
     private javax.swing.JLabel lblTier4;
     private javax.swing.JLabel lblWeather;
     private javax.swing.JLabel lblWxr;
-    @SuppressWarnings("rawtypes")
-	private javax.swing.JComboBox lstDays;
+    private javax.swing.JComboBox lstDays;
     private javax.swing.JRadioButton optToday;
     private javax.swing.JRadioButton optTomorrow;
     private javax.swing.JProgressBar progressBar;
@@ -987,13 +804,118 @@ public class SnowDayGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea txtWPAcademy;
     private javax.swing.JTextArea txtWeather;
     // End of variables declaration//GEN-END:variables
-
+    private void Reset() {
+        today = "";
+        tomorrow = "";
+        schoolpercent = 0;
+        weatherpercent = 0;
+        percent = 0;
+        tier1 = 0;
+        tier2 = 0;
+        tier3 = 0;
+        tier4 = 0;
+        tier5 = 0;
+       
+        schoolNull = false;
+       
+        GBAcademy = false;
+        WPAcademy = false;
+        HolyFamily = false;
+        GISD = false;
+        Durand = false;
+        Holly = false;
+        Lapeer = false;
+        Owosso = false;
+        Beecher = false;
+        Clio = false;
+        Davison = false; 
+        Fenton = false; 
+        Flushing = false;
+        Genesee = false;
+        Kearsley = false;
+        LKFenton = false;
+        Linden = false; 
+        Montrose = false;
+        Morris = false;
+        SzCreek = false; 
+        Atherton = false;
+        Bendle = false;
+        Bentley = false;
+        Flint = false;
+        Goodrich = false;
+        Carman = false;
+        GB = false;
+       
+        lblPercent.setText("");
+        txtInfo.setText("");
+        txtWeather.setText("");
+        nullWeather = true;
+        txtGBAcademy.setText("");
+        txtGBAcademy.setBackground(Color.WHITE);
+        txtGISD.setText("");
+        txtGISD.setBackground(Color.WHITE);
+        txtHolyFamily.setText("");
+        txtHolyFamily.setBackground(Color.WHITE);
+        txtWPAcademy.setText("");
+        txtWPAcademy.setBackground(Color.WHITE);
+        txtDurand.setText("");
+        txtDurand.setBackground(Color.WHITE);
+        txtBeecher.setText("");
+        txtBeecher.setBackground(Color.WHITE);
+        txtClio.setText("");
+        txtClio.setBackground(Color.WHITE);
+        txtDavison.setText("");
+        txtDavison.setBackground(Color.WHITE);
+        txtFenton.setText("");
+        txtFenton.setBackground(Color.WHITE);
+        txtFlushing.setText("");
+        txtFlushing.setBackground(Color.WHITE);
+        txtGenesee.setText("");
+        txtGenesee.setBackground(Color.WHITE);
+        txtKearsley.setText("");
+        txtKearsley.setBackground(Color.WHITE);
+        txtLkFenton.setText("");
+        txtLkFenton.setBackground(Color.WHITE);
+        txtLinden.setText("");
+        txtLinden.setBackground(Color.WHITE);
+        txtMontrose.setText("");
+        txtMontrose.setBackground(Color.WHITE);
+        txtMorris.setText("");
+        txtMorris.setBackground(Color.WHITE);
+        txtSzCreek.setText("");
+        txtSzCreek.setBackground(Color.WHITE);
+        txtAtherton.setText("");
+        txtAtherton.setBackground(Color.WHITE);
+        txtDurand.setText("");
+        txtDurand.setBackground(Color.WHITE);
+        txtHolly.setText("");
+        txtHolly.setBackground(Color.WHITE);
+        txtLapeer.setText("");
+        txtLapeer.setBackground(Color.WHITE);
+        txtOwosso.setText("");
+        txtOwosso.setBackground(Color.WHITE);
+        txtBendle.setText("");
+        txtBendle.setBackground(Color.WHITE);
+        txtFlint.setText("");
+        txtFlint.setBackground(Color.WHITE);
+        txtGoodrich.setText("");
+        txtGoodrich.setBackground(Color.WHITE);
+        txtCarman.setText("");
+        txtCarman.setBackground(Color.WHITE);
+        txtGB.setText("");
+        txtGB.setBackground(Color.WHITE);
+        btnCalculate.setEnabled(false);
+        progressBar.setValue(0);
+        progressBar.setMaximum(100);
+        progressBar.setMinimum(0);
+    }
+    
     private void checkTime() {
-         if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 && calendar.get(Calendar.HOUR_OF_DAY)<14 && weekday!=7 && weekday!=1) {
-           optToday.setEnabled(false);
-           txtGB.setText("Grand Blanc: OPEN");
-           txtInfo.setText(txtInfo.getText() + "\nThe school's already open.");
-           dayrun = 1;
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 && calendar.get(Calendar.HOUR_OF_DAY)<14 && weekday!=7 && weekday!=1) {
+            optToday.setEnabled(false);
+            txtGB.setText("Grand Blanc: OPEN");
+            txtInfo.setText(txtInfo.getText() + "\nThe school's already open.");
+            dayrun = 1;
         }else if (calendar.get(Calendar.HOUR_OF_DAY) >=14 && weekday!=7 && weekday!=1) {
             optToday.setEnabled(false);
             txtGB.setText("Grand Blanc: Dismissed");
@@ -1002,58 +924,100 @@ public class SnowDayGUI extends javax.swing.JFrame {
             dayrun = 1;
         }
     }
+    
     private void checkWeekend() {
         //Friday is 6
         //Saturday is 7
         //Sunday is 1
         if (weekday == 6) {
-           txtInfo.setText("Tomorrow is Saturday. \nEnjoy the weekend!");
-           optTomorrow.setEnabled(false);
+            txtInfo.setText("Tomorrow is Saturday. \nEnjoy the weekend!");
+            optTomorrow.setEnabled(false);
        }else if (weekday == 7) {
-           txtInfo.setText("Today is Saturday. \nEnjoy the Weekend!\nPress Quit to exit.");
-           txtGB.setText("Grand Blanc: Weekend");
-           txtGB.setBackground(Color.YELLOW);
-           optToday.setEnabled(false);
-           optTomorrow.setEnabled(false);
-           lstDays.setEnabled(false);
+            txtInfo.setText("Today is Saturday. \nEnjoy the Weekend!\nPress Quit to exit.");
+            txtGB.setText("Grand Blanc: Weekend");
+            txtGB.setBackground(Color.YELLOW);
+            optToday.setEnabled(false);
+            optTomorrow.setEnabled(false);
+            lstDays.setEnabled(false);
         }else if (weekday == 1) {
             txtInfo.setText("Today is Sunday. \nEnjoy the Weekend!");
             optToday.setEnabled(false);
         }
-        }
+    }
 
     private void checkGBClosed() {
         for (int i = 1; i < orgNameLine.length; i++) {
             if (GB == false) {
-        if (orgNameLine[i].contains("Grand Blanc") && !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Today") && dayrun == 0) {
-            txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Today! \nEnjoy your Snow Day!");
-            txtGB.setText("Grand Blanc: CLOSED");
-            txtGB.setBackground(Color.RED);
-            percent = 100;
-            lblPercent.setText(percent + "%");
-            GB = true;
-            //Wait for the enter key before exiting
-            //txtPrint.setText("Press Enter to exit.");
-            //System.in.read();
-            //System.exit(0);
-        }else if (orgNameLine[i].contains("Grand Blanc")&& !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
-            txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Tomorrow! \nEnjoy your Snow Day!");
-            txtGB.setText("Grand Blanc: CLOSED");
-            txtGB.setBackground(Color.RED);
-            percent = 100;
-            lblPercent.setText(percent + "%");
-            GB = true;
-            //Wait for the enter key before exiting
-            //txtPrint.setText("Press Enter to exit.");
-            //System.exit(0);
-        }else{
-            txtGB.setText("Grand Blanc: OPEN");
-            txtGB.setBackground(Color.WHITE);
-            GB = false;
-        }
+                if (orgNameLine[i].contains("Grand Blanc") && !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Today") && dayrun == 0) {
+                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Today! \nEnjoy your Snow Day!");
+                    txtGB.setText("Grand Blanc: CLOSED");
+                    txtGB.setBackground(Color.RED);
+                    percent = 100;
+                    lblPercent.setText(percent + "%");
+                    GB = true;
+                }else if (orgNameLine[i].contains("Grand Blanc")&& !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Tomorrow! \nEnjoy your Snow Day!");
+                    txtGB.setText("Grand Blanc: CLOSED");
+                    txtGB.setBackground(Color.RED);
+                    percent = 100;
+                    lblPercent.setText(percent + "%");
+                    GB = true;
+                }else{
+                    txtGB.setText("Grand Blanc: OPEN");
+                    txtGB.setBackground(Color.WHITE);
+                    GB = false;
+                }
             }
         }
-   }
+    }
+    
+    private void WJRTScraper() throws IOException {
+        //Scrape School Closings from WJRT with Jsoup.
+        //The following is a rigged archive from January 5th - every school referenced by this program was closed the following day.
+        //File input = new File("./Closings.htm");
+        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        
+        //This is a second rigged archive from December 23rd - Swartz Creek and Kearsley were closed on the day for reference.
+        //File input = new File("./ClosingsToday.htm");
+        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        
+        //This third document tests for false triggers, e.g. "Owosso" shouldn't show as "closed" if only "Owosso Senior Center" is closed.
+        //This document will not trigger any closings if the code is working properly.
+        //File input = new File("./Trials.htm");
+        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        
+        //Fourth html archive - every school except GB is closed (shouldn't trigger 100%)
+        //File input = new File("./GBNotClosed.htm");
+        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        
+        //This is a blank example (no active records) - check how the program runs when nullpointerexception is thrown
+        //File input = new File("./Blank.htm");
+        //Document schools = Jsoup.parse(input, "UTF-8", "");
+        
+        
+        //This is the current listings page.
+        Document schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
+        
+        for (Element row : schools.select("td[bgcolor]")){
+            orgName = orgName + "\n" + (row.select("font.orgname").first().text());
+            status = status + "\n" + (row.select("font.status").first().text());
+        }
+            
+        if (orgName == null || status == null) {
+            schooltext = schools.text();
+            //This shows in place of the table (as plain text) if no schools or institutions are closed.
+            if (schooltext.contains("no active records")) {
+                txtInfo.setText(txtInfo.getText() + "\nDoesn't look like *any* schools are closed.");
+            }else{
+                System.out.println("Unable to parse WJRT listings. \nIf this error persists please notify the developer.");
+                System.exit(0);
+            }
+            orgName = "DummyLine1\nDummyLine2\nDummyLine3";
+            status = "DummyLine1\nDummyLine2\nDummyLine3";
+        }
+        orgNameLine = orgName.split("\n");
+        statusLine = status.split("\n");
+    }
 
     private void checkClosingsToday() {
          for (int i = 1; i < orgNameLine.length; i++) {
@@ -1096,7 +1060,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             }else{
                 txtWPAcademy.setText("Woodland Park Academy: OPEN");            
             }
-        }
+            }
             if (!(Durand)) {
             if (orgNameLine[i].contains("Durand") && !orgNameLine[i].contains("Senior") && statusLine[i].contains("Closed Today")) {
                 txtDurand.setText("Durand: CLOSED");
@@ -1113,7 +1077,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtHolly.setBackground(Color.YELLOW);
                 tier2++;
                 Holly = true;
-           }else{
+            }else{
                 txtHolly.setText("Holly: OPEN");
             }
             }
@@ -1213,7 +1177,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtLkFenton.setBackground(Color.YELLOW);
                 tier3++;
                 LKFenton = true;
-           }else{
+            }else{
                 txtLkFenton.setText("Lake Fenton: OPEN");
             } 
             }
@@ -1243,7 +1207,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtMorris.setBackground(Color.YELLOW);
                 tier3++;
                 Morris = true;
-           }else{
+            }else{
                 txtMorris.setText("Mount Morris: OPEN");
             } 
             }
@@ -1253,7 +1217,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtSzCreek.setBackground(Color.YELLOW);
                 tier3++;
                 SzCreek = true;
-           }else{
+            }else{
                 txtSzCreek.setText("Swartz Creek: OPEN");
             }
             }
@@ -1273,7 +1237,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtBendle.setBackground(Color.YELLOW);
                 tier4++;
                 Bendle = true;
-           }else{
+            }else{
                 txtBendle.setText("Bendle: OPEN");
             }
             }
@@ -1351,7 +1315,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             }else{
                 txtWPAcademy.setText("Woodland Park Academy: OPEN");            
             }
-        }
+            }
             if (!(Durand)) {
             if (orgNameLine[i].contains("Durand") && !orgNameLine[i].contains("Senior") && statusLine[i].contains("Closed Tomorrow")) {
                 txtDurand.setText("Durand: CLOSED");
@@ -1368,7 +1332,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtHolly.setBackground(Color.YELLOW);
                 tier2++;
                 Holly = true;
-           }else{
+            }else{
                 txtHolly.setText("Holly: OPEN");
             }
             }
@@ -1468,7 +1432,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtLkFenton.setBackground(Color.YELLOW);
                 tier3++;
                 LKFenton = true;
-           }else{
+            }else{
                 txtLkFenton.setText("Lake Fenton: OPEN");
             } 
             }
@@ -1498,7 +1462,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtMorris.setBackground(Color.YELLOW);
                 tier3++;
                 Morris = true;
-           }else{
+            }else{
                 txtMorris.setText("Mount Morris: OPEN");
             } 
             }
@@ -1508,7 +1472,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtSzCreek.setBackground(Color.YELLOW);
                 tier3++;
                 SzCreek = true;
-           }else{
+            }else{
                 txtSzCreek.setText("Swartz Creek: OPEN");
             }
             }
@@ -1528,7 +1492,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtBendle.setBackground(Color.YELLOW);
                 tier4++;
                 Bendle = true;
-           }else{
+            }else{
                 txtBendle.setText("Bendle: OPEN");
             }
             }
@@ -1562,9 +1526,46 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 txtCarman.setText("Carman-Ainsworth: OPEN");
             }
             }
-         }
+        }
     }
-
+    private void WeatherScraper() throws IOException {
+        //txtWeather.setText(txtWeather.getText() + "Retrieving Weather from NWS Detroit/Pontiac...");
+        //Change the percentage based on current storm/wind/temperature warnings.
+        
+        //Live html
+        Document weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
+        
+        //Document with multiple preset conditions
+        //File weatherinput = new File("./Weather.htm");
+        //Document weatherdoc = Jsoup.parse(weatherinput, "UTF-8", "");
+        
+        //Document with no warnings
+        //File weatherinput = new File("./WeatherTest.htm");
+        //Document weatherdoc = Jsoup.parse(weatherinput, "UTF-8", "");
+        
+        //NullPointerException test
+        //File weatherinput = new File("./Blank.htm");
+        //Document weatherdoc = Jsoup.parse(weatherinput, "UTF-8", "");
+        
+        //String weatherWarn = null;
+        Elements weatherWarn = weatherdoc.getElementsByClass("warn");
+        weathertext = weatherWarn.toString();
+        
+        if (weathertext.equals("")) {
+            try {
+                Element weatherNull = weatherdoc.getElementById("hazards_content");
+                weathercheck = weatherNull.toString();
+                if (weathercheck.contains("No Hazards in Effect")) {
+                    txtWeather.setText("No applicable weather warnings.");
+                }
+            }catch (NullPointerException e) {
+                System.out.println("Unable to obtain weather. \nIf this error persists please contact the developer.");
+            }
+        }else{
+            getWeather();
+        }
+    }
+    
     private void getWeather() {
         if (weathertext.contains("Hazardous Weather Outlook")) {
             if (!nullWeather) {

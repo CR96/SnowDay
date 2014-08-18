@@ -13,7 +13,7 @@
    height="512"
    id="svg2991"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="GBHS.svg"
    inkscape:export-filename="C:\Users\Owner\Dropbox\School 2013-14\Eclipse\GBicon.png"
    inkscape:export-xdpi="90"
@@ -28,7 +28,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="-175.81959"
+     inkscape:cx="-156"
      inkscape:cy="211.9552"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -55,6 +55,15 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-540.36218)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1"
+       id="rect3133"
+       width="121.42853"
+       height="110.00002"
+       x="270"
+       y="207.71428"
+       transform="translate(0,540.36218)"
+       ry="0" />
     <g
        id="g3886"
        transform="matrix(3.746424,0,0,3.746424,-742.21863,-2105.6947)">
