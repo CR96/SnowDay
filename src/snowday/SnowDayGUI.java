@@ -77,7 +77,9 @@ public class SnowDayGUI extends javax.swing.JFrame {
     boolean Goodrich;
     boolean Carman; //Check for "Carman-Ainsworth Senior Ctr."
     boolean GB; //Check for "Freedom Work-Grand Blanc", "Grand Blanc Academy", "Grand Blanc City Offices", "Grand Blanc Senior Center", and "Holy Family-Grand Blanc", 
-        
+    
+    public Thread wjrt;
+    public Thread nws;
     //Figure out what tomorrow is
     //Saturday = 0, Sunday = 1
     String today;
@@ -173,7 +175,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
         
         
         /**WJRT SCHOOL CLOSINGS SCRAPER**/
-        Thread wjrt = new Thread(new WJRTScraper());
+        wjrt = new Thread(new WJRTScraper());
         wjrt.start();
         
         //Have the user input past snow days
@@ -182,8 +184,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
         //Next Test: Weather!
         
         /**NATIONAL WEATHER SERVICE SCRAPER**/
-        Thread w = new Thread(new WeatherScraper());
-        w.start();
+        nws = new Thread(new WeatherScraper());
+        nws.start();
         
         
         Thread p = new Thread(new PercentCalculate());
@@ -1158,12 +1160,16 @@ public class SnowDayGUI extends javax.swing.JFrame {
     private class PercentCalculate implements Runnable {
         @Override
         public void run(){
+            
             //Give the scrapers time to act before displaying the percent
-            try {
-                Thread.sleep(250);
+            while (wjrt.isAlive() || nws.isAlive()){
+               try {
+                Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
+            } 
             }
+            
         
             if (tier5==1) {
                 schoolpercent+=90;

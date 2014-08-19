@@ -16,16 +16,6 @@
             <definitions>.\lib\nblibraries.properties</definitions>
         </libraries>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
-            <word>Ainsworth</word>
-            <word>Lapeer</word>
-            <word>Owosso</word>
         </spellchecker-wordlist>
-        <web-service-clients xmlns="http://www.netbeans.org/ns/j2se-project/jax-rpc">
-            <web-service-client>
-                <web-service-client-name>ndfdXML</web-service-client-name>
-                <web-service-stub-type>jaxrpc_static_client</web-service-stub-type>
-                <client-source-url>C:\Users\Owner\Dropbox\School 2013-14\NetBeansProjects\SnowDay\ndfdXML.wsdl</client-source-url>
-            </web-service-client>
-        </web-service-clients>
     </configuration>
 </project>
