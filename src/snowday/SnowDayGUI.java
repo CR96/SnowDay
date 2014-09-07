@@ -25,6 +25,21 @@ public class SnowDayGUI extends javax.swing.JFrame {
     	
     java.awt.Toolkit toolkit = this.getToolkit();
     java.awt.Image appIcon = toolkit.createImage("./icon.png");
+    
+    //Debug strings
+    public String mainThread = "(Main) ";
+    public String Reset = "(Reset) ";
+    public String checkWeekend = "(checkWeekend) ";
+    public String checkTime = "(checkTime) ";
+    public String WJRTScraper = "(WJRTScraper) ";
+    public String checkClosingsToday = "(checkClosingsToday) ";
+    public String checkClosingsTomorrow = "(checkClosingsTomorrow) ";
+    public String checkGBClosed = "(checkGBClosed) ";
+    public String weatherScraper = "(WeatherScraper) ";
+    public String getWeather = "(getWeather) ";
+    public String percentCalculate = "(percentCalculate) ";
+    
+    
     public String orgName;
     public String status;
     public String hazardName;
@@ -80,6 +95,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
     
     public Thread wjrt;
     public Thread nws;
+    public Thread p;
+    
     //Figure out what tomorrow is
     //Saturday = 0, Sunday = 1
     String today;
@@ -91,6 +108,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
     int month = calendar.get(Calendar.MONTH);
         
     public SnowDayGUI() {
+        System.out.println(mainThread + "We're live!");
+        System.out.println(mainThread + "Creating SnowDayGUI");
         initComponents();
         ButtonGroup group = new ButtonGroup();
         group.add(optToday);
@@ -100,7 +119,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
         
         //Make sure the user doesn't try to run the program on the weekend or during school hours
         //checkWeekend();
-        //checkTime(); 
+        checkTime(); 
     }
     
     public static void main(String args[]) {
@@ -148,16 +167,20 @@ public class SnowDayGUI extends javax.swing.JFrame {
          **Schools in higher tiers (5 is highest) will increase the snow day chance.
          **Obviously return 100% if GB is already closed.
          */
-        
+        System.out.println(mainThread + "Calculation has started");
         //Call a reset to clear any previous data
         Reset();
         //Date setup
+        System.out.println(mainThread + "Checking selected day");
         if (optToday.isSelected()) {
+            System.out.println(mainThread + "optToday checked");
             dayrun = 0;
         }else if (optTomorrow.isSelected()) {
+            System.out.println(mainThread + "optTomorrow checked");
             dayrun = 1;
         }
 
+        System.out.println(mainThread + "Determining date");
         date = calendar.getTime();
         formatter = new SimpleDateFormat("MMM dd yyyy");
         today = formatter.format(date);
@@ -173,22 +196,23 @@ public class SnowDayGUI extends javax.swing.JFrame {
            txtInfo.setText(txtInfo.getText() + "Running calculation for " + tomorrow + "...");
         }
         
+        //Have the user input past snow days
+        days = lstDays.getSelectedIndex() - 1;
+        System.out.println(mainThread + "User says " + days + " snow days have occurred.");
         
         /**WJRT SCHOOL CLOSINGS SCRAPER**/
         wjrt = new Thread(new WJRTScraper());
         wjrt.start();
         
-        //Have the user input past snow days
-        days = lstDays.getSelectedIndex() - 1;
-     
-        //Next Test: Weather!
         
+        //Next Test: Weather!
+
         /**NATIONAL WEATHER SERVICE SCRAPER**/
         nws = new Thread(new WeatherScraper());
         nws.start();
         
-        
-        Thread p = new Thread(new PercentCalculate());
+        //Final Percent Calculator
+        p = new Thread(new PercentCalculate());
         p.start();
         
         //Set the calendar back a day if it was set forward initially
@@ -199,6 +223,8 @@ public class SnowDayGUI extends javax.swing.JFrame {
     
 	
     private void Reset() {
+        System.out.println(Reset + "Resetting SnowDay variables");
+        
         today = "";
         tomorrow = "";
         schoolpercent = 0;
@@ -304,29 +330,18 @@ public class SnowDayGUI extends javax.swing.JFrame {
         progressBar.setIndeterminate(true);
     }
     
-    private void checkTime() {
-        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 && calendar.get(Calendar.HOUR_OF_DAY)<15 && weekday!=7 && weekday!=1) {
-            optToday.setEnabled(false);
-            txtGB.setText("Grand Blanc: OPEN");
-            txtInfo.setText("The school's already open.");
-            dayrun = 1;
-        }else if (calendar.get(Calendar.HOUR_OF_DAY) >=15 && weekday!=7 && weekday!=1) {
-            optToday.setEnabled(false);
-            txtGB.setText("Grand Blanc: Dismissed");
-            txtGB.setBackground(Color.YELLOW);
-            txtInfo.setText("School's already out for today!");
-            dayrun = 1;
-        }
-    }
-    
     private void checkWeekend() {
+        System.out.println(checkWeekend + "Checking the Weekend...");
         //Friday is 6
         //Saturday is 7
         //Sunday is 1
+        
         if (weekday == 6) {
+            System.out.println(checkWeekend + "Today is Friday (6).");
             txtInfo.setText("Tomorrow is Saturday. \nEnjoy the weekend!");
             optTomorrow.setEnabled(false);
        }else if (weekday == 7) {
+           System.out.println(checkWeekend + "Today is Saturday (7).");
             txtInfo.setText("Today is Saturday. \nEnjoy the Weekend!\nPress Quit to exit.");
             txtGB.setText("Grand Blanc: Weekend");
             txtGB.setBackground(Color.YELLOW);
@@ -334,32 +349,29 @@ public class SnowDayGUI extends javax.swing.JFrame {
             optTomorrow.setEnabled(false);
             lstDays.setEnabled(false);
         }else if (weekday == 1) {
+            System.out.println(checkWeekend + "Today is Sunday (1).");
             txtInfo.setText("Today is Sunday. \nEnjoy the Weekend!");
             optToday.setEnabled(false);
         }
     }
-
-    private void checkGBClosed() {
-        for (int i = 1; i < orgNameLine.length; i++) {
-            if (GB == false) {
-                if (orgNameLine[i].contains("Grand Blanc") && !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Today") && dayrun == 0) {
-                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Today! \nEnjoy your Snow Day!");
-                    txtGB.setText("Grand Blanc: CLOSED");
-                    txtGB.setBackground(Color.RED);
-                    percent = 100;
-                    GB = true;
-                }else if (orgNameLine[i].contains("Grand Blanc")&& !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
-                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Tomorrow! \nEnjoy your Snow Day!");
-                    txtGB.setText("Grand Blanc: CLOSED");
-                    txtGB.setBackground(Color.RED);
-                    percent = 100;
-                    GB = true;
-                }else{
-                    txtGB.setText("Grand Blanc: OPEN");
-                    txtGB.setBackground(Color.WHITE);
-                    GB = false;
-                }
-            }
+    
+    private void checkTime() {
+        System.out.println(checkTime + "Checking the time...");
+        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 && calendar.get(Calendar.HOUR_OF_DAY)<16 && weekday!=7 && weekday!=1) {
+            System.out.println(checkTime + "Time is between 7AM and 4PM.");
+            System.out.println(checkTime + "The school's already open.");
+            optToday.setEnabled(false);
+            txtGB.setText("Grand Blanc: OPEN");
+            txtInfo.setText("The school's already open.");
+            dayrun = 1;
+        }else if (calendar.get(Calendar.HOUR_OF_DAY) >=16 && weekday!=7 && weekday!=1) {
+            System.out.println(checkTime + "Time is after 4PM");
+            System.out.println(checkTime + "School's already out for today!");
+            optToday.setEnabled(false);
+            txtGB.setText("Grand Blanc: Dismissed");
+            txtGB.setBackground(Color.YELLOW);
+            txtInfo.setText("School's already out for today!");
+            dayrun = 1;
         }
     }
    
@@ -368,16 +380,20 @@ public class SnowDayGUI extends javax.swing.JFrame {
         @Override
         public void run() {
         //Scrape School Closings from WJRT with Jsoup.
+        System.out.println(WJRTScraper + "Starting WJRT Scraper");
         Document schools = null;
         
         //The following is a rigged archive from January 5th - every school referenced by this program was closed the following day.
-//        File input = new File("./Closings.htm");
-//            try {
-//                schools = Jsoup.parse(input, "UTF-8", "");
-//            } catch (IOException ex) {
-//                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
-//                txtInfo.setText(txtInfo.getText() + "\nCould not retrieve school closings. \nAre you connected to the internet?");
-//            }
+        System.out.println(WJRTScraper + "Reading from Closings.htm...");
+        File input = new File("./Closings.htm");
+            try {
+                schools = Jsoup.parse(input, "UTF-8", "");
+                System.out.println(WJRTScraper + "Read successful");
+            } catch (IOException ex) {
+                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(WJRTScraper + "Couldn't read the file.");
+                txtInfo.setText(txtInfo.getText() + "\nCould not retrieve school closings. \nAre you connected to the internet?");
+            }
         
         //This is a second rigged archive from December 23rd - Swartz Creek and Kearsley were closed on the day for reference.
 //        File input = new File("./ClosingsToday.htm");
@@ -399,13 +415,13 @@ public class SnowDayGUI extends javax.swing.JFrame {
 //            }
             
         //Fourth html archive - every school except GB, Durand, Owosso, and Holy Family is closed (shouldn't trigger 100%)
-        File input = new File("./GBNotClosed.htm");
-            try {
-                schools = Jsoup.parse(input, "UTF-8", "");
-            } catch (IOException ex) {
-                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
-                txtInfo.setText(txtInfo.getText() + "\nCould not retrieve school closings. \nAre you connected to the internet?");
-            }
+//        File input = new File("./GBNotClosed.htm");
+//            try {
+//                schools = Jsoup.parse(input, "UTF-8", "");
+//            } catch (IOException ex) {
+//                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
+//                txtInfo.setText(txtInfo.getText() + "\nCould not retrieve school closings. \nAre you connected to the internet?");
+//            }
             
         //This is a blank example (no active records) - check how the program runs when nullpointerexception is thrown
 //        File input = new File("./Weather.htm");
@@ -425,34 +441,51 @@ public class SnowDayGUI extends javax.swing.JFrame {
 //           }
         
         for (Element row : schools.select("td[bgcolor]")) {
+            System.out.println(WJRTScraper + "the for loop is working");
             orgName = orgName + "\n" + (row.select("font.orgname").first().text());
             status = status + "\n" + (row.select("font.status").first().text());
         }
+        System.out.println(WJRTScraper + "Loop exited.");
             
+        System.out.println(WJRTScraper + "Checking for null pointers...");
         if (orgName == null || status == null) {
+            System.out.println(WJRTScraper + "orgName or status is null.");
             schooltext = schools.text();
             //This shows in place of the table (as plain text) if no schools or institutions are closed.
             if (schooltext.contains("no active records")) {
+                System.out.println(WJRTScraper + "No schools are closed.");
                 txtInfo.setText(txtInfo.getText() + "\nDoesn't look like *any* schools are closed.");
             }else{
+                System.out.println(WJRTScraper + "Webpage layout was not recognized.");
                 txtInfo.setText(txtInfo.getText() + "\nUnable to parse WJRT listings. \nIf this error persists contact the developer.");
             }
+            
             orgName = "DummyLine1\nDummyLine2\nDummyLine3";
             status = "DummyLine1\nDummyLine2\nDummyLine3";
         }
+        
+        System.out.println(WJRTScraper + "Splitting orgName and status strings by line break.");
+        System.out.println(WJRTScraper + "Saving to orgNameLine and statusLine.");
+        System.out.println(WJRTScraper + "This will create string arrays that can be parsed by for loops.");
+        
         orgNameLine = orgName.split("\n");
         statusLine = status.split("\n");
         
         //The first test: School Closings!
         //Decide whether to check for today's closings or tomorrow's closings.
         if (dayrun == 0) {
+            System.out.println(WJRTScraper + "Will check closings for today.");
             checkClosingsToday();
         }else if (dayrun == 1) {
+            System.out.println(WJRTScraper + "Will check closings for tomorrow.");
             checkClosingsTomorrow();
         }
 
         //Sanity Check - make sure GB isn't actually closed before predicting
+        System.out.println(WJRTScraper + "Checking to see if Grand Blanc is already closed.");
         checkGBClosed();
+        
+        System.out.println(WJRTScraper + "WJRTScraper finished.");
     }
     }
     
@@ -463,6 +496,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 if (orgNameLine[i].contains("Grand Blanc Academy")&& statusLine[i].contains("Closed Today")) {
                 txtGBAcademy.setText("Grand Blanc Academy: CLOSED");
                 txtGBAcademy.setBackground(Color.YELLOW);
+                System.out.println(checkClosingsToday + "Closures Detected Correctly");
                 tier1++;
                 GBAcademy = true;
             }else{
@@ -718,6 +752,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
                 if (orgNameLine[i].contains("Grand Blanc Academy")&& statusLine[i].contains("Closed Tomorrow")) {
                 txtGBAcademy.setText("Grand Blanc Academy: CLOSED");
                 txtGBAcademy.setBackground(Color.YELLOW);
+                System.out.println(checkClosingsTomorrow + "Closures Detected Correctly");
                 tier1++;
                 GBAcademy = true;
             }else{
@@ -966,9 +1001,44 @@ public class SnowDayGUI extends javax.swing.JFrame {
             }
         }
     }
+    
+    private void checkGBClosed() {
+        System.out.println(checkGBClosed + "Checking if GB is closed.");
+        for (int i = 1; i < orgNameLine.length; i++) {
+            System.out.println(checkGBClosed + "We're in the loop.");
+            if (!GB) {
+                System.out.println(checkGBClosed + "GB is false.");
+                if (orgNameLine[i].contains("Grand Blanc") && !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Today") && dayrun == 0) {
+                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Today! \nEnjoy your Snow Day!");
+                    txtGB.setText("Grand Blanc: CLOSED");
+                    txtGB.setBackground(Color.RED);
+                    percent = 100;
+                    GB = true;
+                    System.out.println(checkGBClosed + "GB Found (today)!");
+                    break;
+                }else if (orgNameLine[i].contains("Grand Blanc")&& !orgNameLine[i].contains("Academy") && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices") && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior") && !orgNameLine[i].contains("Holy") && statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    txtInfo.setText(txtInfo.getText() + "\nGrand Blanc is Closed Tomorrow! \nEnjoy your Snow Day!");
+                    txtGB.setText("Grand Blanc: CLOSED");
+                    txtGB.setBackground(Color.RED);
+                    percent = 100;
+                    GB = true;
+                    System.out.println(checkGBClosed + "GB Found (tomorrow)!");
+                    break;
+                }else{
+                    System.out.println(checkGBClosed + "Didn't find GB yet");
+                    txtGB.setText("Grand Blanc: OPEN");
+                    txtGB.setBackground(Color.WHITE);
+                    GB = false;
+                }
+            }
+        }
+         System.out.println(checkGBClosed + "Loop exited.");
+    }
+    
     private class WeatherScraper implements Runnable {
         @Override
         public void run() {
+        System.out.println(weatherScraper + "Weather scraper started.");
         //txtWeather.setText(txtWeather.getText() + "Retrieving Weather from NWS Detroit/Pontiac...");
         //Change the percentage based on current storm/wind/temperature warnings.
         Document weatherdoc = null;
@@ -981,11 +1051,13 @@ public class SnowDayGUI extends javax.swing.JFrame {
 //            }
         
         //Document with multiple preset conditions
-        
+        System.out.println(weatherScraper + "Accessing Weather.htm...");
         File weatherinput = new File("./Weather.htm");
         try {
             weatherdoc = Jsoup.parse(weatherinput, "UTF-8", "");
+            System.out.println(weatherScraper + "Successfully parsed file.");
         } catch (IOException ex) {
+            System.out.println(weatherScraper + "Couldn't read the file.");
             Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -1007,27 +1079,40 @@ public class SnowDayGUI extends javax.swing.JFrame {
 //        }
         
         //String weatherWarn = null;
+        System.out.println(weatherScraper + "Searching for elements in class 'warn'");
         Elements weatherWarn = weatherdoc.getElementsByClass("warn");
+        System.out.println(weatherScraper + "Saving elements to searchable string weathertext");
         weathertext = weatherWarn.toString();
         
         if (weathertext.equals("")) {
+            System.out.println(weatherScraper + "weathertext is empty.");
             try {
+                System.out.println(weatherScraper + "Searching for element 'hazards_content'.");
+                System.out.println(weatherScraper + "This element should always be present even if no hazards are present.");
                 Element weatherNull = weatherdoc.getElementById("hazards_content");
                 weathercheck = weatherNull.toString();
                 if (weathercheck.contains("No Hazards in Effect")) {
+                    System.out.println(weatherScraper + "Webpage parsed correctly: no hazards present.");
                     txtWeather.setText("No applicable weather warnings.");
                 }
             }catch (NullPointerException e) {
+                System.out.println(weatherScraper + "Something has changed in the webpage and can't be parsed.");
                 txtWeather.setText("Unable to obtain weather. \nIf this error persists please contact the developer.");
             }
         }else{
+            System.out.println(weatherScraper + "Hazards found.");
+            //Use the data
             getWeather();
+            System.out.println(weatherScraper + "WeatherScraper finished.");
         }
     }
     }
     
     private void getWeather() {
+        System.out.println(getWeather + "Running getWeather()");
+        System.out.println(getWeather + "Only the highest weatherpercent is stored (not cumulative)");
         if (weathertext.contains("Hazardous Weather Outlook")) {
+            System.out.println(getWeather + "Hazardous Weather Outlook - no effect on percent (too vague)");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Hazardous Weather Outlook is in effect.");
             
@@ -1038,6 +1123,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 0;
         }
         if (weathertext.contains("Significant Weather Advisory")) {
+            System.out.println(getWeather + "Significant Weather Advisory - 15% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Significant Weather Advisory is in effect.");
             }else{
@@ -1047,6 +1133,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 15;
         }
         if (weathertext.contains("Winter Weather Advisory")) {
+            System.out.println(getWeather + "Winter Weather Advisory - 30% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Winter Weather Advisory is in effect.");
             }else{
@@ -1056,6 +1143,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 30;
         }
         if (weathertext.contains("Winter Storm Watch")) {
+            System.out.println(getWeather + "Winter Storm Watch - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Winter Storm Watch is in effect.");
             }else{
@@ -1065,6 +1153,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 40;
         }
         if (weathertext.contains("Lake-Effect Snow Advisory") || weathertext.contains("Lake-Effect Snow Watch")) {
+            System.out.println(getWeather + "Lake Effect Snow Advisory / Watch - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Lake-Effect Snow Advisory / Watch is in effect.");
             }else{
@@ -1074,6 +1163,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 40;
         }
         if (weathertext.contains("Freezing Rain Advisory") || weathertext.contains("Freezing Drizzle Advisory") || weathertext.contains("Freezing Fog Advisory")) {
+            System.out.println(getWeather + "Freezing Rain - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Freezing Rain / Drizzle / Fog Advisory is in effect.");
             }else{
@@ -1083,6 +1173,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 40;
         }
         if (weathertext.contains("Wind Chill Advisory")) {
+            System.out.println(getWeather + "Wind Chill Advisory - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Wind Chill Advisory is in effect.");
             }else{
@@ -1093,6 +1184,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
         }
         
         if (weathertext.contains("Wind Chill Watch")) {
+            System.out.println(getWeather + "Wind Chill Watch - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Wind Chill Watch is in effect.");
             }else{
@@ -1102,6 +1194,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 40;
         }
         if (weathertext.contains("Blizzard Watch")) {
+            System.out.println(getWeather + "Blizzard Watch - 40% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Blizzard Watch is in effect.");
             }else{
@@ -1111,6 +1204,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 40;
         }
         if (weathertext.contains("Winter Storm Warning")) {
+            System.out.println(getWeather + "Winter Storm Warning - 60% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Winter Storm Warning is in effect.");
             }else{
@@ -1120,6 +1214,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 60;
         }
         if (weathertext.contains("Lake-Effect Snow Warning")) {
+            System.out.println(getWeather + "Lake Effect Snow Warning - 70% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Lake-Effect Snow Warning is in effect.");
             }else{
@@ -1129,6 +1224,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 70;
         }
         if (weathertext.contains("Ice Storm Warning")) {
+            System.out.println(getWeather + "Ice Storm Warning - 70% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nAn Ice Storm Warning is in effect.");
             }else{
@@ -1138,6 +1234,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 70;
         }
         if (weathertext.contains("Wind Chill Warning")) {
+            System.out.println(getWeather + "Wind Chill Warning - 75% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Wind Chill Warning is in effect.");
             }else{
@@ -1147,6 +1244,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             weatherpercent = 75;
         }
         if (weathertext.contains("Blizzard Warning")) {
+            System.out.println(getWeather + "Blizzard Warning - 75% weatherpercent");
             if (!nullWeather) {
             txtWeather.setText(txtWeather.getText() + "\nA Blizzard Warning is in effect.");
             }else{
@@ -1160,52 +1258,75 @@ public class SnowDayGUI extends javax.swing.JFrame {
     private class PercentCalculate implements Runnable {
         @Override
         public void run(){
+            System.out.println(percentCalculate + "Starting PercentCalculate");
+            
+            //Sleep for 1000 ms - if the while loop is run *too* soon a scraper might not have
+            //a chance to start before being considered 'done'
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, e);
+            }
             
             //Give the scrapers time to act before displaying the percent
             while (wjrt.isAlive() || nws.isAlive()){
-               try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+                try {
+                    System.out.println(percentCalculate + "Waiting for scrapers to finish...");
+                    Thread.sleep(100);
+                }catch (InterruptedException ex) {               
+                     Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } 
             }
             
+            System.out.println(percentCalculate + "Both scrapers have finished.");
         
             if (tier5==1) {
+                System.out.println(percentCalculate + "Carman-Ainsworth was closed. We'll close. 90% schoolpercent");
                 schoolpercent+=90;
             }else if (tier4!=0) {
+                System.out.println(percentCalculate + "Schools near GB were closed. 80% schoolpercent");
                 schoolpercent+=80;
             }else if (tier3!=0) {
+                System.out.println(percentCalculate + "Schools in Genesee County were closed. 60% schoolpercent");
                 schoolpercent+=60;
             }else if (tier2!=0) {
+                System.out.println(percentCalculate + "Schools in nearby counties were closed. 40% schoolpercent");
                 schoolpercent+=40;
             }else if (tier1!=0) {
+                System.out.println(percentCalculate + "Academies were closed. 20% schoolpercent");
                 schoolpercent+=20;
             }
 
             //Calculate the total percent.
-            int percentarray[] = {schoolpercent, weatherpercent};
-            percent = percentarray[0];
-            for (int i = 0; i <percentarray.length;i++) {
-                if (percentarray[i]>percent){
-                percent = percentarray[i];
-                }
-           }
+            
+            if (weatherpercent > schoolpercent) {
+                percent = weatherpercent;
+            }else if (schoolpercent > weatherpercent) {
+                percent = schoolpercent;
+            }
+
+            System.out.println(percentCalculate + "schoolpercent: " + schoolpercent);
+            System.out.println(percentCalculate + "weatherpercent: " + weatherpercent);
+            System.out.println(percentCalculate + "Final percent is " + percent);
 
             //Reduce the percent chance by three for every snow day entered.
+            System.out.println(percentCalculate + "Percent will be reduced by 3% for every snow day that has already occurred.");
             percent-=(days*3);
             //No negative percents.
             if (percent < 0) {
+                System.out.println(percentCalculate + "Percent became negative. Setting to 0%.");
                 percent = 0;
             }
 
             //Don't allow a chance above 90%.
             if (percent > 90) {
+                System.out.println(percentCalculate + "Percent (somehow) was above 90%. Capping at 90%.");
                 percent = 90;
             }
 
             //Negate the above results for special cases
             if (GB) {
+                System.out.println(percentCalculate + "WJRTScraper reports Grand Blanc is closed. Overriding percentage, setting to 100%");
                 percent = 100;
             }
 
@@ -1215,9 +1336,13 @@ public class SnowDayGUI extends javax.swing.JFrame {
             //Animate lblPercent
             percentscroll = 0;
             
+            System.out.println(percentCalculate + "Enjoy this cool little animation.");
+            
             //We're done!
             progressBar.setValue(100);
             progressBar.setIndeterminate(false);
+            
+            //Animate txtPercent
             
             try {
                 for (int i = 0; i < percent + 1; i++) {
@@ -1237,6 +1362,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
             } catch (InterruptedException ex) {
                 Logger.getLogger(SnowDayGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
+            System.out.println(percentCalculate + "Program Completed. We made it!");
         }
     }
     
@@ -1721,6 +1847,7 @@ public class SnowDayGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalculateActionPerformed
+        System.out.println(mainThread + "btnCalculate clicked");
         try {
             SnowDayCalculate();
         } catch (InterruptedException ex) {
