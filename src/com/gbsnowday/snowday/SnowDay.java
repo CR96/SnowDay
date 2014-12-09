@@ -1,4 +1,4 @@
-package com.gbsnowday;
+package com.gbsnowday.snowday;
 
 import java.awt.Color;
 import java.awt.Toolkit;
@@ -1475,6 +1475,7 @@ public class SnowDay extends javax.swing.JFrame {
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusCycleRoot(false);
         setIconImage(appIcon);
+        setIconImages(null);
         setLocationByPlatform(true);
         setName("SnowDay"); // NOI18N
         setResizable(false);
@@ -1529,21 +1530,26 @@ public class SnowDay extends javax.swing.JFrame {
         lblPercent.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         getContentPane().add(lblPercent, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 240, 270, 160));
 
+        lstInfo.setBackground(java.awt.SystemColor.control);
         lstInfo.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         lstInfo.setToolTipText("");
+        lstInfo.setDragEnabled(true);
         lstInfo.setSelectionBackground(new java.awt.Color(255, 255, 255));
         lstInfo.setSelectionForeground(new java.awt.Color(0, 0, 0));
         scrInfo.setViewportView(lstInfo);
 
         getContentPane().add(scrInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 290, 220));
 
+        lstGB.setBackground(java.awt.SystemColor.control);
         lstGB.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lstGB.setDragEnabled(true);
         lstGB.setSelectionBackground(new java.awt.Color(255, 255, 255));
         lstGB.setSelectionForeground(new java.awt.Color(0, 0, 0));
         scrGB.setViewportView(lstGB);
 
         getContentPane().add(scrGB, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 410, 270, 100));
 
+        lstClosings.setBackground(java.awt.SystemColor.control);
         lstClosings.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         lstClosings.setDragEnabled(true);
         lstClosings.setSelectionBackground(new java.awt.Color(255, 255, 255));
@@ -1552,7 +1558,9 @@ public class SnowDay extends javax.swing.JFrame {
 
         getContentPane().add(scrClosings, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 40, 270, 160));
 
+        lstWeather.setBackground(java.awt.SystemColor.control);
         lstWeather.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        lstWeather.setDragEnabled(true);
         lstWeather.setSelectionBackground(new java.awt.Color(255, 255, 255));
         lstWeather.setSelectionForeground(new java.awt.Color(0, 0, 0));
         scrWeather.setViewportView(lstWeather);
@@ -1647,7 +1655,7 @@ public class SnowDay extends javax.swing.JFrame {
 
     private void itemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAboutActionPerformed
         /* Create and display the form */
-        new About().setVisible(true);
+        new About(this, true).setVisible(true);
     }//GEN-LAST:event_itemAboutActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

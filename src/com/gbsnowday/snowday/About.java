@@ -3,14 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.gbsnowday;
+package com.gbsnowday.snowday;
 
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 
 /**
@@ -29,11 +37,26 @@ public class About extends javax.swing.JDialog {
      * @param parent
      * @param modal
      */
-    public About(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public About(javax.swing.JFrame parent, boolean modal) {
         initComponents();
         setTitle("About");
         setLocationRelativeTo(parent);
+        
+        //Setup hyperlinks
+        web.setText("<html><a href=\\\"\\\">gbsnowday.weebly.com</a></html>");
+        web.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        mail.setText("<html><a href=\\\"\\\">gbsnowday@gmail.com</a></html>");
+        mail.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        twitter.setText("<html><a href=\\\"\\\">twitter.com/gbsnowday</a></html>");
+        twitter.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        //Start listeners
+        web(web);
+        mail(mail);
+        twitter(twitter);
+        
         // Close the dialog when Esc is pressed
         String okName = "OK";
         InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -45,10 +68,44 @@ public class About extends javax.swing.JDialog {
             }
         });
     }
+    
+    private void web(JLabel web) {
+        web.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI("http://gbsnowday.weebly.com"));
+                } catch (URISyntaxException | IOException ex) {
+                       System.out.println("Fix ME!");
+                }
+            }
+        });
+    }
+    
+    private void twitter(JLabel twitter) {
+        twitter.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI("http://twitter.com/gbsnowday"));
+                } catch (URISyntaxException | IOException ex) {
+                        System.out.println("Fix ME!");
+                }
+            }
+        });
+    }
 
-    public About() {
-        initComponents();
-        pack();
+    private void mail(JLabel mail) {
+        mail.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().mail(new URI("mailto:gbsnowday@gmail.com"));
+                } catch (URISyntaxException | IOException ex) {
+                        System.out.println("Fix ME!");
+                }
+            }
+        });
     }
 
     /**
@@ -72,9 +129,9 @@ public class About extends javax.swing.JDialog {
         lblGB = new javax.swing.JLabel();
         lblSnowday = new javax.swing.JLabel();
         lblDev = new javax.swing.JLabel();
-        lblWeb = new javax.swing.JLabel();
-        lblMail = new javax.swing.JLabel();
-        lblTwitter = new javax.swing.JLabel();
+        web = new javax.swing.JLabel();
+        mail = new javax.swing.JLabel();
+        twitter = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
@@ -95,7 +152,7 @@ public class About extends javax.swing.JDialog {
             }
         });
 
-        picSnowday.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/gbsnowday/icon.png"))); // NOI18N
+        picSnowday.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/gbsnowday/snowday/icon.png"))); // NOI18N
 
         lblGB.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         lblGB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -109,17 +166,17 @@ public class About extends javax.swing.JDialog {
         lblDev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblDev.setText("Developed by Corey Rowe");
 
-        lblWeb.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblWeb.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblWeb.setText("gbsnowday.weebly.com");
+        web.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        web.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        web.setText("gbsnowday.weebly.com");
 
-        lblMail.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblMail.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblMail.setText("gbsnowday@gmail.com");
+        mail.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        mail.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mail.setText("gbsnowday@gmail.com");
 
-        lblTwitter.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblTwitter.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTwitter.setText("twitter.com/GBSnowDay");
+        twitter.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        twitter.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        twitter.setText("twitter.com/GBSnowDay");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -131,11 +188,11 @@ public class About extends javax.swing.JDialog {
                         .addComponent(picSnowday, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblWeb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(web, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(lblGB, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
                             .addComponent(lblSnowday, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblMail, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblTwitter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(mail, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(twitter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(lblDev, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -154,11 +211,11 @@ public class About extends javax.swing.JDialog {
                         .addGap(18, 18, 18)
                         .addComponent(lblDev)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblWeb)
+                        .addComponent(web)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblMail)
+                        .addComponent(mail)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTwitter))
+                        .addComponent(twitter))
                     .addComponent(picSnowday))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                 .addComponent(okButton)
@@ -233,12 +290,12 @@ public class About extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblDev;
     private javax.swing.JLabel lblGB;
-    private javax.swing.JLabel lblMail;
     private javax.swing.JLabel lblSnowday;
-    private javax.swing.JLabel lblTwitter;
-    private javax.swing.JLabel lblWeb;
+    private javax.swing.JLabel mail;
     private javax.swing.JButton okButton;
     private javax.swing.JLabel picSnowday;
+    private javax.swing.JLabel twitter;
+    private javax.swing.JLabel web;
     // End of variables declaration//GEN-END:variables
 
     private int returnStatus = RET_OK;

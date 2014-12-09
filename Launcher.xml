@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\Corey\Dropbox\SnowDay\dist\SnowDay.jar</jar>
+  <outfile>C:\Users\Corey\Desktop\SnowDay.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>http://gbsnowday.weebly.com</supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>C:\Users\Corey\Dropbox\SnowDay\src\com\gbsnowday\snowday\icon.ico</icon>
+  <classPath>
+    <mainClass>com.gbsnowday.snowday.SnowDay</mainClass>
+    <cp>C:\Users\Corey\Dropbox\SnowDay\dist\lib\AbsoluteLayout.jar</cp>
+    <cp>C:\Users\Corey\Dropbox\SnowDay\dist\lib\joda-time-2.6.jar</cp>
+    <cp>C:\Users\Corey\Dropbox\SnowDay\dist\lib\jsoup-1.8.1.jar</cp>
+  </classPath>
+  <jre>
+    <path>C:\Program Files (x86)\Java\jre1.8.0_25\</path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <minVersion>1.8.0_00</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+  <messages>
+    <startupErr>An error occurred while starting the application.</startupErr>
+    <bundledJreErr>This application was configured to use a bundled Java Runtime Environment but the runtime is missing or corrupted.</bundledJreErr>
+    <jreVersionErr>This application requires a Java Runtime Environment</jreVersionErr>
+    <launcherErr>The registry refers to a nonexistent Java Runtime Environment installation or the runtime is corrupted.</launcherErr>
+    <instanceAlreadyExistsMsg>An application instance is already running.</instanceAlreadyExistsMsg>
+  </messages>
+</launch4jConfig>

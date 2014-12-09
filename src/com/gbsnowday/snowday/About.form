@@ -39,11 +39,11 @@
                       <Component id="picSnowday" min="-2" pref="244" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="lblWeb" alignment="0" max="32767" attributes="0"/>
+                          <Component id="web" alignment="0" max="32767" attributes="0"/>
                           <Component id="lblGB" alignment="1" pref="430" max="32767" attributes="0"/>
                           <Component id="lblSnowday" alignment="0" max="32767" attributes="0"/>
-                          <Component id="lblMail" alignment="1" max="32767" attributes="0"/>
-                          <Component id="lblTwitter" alignment="0" max="32767" attributes="0"/>
+                          <Component id="mail" alignment="1" max="32767" attributes="0"/>
+                          <Component id="twitter" alignment="0" max="32767" attributes="0"/>
                           <Component id="lblDev" alignment="1" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -68,11 +68,11 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="lblDev" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="lblWeb" min="-2" max="-2" attributes="0"/>
+                      <Component id="web" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lblMail" min="-2" max="-2" attributes="0"/>
+                      <Component id="mail" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lblTwitter" min="-2" max="-2" attributes="0"/>
+                      <Component id="twitter" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="picSnowday" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -98,7 +98,7 @@
     <Component class="javax.swing.JLabel" name="picSnowday">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/com/gbsnowday/icon.png"/>
+          <Image iconType="3" name="/com/gbsnowday/snowday/icon.png"/>
         </Property>
       </Properties>
     </Component>
@@ -129,7 +129,7 @@
         <Property name="text" type="java.lang.String" value="Developed by Corey Rowe"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="lblWeb">
+    <Component class="javax.swing.JLabel" name="web">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="18" style="0"/>
@@ -138,7 +138,7 @@
         <Property name="text" type="java.lang.String" value="gbsnowday.weebly.com"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="lblMail">
+    <Component class="javax.swing.JLabel" name="mail">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="18" style="0"/>
@@ -147,7 +147,7 @@
         <Property name="text" type="java.lang.String" value="gbsnowday@gmail.com"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="lblTwitter">
+    <Component class="javax.swing.JLabel" name="twitter">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="18" style="0"/>
