@@ -56,4 +56,5 @@
           <version>SNAPSHOT</version>
       </dependency>
   </dependencies>
+    <description>Calculate the chance of a snow day for Grand Blanc Community Schools.</description>
 </project>
