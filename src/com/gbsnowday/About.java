@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.gbsnowday.snowday;
+package com.gbsnowday;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -95,7 +95,7 @@ public class About extends javax.swing.JDialog {
             }
         });
 
-        picSnowday.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/gbsnowday/snowday/icon.png"))); // NOI18N
+        picSnowday.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/gbsnowday/icon.png"))); // NOI18N
 
         lblGB.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         lblGB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -212,6 +212,7 @@ public class About extends javax.swing.JDialog {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(About.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */

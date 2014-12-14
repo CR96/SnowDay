@@ -1,4 +1,4 @@
-package com.gbsnowday.snowday;
+package com.gbsnowday;
 
 import java.awt.Color;
 import java.awt.Toolkit;
@@ -11,9 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -1076,6 +1074,7 @@ public class SnowDay extends javax.swing.JFrame {
 
     
     private class WeatherScraper implements Runnable {
+        @Override
         public void run() {
             /**NATIONAL WEATHER SERVICE SCRAPER**/
             //Change the percentage based on current storm/wind/temperature warnings.
@@ -1477,7 +1476,6 @@ public class SnowDay extends javax.swing.JFrame {
         setFocusCycleRoot(false);
         setIconImage(appIcon);
         setLocationByPlatform(true);
-        setMaximumSize(null);
         setName("SnowDay"); // NOI18N
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
