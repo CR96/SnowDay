@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,9 +37,9 @@ public class SnowDay extends javax.swing.JFrame {
      */
     	
     Toolkit toolkit = this.getToolkit();
-    java.awt.Image appIcon = toolkit.createImage("./icon.png");
+    java.awt.Image appIcon = toolkit.createImage("./src/com/gbsnowday/snowday/icon.png");
     
-    ImageIcon appIconImage = new ImageIcon("./icon.png");
+    ImageIcon appIconImage = new ImageIcon("./src/com/gbsnowday/snowday/icon.png");
     
     //Declare variables
     String date;
@@ -54,8 +54,8 @@ public class SnowDay extends javax.swing.JFrame {
     int dayrun;
 
     //Declare lists that will be used in ListAdapters
-    List<String> infoList = new ArrayList<String>();
-    List<Integer> daysarray = new ArrayList<Integer>();
+    List<String> infoList = new ArrayList<>();
+    List<Integer> daysarray = new ArrayList<>();
     int infoCount = 1;
 
     //Figure out what tomorrow is
@@ -73,11 +73,11 @@ public class SnowDay extends javax.swing.JFrame {
     String[] statusLine;
 
     //Declare lists that will be used in ListAdapters
-    List<String> GBInfo = new ArrayList<String>();
-    List<String> closings = new ArrayList<String>();
-    List<String> wjrtInfo = new ArrayList<String>();
-    List<String> weather = new ArrayList<String>();
-    List<String> nwsInfo = new ArrayList<String>();
+    List<String> GBInfo = new ArrayList<>();
+    List<String> closings = new ArrayList<>();
+    List<String> wjrtInfo = new ArrayList<>();
+    List<String> weather = new ArrayList<>();
+    List<String> nwsInfo = new ArrayList<>();
 
     int GBCount = 1;
     int weatherCount = 0;
@@ -184,7 +184,6 @@ public class SnowDay extends javax.swing.JFrame {
         ButtonGroup group = new ButtonGroup();
         group.add(optToday);
         group.add(optTomorrow);
-        lblPercent.setVisible(false);
         pack();
         
         //Make sure the user doesn't try to run the program on the weekend or on specific dates
@@ -192,47 +191,17 @@ public class SnowDay extends javax.swing.JFrame {
         
         //Only run checkWeekend() if today or tomorrow is still valid
         if (todayValid || tomorrowValid) {
-            checkWeekend();
+            //checkWeekend();
         }
         
-        //Set the contents of lstInfo
-        DefaultComboBoxModel infoModel = new DefaultComboBoxModel(infoList.toArray());
-        lstInfo.setModel(infoModel);
-        
-        //Add the 27 fixed closings values so they can be set out of sequence
-        closings.add(0, "");
-        closings.add(1, "");
-        closings.add(2, "");
-        closings.add(3, "");
-        closings.add(4, "");
-        closings.add(5, "");
-        closings.add(6, "");
-        closings.add(7, "");
-        closings.add(8, "");
-        closings.add(9, "");
-        closings.add(10, "");
-        closings.add(11, "");
-        closings.add(12, "");
-        closings.add(13, "");
-        closings.add(14, "");
-        closings.add(15, "");
-        closings.add(16, "");
-        closings.add(17, "");
-        closings.add(18, "");
-        closings.add(19, "");
-        closings.add(20, "");
-        closings.add(21, "");
-        closings.add(22, "");
-        closings.add(23, "");
-        closings.add(24, "");
-        closings.add(25, "");
-        closings.add(26, "");
-
-        //Add the first GBInfo value so it can be set out of sequence
-        GBInfo.add(0, "");
-
-        //Add the first weather value so it can be set out of sequence
-        weather.add(0, "");
+        //Set the contents of txtInfo
+        for (int i = 0; i < infoList.size(); i++) {
+            if (i == 0) {
+                txtInfo.setText(infoList.get(i));
+            }else{
+                txtInfo.setText(txtInfo.getText() + "\n" + infoList.get(i));
+            }
+        }
     }
     
     private void checkDate() {
@@ -433,9 +402,9 @@ public class SnowDay extends javax.swing.JFrame {
             infoCount++;
         }
     }
+    
 
-    
-    
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -454,12 +423,10 @@ public class SnowDay extends javax.swing.JFrame {
         }
         //</editor-fold>
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SnowDay().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new SnowDay().setVisible(true);  
         });
+        
     }
 
     /**
@@ -479,7 +446,7 @@ public class SnowDay extends javax.swing.JFrame {
          * Schools in higher tiers (4 is highest) will increase the snow day chance.
          * Obviously return 100% if GB is already closed.
          */
-
+        
         //Call a reset to clear any previous data
         Reset();
         
@@ -494,9 +461,6 @@ public class SnowDay extends javax.swing.JFrame {
             dayrun = 1;
         }
 
-        //Have the user input past snow days
-        days = lstDays.getSelectedIndex() - 1;
-        
         //Have the user input past snow days
         days = lstDays.getSelectedIndex() - 1;
         
@@ -517,6 +481,9 @@ public class SnowDay extends javax.swing.JFrame {
     
 	
     private void Reset() {
+        lblPercent.setText("");
+        txtGB.setText("");
+        txtWeather.setText("");
         
         schoolpercent = 0;
         weatherpercent = 0;
@@ -534,6 +501,11 @@ public class SnowDay extends javax.swing.JFrame {
         
         weathertoday = 0;
         weathertomorrow = 0;
+        
+        WJRTActive = true;
+        NWSActive = true;
+        WJRTFail = false;
+        NWSFail = false;
        
         GBAcademy = false;
         WPAcademy = false;
@@ -562,21 +534,186 @@ public class SnowDay extends javax.swing.JFrame {
         Goodrich = false;
         Carman = false;
         GB = false;
-       
-        lblPercent.setText("");		
-        lblPercent.setVisible(false);
+        
+        SigWeather = false;
+        WinterAdvisory = false;
+        WinterWatch = false;
+        LakeSnowAdvisory = false;
+        LakeSnowWatch = false;
+        Rain = false;
+        Drizzle = false;
+        Fog = false;
+        WindChillAdvisory = false;
+        WindChillWatch = false;
+        BlizzardWatch = false;
+        WinterWarn = false;
+        LakeSnowWarn = false;
+        IceStorm = false;
+        WindChillWarn = false;
+        BlizzardWarn = false;
+        
+        closings.clear();
+        wjrtInfo.clear();
+        weather.clear();
+        nwsInfo.clear();
+        GBInfo.clear();
+        
+        //Add the 27 fixed closings values so they can be set out of sequence
+        closings.add(0, "");
+        closings.add(1, "");
+        closings.add(2, "");
+        closings.add(3, "");
+        closings.add(4, "");
+        closings.add(5, "");
+        closings.add(6, "");
+        closings.add(7, "");
+        closings.add(8, "");
+        closings.add(9, "");
+        closings.add(10, "");
+        closings.add(11, "");
+        closings.add(12, "");
+        closings.add(13, "");
+        closings.add(14, "");
+        closings.add(15, "");
+        closings.add(16, "");
+        closings.add(17, "");
+        closings.add(18, "");
+        closings.add(19, "");
+        closings.add(20, "");
+        closings.add(21, "");
+        closings.add(22, "");
+        closings.add(23, "");
+        closings.add(24, "");
+        closings.add(25, "");
+        closings.add(26, "");
+
+        //Add the first GBInfo value so it can be set out of sequence
+        GBInfo.add(0, "");
+
+        //Add the first weather value so it can be set out of sequence
+        weather.add(0, "");
+        
+        wjrtCount = 0;
+        weatherCount = 0;
+        nwsCount = 0;
+        GBCount = 1;
+        
+        txtAtherton.setText("Atherton:");
+        txtAtherton.setBackground(new Color(240, 240, 240));
+        txtAtherton.setForeground(Color.BLACK);
+        
+        txtBendle.setText("Bendle:");
+        txtBendle.setBackground(new Color(240, 240, 240));
+        txtBendle.setForeground(Color.BLACK);
+        
+        txtBentley.setText("Bentley:");
+        txtBentley.setBackground(new Color(240, 240, 240));
+        txtBentley.setForeground(Color.BLACK);
+        
+        txtCarman.setText("Carman-Ainsworth:");
+        txtCarman.setBackground(new Color(240, 240, 240));
+        txtCarman.setForeground(Color.BLACK);
+        
+        txtFlint.setText("Flint:");
+        txtFlint.setBackground(new Color(240, 240, 240));
+        txtFlint.setForeground(Color.BLACK);
+        
+        txtGoodrich.setText("Goodrich:");
+        txtGoodrich.setBackground(new Color(240, 240, 240));
+        txtGoodrich.setForeground(Color.BLACK);
+        
+        txtBeecher.setText("Beecher:");
+        txtBeecher.setBackground(new Color(240, 240, 240));
+        txtBeecher.setForeground(Color.BLACK);
+        
+        txtClio.setText("Clio:");
+        txtClio.setBackground(new Color(240, 240, 240));
+        txtClio.setForeground(Color.BLACK);
+        
+        txtDavison.setText("Davison:");
+        txtDavison.setBackground(new Color(240, 240, 240));
+        txtDavison.setForeground(Color.BLACK);  
+
+        txtFenton.setText("Fenton:");
+        txtFenton.setBackground(new Color(240, 240, 240));
+        txtFenton.setForeground(Color.BLACK);
+        
+        txtFlushing.setText("Flushing:");
+        txtFlushing.setBackground(new Color(240, 240, 240));
+        txtFlushing.setForeground(Color.BLACK);
+        
+        txtGenesee.setText("Genesee:");
+        txtGenesee.setBackground(new Color(240, 240, 240));
+        txtGenesee.setForeground(Color.BLACK);
+
+        txtKearsley.setText("Kearsley:");
+        txtKearsley.setBackground(new Color(240, 240, 240));
+        txtKearsley.setForeground(Color.BLACK);
+        
+        txtLKFenton.setText("Lake Fenton:");
+        txtLKFenton.setBackground(new Color(240, 240, 240));
+        txtLKFenton.setForeground(Color.BLACK);
+        
+        txtLinden.setText("Linden:");
+        txtLinden.setBackground(new Color(240, 240, 240));
+        txtLinden.setForeground(Color.BLACK);
+
+        txtMontrose.setText("Montrose:");
+        txtMontrose.setBackground(new Color(240, 240, 240));
+        txtMontrose.setForeground(Color.BLACK);
+        
+        txtMorris.setText("Mount Morris:");
+        txtMorris.setBackground(new Color(240, 240, 240));
+        txtMorris.setForeground(Color.BLACK);
+        
+        txtSzCreek.setText("Swartz Creek:");
+        txtSzCreek.setBackground(new Color(240, 240, 240));
+        txtSzCreek.setForeground(Color.BLACK);
+
+        txtDurand.setText("Durand:");
+        txtDurand.setBackground(new Color(240, 240, 240));
+        txtDurand.setForeground(Color.BLACK);
+
+        txtHolly.setText("Holly:");
+        txtHolly.setBackground(new Color(240, 240, 240));
+        txtHolly.setForeground(Color.BLACK);
+        
+        txtLapeer.setText("Lapeer:");
+        txtLapeer.setBackground(new Color(240, 240, 240));
+        txtLapeer.setForeground(Color.BLACK);
+        
+        txtOwosso.setText("Owosso:");
+        txtOwosso.setBackground(new Color(240, 240, 240));
+        txtOwosso.setForeground(Color.BLACK);
+        
+        txtGBAcademy.setText("Grand Blanc Academy:");
+        txtGBAcademy.setBackground(new Color(240, 240, 240));
+        txtGBAcademy.setForeground(Color.BLACK);     
+        
+        txtGISD.setText("Genesee I.S.D.:");
+        txtGISD.setBackground(new Color(240, 240, 240));
+        txtGISD.setForeground(Color.BLACK);
+        
+        txtHolyFamily.setText("Holy Family:");
+        txtHolyFamily.setBackground(new Color(240, 240, 240));
+        txtHolyFamily.setForeground(Color.BLACK);     
+
+        txtWPAcademy.setText("Woodland Park Academy:");
+        txtWPAcademy.setBackground(new Color(240, 240, 240));
+        txtWPAcademy.setForeground(Color.BLACK); 	
 
         btnCalculate.setEnabled(false);
-        lstClosings.removeAll();
-        lstWeather.removeAll();
         
+        progCalculate.setStringPainted(true);
+        progCalculate.setForeground(new Color(51,153,255));
+        progCalculate.setString("");
         progCalculate.setValue(0);
     }
    
     private class WJRTScraper implements Runnable {
         @Override
         public void run() {
-            Document schools = null;
+            Document schools;
 
             /**WJRT SCHOOL CLOSINGS SCRAPER**/
             //Scrape School Closings from WJRT with Jsoup.
@@ -624,8 +761,9 @@ public class SnowDay extends javax.swing.JFrame {
 
             } catch (IOException e) {
                 //Connectivity issues
-                wjrtInfo.add(wjrtCount, "Could not connect to ABC 12. Check your internet connection.");
-                wjrtCount++;
+                wjrtInfo.add(wjrtCount, "Could not connect to ABC 12.");
+                wjrtInfo.add(wjrtCount + 1, "Check your internet connection.");
+                wjrtCount += 2;
                 WJRTFail = true;
 
             } catch (NullPointerException e) {
@@ -754,7 +892,7 @@ public class SnowDay extends javax.swing.JFrame {
             }
             if (!(Carman)) {
                 if (orgNameLine[i].contains("Carman-Ainsworth") && !orgNameLine[i].contains("Senior")) {
-                    closings.set(4, "Carman: " + statusLine[i]);
+                    closings.set(4, "Carman-Ainsworth: " + statusLine[i]);
                     if (statusLine[i].contains("Closed Today") && dayrun == 0) {
                         tier4today++;
                     }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
@@ -1079,7 +1217,7 @@ public class SnowDay extends javax.swing.JFrame {
             /**NATIONAL WEATHER SERVICE SCRAPER**/
             //Change the percentage based on current storm/wind/temperature warnings.
 
-            Document weatherdoc = null;
+            Document weatherdoc;
 
             //Live html
             try {
@@ -1109,9 +1247,9 @@ public class SnowDay extends javax.swing.JFrame {
                 }
             } catch (IOException e) {
                 //Connectivity issues
-                nwsInfo.add(nwsCount, "Could not connect to National Weather Service."
-                        + " Check your internet connection.");
-                nwsCount++;
+                nwsInfo.add(nwsCount, "Could not connect to National Weather Service.");
+                nwsInfo.add(nwsCount + 1, "Check your internet connection.");
+                nwsCount += 2;
                 NWSFail = true;
             } catch (NullPointerException e) {
                 //Webpage layout not recognized.
@@ -1352,7 +1490,6 @@ public class SnowDay extends javax.swing.JFrame {
             percentscroll = 0;
             
             progCalculate.setValue(100);
-            lblPercent.setVisible(true);
             lblPercent.setText("0%");
             lblPercent.setForeground(Color.RED);
 
@@ -1360,9 +1497,22 @@ public class SnowDay extends javax.swing.JFrame {
             if (WJRTFail && NWSFail) {
                 //Both scrapers failed. A percentage cannot be determined.
                 //Don't set the percent.
-                GBInfo.set(0, "Unable to run calculation.");
+                progCalculate.setForeground(Color.RED);
+                progCalculate.setString("Unable to run calculation.");
+                progCalculate.setUI(new BasicProgressBarUI() {
+                    @Override 
+                    protected Color getSelectionBackground() { return Color.white; }
+                  });
                 lblPercent.setText("--");
-            } else {
+            } else if (WJRTFail || NWSFail) {
+                //Partial failure
+                progCalculate.setForeground(Color.ORANGE);
+                progCalculate.setString("Network communication issues");
+                progCalculate.setUI(new BasicProgressBarUI() {
+                    @Override 
+                    protected Color getSelectionBackground() { return Color.black; }
+                  });
+            }else{
                 try {
                     for (int i = 0; i < percent; i++) {
                         Thread.sleep(10);
@@ -1371,7 +1521,7 @@ public class SnowDay extends javax.swing.JFrame {
                         } if (percentscroll > 20 && percentscroll <= 60) {       
                             lblPercent.setForeground(Color.ORANGE);  
                         } if (percentscroll > 60 && percentscroll <= 80) {
-                            lblPercent.setForeground(Color.GREEN); 
+                            lblPercent.setForeground(Color.BLUE); 
                         } if (percentscroll > 80) {    
                             lblPercent.setForeground(Color.BLUE);  
                         }
@@ -1385,53 +1535,160 @@ public class SnowDay extends javax.swing.JFrame {
                 }
 
             }     
-            if (WJRTFail || NWSFail) {
-                //Network communication issues
-                GBInfo.add(GBCount, "Network communication issues");
-                GBCount++;
+            
+            //Set the content of txtGB
+            for (int i = 0; i < GBInfo.size(); i++) {
+                if (i == 0) {
+                    txtGB.setText(GBInfo.get(i));
+                }else{
+                    txtGB.setText(txtGB.getText() + "\n" + GBInfo.get(i));
+                }
             }
             
-            //Set the content of lstGB
-            DefaultComboBoxModel modelGB = new DefaultComboBoxModel(GBInfo.toArray());
-            lstGB.setModel(modelGB);
-            
+            //Red is 204 0 0
+            //Blue is 0 153 204
             if (!WJRTFail) {
                 //WJRT has not failed.
-                DefaultComboBoxModel modelClosings = new DefaultComboBoxModel();
-                
-                modelClosings.addElement("Districts near Grand Blanc");
-                for (int i = 1; i < closings.size(); i++) {
-                    modelClosings.addElement(closings.get(i));
-                    if (i == 6) {
-                        modelClosings.addElement("Districts in Genesee County");
-                        modelClosings.getElementAt(6);
-                    } if (i == 18) {
-                        modelClosings.addElement("Districts in Neighboring Counties");
-                    } if (i == 22) {
-                        modelClosings.addElement("Academies and Institutions");
-                    }
+                //If the school is closed, make it orange.
+                if (Atherton) {
+                    txtAtherton.setBackground(new Color(255, 136, 0));
+                    txtAtherton.setForeground(Color.WHITE);
+                }if (Bendle) {
+                    txtBendle.setBackground(new Color(255, 136, 0));
+                    txtBendle.setForeground(Color.WHITE);
+                }if (Bentley) {
+                    txtBentley.setBackground(new Color(255, 136, 0));
+                    txtBentley.setForeground(Color.WHITE);
+                }if (Carman) {
+                    txtCarman.setBackground(new Color(255, 136, 0));
+                    txtCarman.setForeground(Color.WHITE);
+                }if (Flint) {
+                    txtFlint.setBackground(new Color(255, 136, 0));
+                    txtFlint.setForeground(Color.WHITE);
+                }if (Goodrich) {
+                    txtGoodrich.setBackground(new Color(255, 136, 0));
+                    txtGoodrich.setForeground(Color.WHITE);
+                }if (Beecher) {
+                    txtBeecher.setBackground(new Color(255, 136, 0));
+                    txtBeecher.setForeground(Color.WHITE);
+                }if (Clio) {
+                    txtClio.setBackground(new Color(255, 136, 0));
+                    txtClio.setForeground(Color.WHITE);
+                }if (Davison) {
+                    txtDavison.setBackground(new Color(255, 136, 0));
+                    txtDavison.setForeground(Color.WHITE);  
+                }if (Fenton) {
+                    txtFenton.setBackground(new Color(255, 136, 0));
+                    txtFenton.setForeground(Color.WHITE);
+                }if (Flushing) {
+                    txtFlushing.setBackground(new Color(255, 136, 0));
+                    txtFlushing.setForeground(Color.WHITE);
+                }if (Genesee) {
+                    txtGenesee.setBackground(new Color(255, 136, 0));
+                    txtGenesee.setForeground(Color.WHITE);
+                }if (Kearsley) {
+                    txtKearsley.setBackground(new Color(255, 136, 0));
+                    txtKearsley.setForeground(Color.WHITE);
+                }if (LKFenton) {
+                    txtLKFenton.setBackground(new Color(255, 136, 0));
+                    txtLKFenton.setForeground(Color.WHITE);
+                }if (Linden) {
+                    txtLinden.setBackground(new Color(255, 136, 0));
+                    txtLinden.setForeground(Color.WHITE);
+                }if (Montrose) {
+                    txtMontrose.setBackground(new Color(255, 136, 0));
+                    txtMontrose.setForeground(Color.WHITE);
+                }if (Morris) {
+                    txtMorris.setBackground(new Color(255, 136, 0));
+                    txtMorris.setForeground(Color.WHITE);
+                }if (SzCreek) {
+                    txtSzCreek.setBackground(new Color(255, 136, 0));
+                    txtSzCreek.setForeground(Color.WHITE);
+                }if (Durand) {
+                    txtDurand.setBackground(new Color(255, 136, 0));
+                    txtDurand.setForeground(Color.WHITE);
+                }if (Holly) {
+                    txtHolly.setBackground(new Color(255, 136, 0));
+                    txtHolly.setForeground(Color.WHITE);
+                }if (Lapeer) {
+                    txtLapeer.setBackground(new Color(255, 136, 0));
+                    txtLapeer.setForeground(Color.WHITE);
+                }if (Owosso) {
+                    txtOwosso.setBackground(new Color(255, 136, 0));
+                    txtOwosso.setForeground(Color.WHITE);
+                }if (GBAcademy) {
+                    txtGBAcademy.setBackground(new Color(255, 136, 0));
+                    txtGBAcademy.setForeground(Color.WHITE);     
+                }if (GISD) {
+                    txtGISD.setBackground(new Color(255, 136, 0));
+                    txtGISD.setForeground(Color.WHITE);
+                }if (HolyFamily) {
+                    txtHolyFamily.setBackground(new Color(255, 136, 0));
+                    txtHolyFamily.setForeground(Color.WHITE);     
+                }if (WPAcademy) {
+                    txtWPAcademy.setBackground(new Color(255, 136, 0));
+                    txtWPAcademy.setForeground(Color.WHITE); 
                 }
                 
-                lstClosings.setModel(modelClosings);
+                txtAtherton.setText(closings.get(1));
+                txtBendle.setText(closings.get(2));
+                txtBentley.setText(closings.get(3));
+                txtCarman.setText(closings.get(4));
+                txtFlint.setText(closings.get(5));
+                txtGoodrich.setText(closings.get(6));
+                txtBeecher.setText(closings.get(7));
+                txtClio.setText(closings.get(8));
+                txtDavison.setText(closings.get(9));
+                txtFenton.setText(closings.get(10));
+                txtFlushing.setText(closings.get(11));
+                txtGenesee.setText(closings.get(12));
+                txtKearsley.setText(closings.get(13));
+                txtLKFenton.setText(closings.get(14));
+                txtLinden.setText(closings.get(15));
+                txtMontrose.setText(closings.get(16));
+                txtMorris.setText(closings.get(17));
+                txtSzCreek.setText(closings.get(18));
+                txtDurand.setText(closings.get(19));
+                txtHolly.setText(closings.get(20));
+                txtLapeer.setText(closings.get(21));
+                txtOwosso.setText(closings.get(22));
+                txtGBAcademy.setText(closings.get(23));
+                txtGISD.setText(closings.get(24));
+                txtHolyFamily.setText(closings.get(25));
+                txtWPAcademy.setText(closings.get(26)); 
                 
-                //Change the colors
-                lstClosings.getCellRenderer();
             }else{
                 //WJRT has failed.
-                DefaultComboBoxModel modelWJRT = new DefaultComboBoxModel(wjrtInfo.toArray());
-                lstClosings.setModel(modelWJRT);
+                for (int i = 0; i < wjrtInfo.size(); i++) {
+                if (i == 0) {
+                    txtGB.setText(wjrtInfo.get(i));
+                }else{
+                    txtGB.setText(txtGB.getText() + "\n" + wjrtInfo.get(i));
+                }
+            }
             }      
             
             if (!NWSFail) {
                 //NWS has not failed.
-                DefaultComboBoxModel modelWeather = new DefaultComboBoxModel(weather.toArray());
-                lstWeather.setModel(modelWeather);
+                 for (int i = 0; i < weather.size(); i++) {
+                    if (i == 0) {
+                        txtWeather.setText(weather.get(i));
+                    }else{
+                        txtWeather.setText(txtWeather.getText() + "\n" + weather.get(i));
+                    }
+                 }
             }else{
                 //NWS has failed.
-                DefaultComboBoxModel modelNWS = new DefaultComboBoxModel(nwsInfo.toArray());
-                lstWeather.setModel(modelNWS);
-            }
-    }
+                for (int i = 0; i < nwsInfo.size(); i++) {
+                    if (i == 0) {
+                        txtWeather.setText(nwsInfo.get(i));
+                    }else{
+                        txtWeather.setText(txtWeather.getText() + "\n" + nwsInfo.get(i));
+                    }
+                }
+                }
+            btnCalculate.setEnabled(true);
+        }
 }
     
     /**
@@ -1451,20 +1708,50 @@ public class SnowDay extends javax.swing.JFrame {
         lstDays = new javax.swing.JComboBox();
         progCalculate = new javax.swing.JProgressBar();
         lblPercent = new javax.swing.JLabel();
-        scrInfo = new javax.swing.JScrollPane();
-        lstInfo = new javax.swing.JList();
-        scrGB = new javax.swing.JScrollPane();
-        lstGB = new javax.swing.JList();
-        scrClosings = new javax.swing.JScrollPane();
-        lstClosings = new javax.swing.JList();
-        scrWeather = new javax.swing.JScrollPane();
-        lstWeather = new javax.swing.JList();
-        txtWeather = new javax.swing.JTextField();
-        txtClosings = new javax.swing.JTextField();
-        txtPercent = new javax.swing.JTextField();
+        txtWJRT = new javax.swing.JTextField();
         lblRadar = new javax.swing.JLabel();
         fillerVertical = new javax.swing.Box.Filler(new java.awt.Dimension(0, 100), new java.awt.Dimension(0, 100), new java.awt.Dimension(32767, 100));
         fillerHorizontal = new javax.swing.Box.Filler(new java.awt.Dimension(500, 0), new java.awt.Dimension(500, 0), new java.awt.Dimension(500, 32767));
+        scrGB = new javax.swing.JScrollPane();
+        txtGB = new javax.swing.JTextArea();
+        scrInfo = new javax.swing.JScrollPane();
+        txtInfo = new javax.swing.JTextArea();
+        txtPercent = new javax.swing.JTextField();
+        txtNWS = new javax.swing.JTextField();
+        scrWeather = new javax.swing.JScrollPane();
+        txtWeather = new javax.swing.JTextArea();
+        scrClosings = new javax.swing.JScrollPane();
+        pnlClosings = new javax.swing.JPanel();
+        txtTier4 = new javax.swing.JTextField();
+        txtAtherton = new javax.swing.JTextField();
+        txtBendle = new javax.swing.JTextField();
+        txtBentley = new javax.swing.JTextField();
+        txtCarman = new javax.swing.JTextField();
+        txtFlint = new javax.swing.JTextField();
+        txtGoodrich = new javax.swing.JTextField();
+        txtTier3 = new javax.swing.JTextField();
+        txtBeecher = new javax.swing.JTextField();
+        txtClio = new javax.swing.JTextField();
+        txtDavison = new javax.swing.JTextField();
+        txtFenton = new javax.swing.JTextField();
+        txtFlushing = new javax.swing.JTextField();
+        txtGenesee = new javax.swing.JTextField();
+        txtKearsley = new javax.swing.JTextField();
+        txtLKFenton = new javax.swing.JTextField();
+        txtLinden = new javax.swing.JTextField();
+        txtMontrose = new javax.swing.JTextField();
+        txtMorris = new javax.swing.JTextField();
+        txtSzCreek = new javax.swing.JTextField();
+        txtTier2 = new javax.swing.JTextField();
+        txtDurand = new javax.swing.JTextField();
+        txtHolly = new javax.swing.JTextField();
+        txtLapeer = new javax.swing.JTextField();
+        txtOwosso = new javax.swing.JTextField();
+        txtTier1 = new javax.swing.JTextField();
+        txtGBAcademy = new javax.swing.JTextField();
+        txtGISD = new javax.swing.JTextField();
+        txtHolyFamily = new javax.swing.JTextField();
+        txtWPAcademy = new javax.swing.JTextField();
         menu = new javax.swing.JMenuBar();
         menuAbout = new javax.swing.JMenu();
         itemAbout = new javax.swing.JMenuItem();
@@ -1528,67 +1815,20 @@ public class SnowDay extends javax.swing.JFrame {
         lblPercent.setBackground(new java.awt.Color(0, 0, 0));
         lblPercent.setFont(new java.awt.Font("Verdana", 1, 72)); // NOI18N
         lblPercent.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        getContentPane().add(lblPercent, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 240, 270, 160));
+        getContentPane().add(lblPercent, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 370, 290, 110));
 
-        lstInfo.setBackground(java.awt.SystemColor.control);
-        lstInfo.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstInfo.setToolTipText("");
-        lstInfo.setDragEnabled(true);
-        lstInfo.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        lstInfo.setSelectionForeground(new java.awt.Color(0, 0, 0));
-        scrInfo.setViewportView(lstInfo);
-
-        getContentPane().add(scrInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 290, 220));
-
-        lstGB.setBackground(java.awt.SystemColor.control);
-        lstGB.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstGB.setDragEnabled(true);
-        lstGB.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        lstGB.setSelectionForeground(new java.awt.Color(0, 0, 0));
-        scrGB.setViewportView(lstGB);
-
-        getContentPane().add(scrGB, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 410, 270, 100));
-
-        lstClosings.setBackground(java.awt.SystemColor.control);
-        lstClosings.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstClosings.setDragEnabled(true);
-        lstClosings.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        lstClosings.setSelectionForeground(new java.awt.Color(0, 0, 0));
-        scrClosings.setViewportView(lstClosings);
-
-        getContentPane().add(scrClosings, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 40, 270, 160));
-
-        lstWeather.setBackground(java.awt.SystemColor.control);
-        lstWeather.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        lstWeather.setDragEnabled(true);
-        lstWeather.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        lstWeather.setSelectionForeground(new java.awt.Color(0, 0, 0));
-        scrWeather.setViewportView(lstWeather);
-
-        getContentPane().add(scrWeather, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 40, 410, 160));
-
-        txtWeather.setEditable(false);
-        txtWeather.setBackground(new java.awt.Color(0, 102, 255));
-        txtWeather.setForeground(new java.awt.Color(255, 255, 255));
-        txtWeather.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtWeather.setText("National Weather Service Warnings");
-        getContentPane().add(txtWeather, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 10, 410, -1));
-
-        txtClosings.setEditable(false);
-        txtClosings.setBackground(new java.awt.Color(255, 0, 0));
-        txtClosings.setForeground(new java.awt.Color(255, 255, 255));
-        txtClosings.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtClosings.setText("ABC 12 School Closings");
-        txtClosings.setToolTipText("");
-        getContentPane().add(txtClosings, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 270, -1));
-
-        txtPercent.setEditable(false);
-        txtPercent.setBackground(new java.awt.Color(204, 204, 204));
-        txtPercent.setForeground(new java.awt.Color(255, 255, 255));
-        txtPercent.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtPercent.setText("Percent");
-        txtPercent.setToolTipText("");
-        getContentPane().add(txtPercent, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 210, 270, -1));
+        txtWJRT.setEditable(false);
+        txtWJRT.setBackground(new java.awt.Color(204, 0, 0));
+        txtWJRT.setForeground(new java.awt.Color(255, 255, 255));
+        txtWJRT.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtWJRT.setText("ABC 12 School Closings");
+        txtWJRT.setToolTipText("");
+        txtWJRT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtWJRTActionPerformed(evt);
+            }
+        });
+        getContentPane().add(txtWJRT, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 330, -1));
 
         lblRadar.setIcon(new javax.swing.JLabel() {
             public javax.swing.Icon getIcon() {
@@ -1603,8 +1843,325 @@ public class SnowDay extends javax.swing.JFrame {
         }.getIcon());
         lblRadar.setToolTipText("Great Lakes Sector Loop");
         getContentPane().add(lblRadar, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 210, 410, 300));
-        getContentPane().add(fillerVertical, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 10, 10, 500));
+        getContentPane().add(fillerVertical, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 10, 10, 500));
         getContentPane().add(fillerHorizontal, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 510, 1010, 10));
+
+        scrGB.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
+        txtGB.setEditable(false);
+        txtGB.setBackground(java.awt.SystemColor.control);
+        txtGB.setColumns(20);
+        txtGB.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtGB.setRows(5);
+        txtGB.setWrapStyleWord(true);
+        scrGB.setViewportView(txtGB);
+
+        getContentPane().add(scrGB, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 40, 330, 60));
+
+        txtInfo.setEditable(false);
+        txtInfo.setBackground(java.awt.SystemColor.control);
+        txtInfo.setColumns(20);
+        txtInfo.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        txtInfo.setLineWrap(true);
+        txtInfo.setRows(5);
+        txtInfo.setWrapStyleWord(true);
+        scrInfo.setViewportView(txtInfo);
+
+        getContentPane().add(scrInfo, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 260, 290, 100));
+
+        txtPercent.setEditable(false);
+        txtPercent.setBackground(new java.awt.Color(204, 204, 204));
+        txtPercent.setForeground(new java.awt.Color(255, 255, 255));
+        txtPercent.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtPercent.setText("Percent");
+        txtPercent.setToolTipText("");
+        getContentPane().add(txtPercent, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 250, 270, -1));
+
+        txtNWS.setEditable(false);
+        txtNWS.setBackground(new java.awt.Color(0, 102, 255));
+        txtNWS.setForeground(new java.awt.Color(255, 255, 255));
+        txtNWS.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtNWS.setText("National Weather Service Warnings");
+        txtNWS.setToolTipText("");
+        getContentPane().add(txtNWS, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 10, 410, -1));
+
+        txtWeather.setEditable(false);
+        txtWeather.setBackground(java.awt.SystemColor.control);
+        txtWeather.setColumns(20);
+        txtWeather.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        txtWeather.setRows(5);
+        txtWeather.setWrapStyleWord(true);
+        scrWeather.setViewportView(txtWeather);
+
+        getContentPane().add(scrWeather, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 40, 410, 160));
+
+        pnlClosings.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        txtTier4.setEditable(false);
+        txtTier4.setBackground(new java.awt.Color(0, 61, 103));
+        txtTier4.setForeground(new java.awt.Color(255, 255, 255));
+        txtTier4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtTier4.setText("Districts near Grand Blanc");
+        txtTier4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTier4ActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtTier4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, -1));
+
+        txtAtherton.setEditable(false);
+        txtAtherton.setText("Atherton:");
+        pnlClosings.add(txtAtherton, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 310, -1));
+
+        txtBendle.setEditable(false);
+        txtBendle.setText("Bendle:");
+        txtBendle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtBendleActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtBendle, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 310, -1));
+
+        txtBentley.setEditable(false);
+        txtBentley.setText("Bentley:");
+        pnlClosings.add(txtBentley, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 310, -1));
+
+        txtCarman.setEditable(false);
+        txtCarman.setText("Carman-Ainsworth:");
+        pnlClosings.add(txtCarman, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 310, -1));
+
+        txtFlint.setEditable(false);
+        txtFlint.setText("Flint:");
+        pnlClosings.add(txtFlint, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 310, -1));
+
+        txtGoodrich.setEditable(false);
+        txtGoodrich.setText("Goodrich:");
+        txtGoodrich.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGoodrichActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtGoodrich, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 310, -1));
+
+        txtTier3.setEditable(false);
+        txtTier3.setBackground(new java.awt.Color(0, 61, 103));
+        txtTier3.setForeground(new java.awt.Color(255, 255, 255));
+        txtTier3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtTier3.setText("Districts in Genesee County");
+        txtTier3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTier3ActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtTier3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 140, 310, -1));
+
+        txtBeecher.setEditable(false);
+        txtBeecher.setText("Beecher:");
+        txtBeecher.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtBeecherActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtBeecher, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 310, -1));
+
+        txtClio.setEditable(false);
+        txtClio.setText("Clio:");
+        txtClio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtClioActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtClio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 310, -1));
+
+        txtDavison.setEditable(false);
+        txtDavison.setText("Davison:");
+        txtDavison.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDavisonActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtDavison, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 310, -1));
+
+        txtFenton.setEditable(false);
+        txtFenton.setText("Fenton:");
+        txtFenton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFentonActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtFenton, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 220, 310, -1));
+
+        txtFlushing.setEditable(false);
+        txtFlushing.setText("Flushing:");
+        txtFlushing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFlushingActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtFlushing, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 310, -1));
+
+        txtGenesee.setEditable(false);
+        txtGenesee.setText("Genesee:");
+        txtGenesee.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGeneseeActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtGenesee, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 260, 310, -1));
+
+        txtKearsley.setEditable(false);
+        txtKearsley.setText("Kearsley:");
+        txtKearsley.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtKearsleyActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtKearsley, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 310, -1));
+
+        txtLKFenton.setEditable(false);
+        txtLKFenton.setText("Lake Fenton:");
+        txtLKFenton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLKFentonActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtLKFenton, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 310, -1));
+
+        txtLinden.setEditable(false);
+        txtLinden.setText("Linden:");
+        txtLinden.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLindenActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtLinden, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 310, -1));
+
+        txtMontrose.setEditable(false);
+        txtMontrose.setText("Montrose:");
+        txtMontrose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtMontroseActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtMontrose, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 310, -1));
+
+        txtMorris.setEditable(false);
+        txtMorris.setText("Mount Morris:");
+        txtMorris.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtMorrisActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtMorris, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 310, -1));
+
+        txtSzCreek.setEditable(false);
+        txtSzCreek.setText("Swartz Creek:");
+        txtSzCreek.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSzCreekActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtSzCreek, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 310, -1));
+
+        txtTier2.setEditable(false);
+        txtTier2.setBackground(new java.awt.Color(0, 61, 103));
+        txtTier2.setForeground(new java.awt.Color(255, 255, 255));
+        txtTier2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtTier2.setText("Districts in Neighboring Counties");
+        txtTier2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTier2ActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtTier2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 310, -1));
+
+        txtDurand.setEditable(false);
+        txtDurand.setText("Durand:");
+        txtDurand.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDurandActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtDurand, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 310, -1));
+
+        txtHolly.setEditable(false);
+        txtHolly.setText("Holly:");
+        txtHolly.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtHollyActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtHolly, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 440, 310, -1));
+
+        txtLapeer.setEditable(false);
+        txtLapeer.setText("Lapeer:");
+        txtLapeer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLapeerActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtLapeer, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 310, -1));
+
+        txtOwosso.setEditable(false);
+        txtOwosso.setText("Owosso:");
+        txtOwosso.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtOwossoActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtOwosso, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 480, 310, -1));
+
+        txtTier1.setEditable(false);
+        txtTier1.setBackground(new java.awt.Color(0, 61, 103));
+        txtTier1.setForeground(new java.awt.Color(255, 255, 255));
+        txtTier1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtTier1.setText("Academies / Institutions");
+        txtTier1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTier1ActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtTier1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 310, -1));
+
+        txtGBAcademy.setEditable(false);
+        txtGBAcademy.setText("Grand Blanc Academy:");
+        txtGBAcademy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGBAcademyActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtGBAcademy, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 520, 310, -1));
+
+        txtGISD.setEditable(false);
+        txtGISD.setText("Genesee I.S.D.:");
+        txtGISD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtGISDActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtGISD, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 540, 310, -1));
+
+        txtHolyFamily.setEditable(false);
+        txtHolyFamily.setText("Holy Family:");
+        txtHolyFamily.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtHolyFamilyActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtHolyFamily, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 560, 310, -1));
+
+        txtWPAcademy.setEditable(false);
+        txtWPAcademy.setText("Woodland Park Academy:");
+        txtWPAcademy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtWPAcademyActionPerformed(evt);
+            }
+        });
+        pnlClosings.add(txtWPAcademy, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 580, 310, -1));
+
+        scrClosings.setViewportView(pnlClosings);
+
+        getContentPane().add(scrClosings, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 110, 330, 400));
 
         menuAbout.setText("Menu");
 
@@ -1658,6 +2215,114 @@ public class SnowDay extends javax.swing.JFrame {
         new About(this, true).setVisible(true);
     }//GEN-LAST:event_itemAboutActionPerformed
 
+    private void txtWJRTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtWJRTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtWJRTActionPerformed
+
+    private void txtBendleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBendleActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtBendleActionPerformed
+
+    private void txtTier4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTier4ActionPerformed
+
+    private void txtGoodrichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGoodrichActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtGoodrichActionPerformed
+
+    private void txtTier1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTier1ActionPerformed
+
+    private void txtBeecherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBeecherActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtBeecherActionPerformed
+
+    private void txtDavisonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDavisonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDavisonActionPerformed
+
+    private void txtFentonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFentonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtFentonActionPerformed
+
+    private void txtFlushingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFlushingActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtFlushingActionPerformed
+
+    private void txtGeneseeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGeneseeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtGeneseeActionPerformed
+
+    private void txtKearsleyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtKearsleyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtKearsleyActionPerformed
+
+    private void txtClioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtClioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtClioActionPerformed
+
+    private void txtLKFentonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLKFentonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtLKFentonActionPerformed
+
+    private void txtLindenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLindenActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtLindenActionPerformed
+
+    private void txtMontroseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMontroseActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMontroseActionPerformed
+
+    private void txtMorrisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMorrisActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMorrisActionPerformed
+
+    private void txtTier3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTier3ActionPerformed
+
+    private void txtSzCreekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSzCreekActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSzCreekActionPerformed
+
+    private void txtDurandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDurandActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDurandActionPerformed
+
+    private void txtWPAcademyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtWPAcademyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtWPAcademyActionPerformed
+
+    private void txtTier2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTier2ActionPerformed
+
+    private void txtGBAcademyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGBAcademyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtGBAcademyActionPerformed
+
+    private void txtGISDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGISDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtGISDActionPerformed
+
+    private void txtHolyFamilyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHolyFamilyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHolyFamilyActionPerformed
+
+    private void txtOwossoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtOwossoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOwossoActionPerformed
+
+    private void txtLapeerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLapeerActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtLapeerActionPerformed
+
+    private void txtHollyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHollyActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHollyActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCalculate;
     private javax.swing.Box.Filler fillerHorizontal;
@@ -1667,23 +2332,53 @@ public class SnowDay extends javax.swing.JFrame {
     private javax.swing.JLabel lblPercent;
     private javax.swing.JLabel lblPrev;
     private javax.swing.JLabel lblRadar;
-    private javax.swing.JList lstClosings;
     private javax.swing.JComboBox lstDays;
-    private javax.swing.JList lstGB;
-    private javax.swing.JList lstInfo;
-    private javax.swing.JList lstWeather;
     private javax.swing.JMenuBar menu;
     private javax.swing.JMenu menuAbout;
     private javax.swing.JRadioButton optToday;
     private javax.swing.JRadioButton optTomorrow;
+    private javax.swing.JPanel pnlClosings;
     private javax.swing.JProgressBar progCalculate;
     private javax.swing.JScrollPane scrClosings;
     private javax.swing.JScrollPane scrGB;
     private javax.swing.JScrollPane scrInfo;
     private javax.swing.JScrollPane scrWeather;
-    private javax.swing.JTextField txtClosings;
+    private javax.swing.JTextField txtAtherton;
+    private javax.swing.JTextField txtBeecher;
+    private javax.swing.JTextField txtBendle;
+    private javax.swing.JTextField txtBentley;
+    private javax.swing.JTextField txtCarman;
+    private javax.swing.JTextField txtClio;
+    private javax.swing.JTextField txtDavison;
+    private javax.swing.JTextField txtDurand;
+    private javax.swing.JTextField txtFenton;
+    private javax.swing.JTextField txtFlint;
+    private javax.swing.JTextField txtFlushing;
+    private javax.swing.JTextArea txtGB;
+    private javax.swing.JTextField txtGBAcademy;
+    private javax.swing.JTextField txtGISD;
+    private javax.swing.JTextField txtGenesee;
+    private javax.swing.JTextField txtGoodrich;
+    private javax.swing.JTextField txtHolly;
+    private javax.swing.JTextField txtHolyFamily;
+    private javax.swing.JTextArea txtInfo;
+    private javax.swing.JTextField txtKearsley;
+    private javax.swing.JTextField txtLKFenton;
+    private javax.swing.JTextField txtLapeer;
+    private javax.swing.JTextField txtLinden;
+    private javax.swing.JTextField txtMontrose;
+    private javax.swing.JTextField txtMorris;
+    private javax.swing.JTextField txtNWS;
+    private javax.swing.JTextField txtOwosso;
     private javax.swing.JTextField txtPercent;
-    private javax.swing.JTextField txtWeather;
+    private javax.swing.JTextField txtSzCreek;
+    private javax.swing.JTextField txtTier1;
+    private javax.swing.JTextField txtTier2;
+    private javax.swing.JTextField txtTier3;
+    private javax.swing.JTextField txtTier4;
+    private javax.swing.JTextField txtWJRT;
+    private javax.swing.JTextField txtWPAcademy;
+    private javax.swing.JTextArea txtWeather;
     // End of variables declaration//GEN-END:variables
 }
 
