@@ -2,6 +2,7 @@ package com.gbsnowday.snowday;
 
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,9 +103,6 @@ public class SnowDay extends javax.swing.JFrame {
     int tier3tomorrow = 0;
     int tier4tomorrow = 0;
 
-    //For the ending animation
-    int percentscroll;
-
     //Every school this program searches for: true = closed, false = open (default)
     boolean GBAcademy;
     boolean GISD;
@@ -123,7 +121,7 @@ public class SnowDay extends javax.swing.JFrame {
     boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", and "Montessori Academy-Davison"
     boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", and "Fenton Montessori Academy"
     boolean Flushing; //Check for "Flushing Senior Citizens Center" and "St. Robert-Flushing"
-    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton",
+    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", "Genesee District Library",
     // "Genesee Co. Mobile Meals", "Genesee Hlth Sys Day Programs", "Genesee Stem Academy", and "Genesee I.S.D."
     boolean Kearsley;
     boolean LKFenton;
@@ -241,11 +239,11 @@ public class SnowDay extends javax.swing.JFrame {
                 || date.equals("January 01 2015") || date.equals("January 02 2015")) {
             //Winter Break
             if (date.equals("December 25 2014")) {
-                infoList.add(infoCount, "Merry Christmas!");
-                infoCount++;
+                    infoList.add(infoCount, "Merry Christmas!");
+                    infoCount++;
             } else if (date.equals("January 01 2015")) {
-                infoList.add(infoCount, "Happy New Year!");
-                infoCount++;
+                    infoList.add(infoCount, "Happy New Year!");
+                    infoCount++;
             }
 
             infoList.add(infoCount, "Enjoy your winter break!");
@@ -722,13 +720,17 @@ public class SnowDay extends javax.swing.JFrame {
             //This is the current listings page.
 
             try {
-                schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
+                //schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
+                File z = new File("C:\\Users\\Corey\\Desktop\\Test\\Trials.htm");
+                schools = Jsoup.parse(z, "UTF-8", "");
                 //Attempt to parse input
-                for (Element row : schools.select("td[bgcolor]")) {
+                schools.select("td[bgcolor]").stream().map((row) -> {
                     //Reading closings - name of institution and status
                     orgName = orgName + "\n" + (row.select("font.orgname").first().text());
+                    return row;
+                }).forEach((row) -> {
                     status = status + "\n" + (row.select("font.status").first().text());
-                }
+                });
                 
                 //20% complete
                 progCalculate.setValue(20);
@@ -1000,10 +1002,10 @@ public class SnowDay extends javax.swing.JFrame {
             }
             if (!(Genesee)) {
                 if (orgNameLine[i].contains("Genesee") && !orgNameLine[i].contains("Freedom")
-                        && !orgNameLine[i].contains("Christian") && !orgNameLine[i].contains("Mobile")
-                        && !orgNameLine[i].contains("Programs") && !orgNameLine[i].contains("Hlth")
-                        && !orgNameLine[i].contains("Sys") && !orgNameLine[i].contains("Stem")
-                        && !orgNameLine[i].contains("I.S.D.")) {
+                        && !orgNameLine[i].contains("Christian") && !orgNameLine[i].contains("Library")
+                        && !orgNameLine[i].contains("Mobile") && !orgNameLine[i].contains("Programs")
+                        && !orgNameLine[i].contains("Hlth") && !orgNameLine[i].contains("Sys") 
+                        && !orgNameLine[i].contains("Stem") && !orgNameLine[i].contains("I.S.D.")) {
                     closings.set(12, "Genesee: " + statusLine[i]);
                     if (statusLine[i].contains("Closed Today") && dayrun == 0) {
                         tier3today++;
@@ -1221,7 +1223,9 @@ public class SnowDay extends javax.swing.JFrame {
 
             //Live html
             try {
-                weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
+                //weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
+                File w = new File("C:\\Users\\Corey\\Desktop\\Test\\WeatherSnow.htm");
+                weatherdoc = Jsoup.parse(w, "UTF-8", "");
                 //"Searching for elements in class 'warn'
                 Elements weatherWarn = weatherdoc.getElementsByClass("warn");
                 //Saving elements to searchable string weathertext
@@ -1486,8 +1490,6 @@ public class SnowDay extends javax.swing.JFrame {
                 //GB is false and the time is during or after school hours. 0% chance.
                 percent = 0;
             }
-
-            percentscroll = 0;
             
             progCalculate.setValue(100);
             lblPercent.setText("0%");
@@ -1506,15 +1508,15 @@ public class SnowDay extends javax.swing.JFrame {
                 lblPercent.setText("--");
             } else if (WJRTFail || NWSFail) {
                 //Partial failure
-                progCalculate.setForeground(Color.ORANGE);
+                progCalculate.setForeground(Color.orange);
                 progCalculate.setString("Network communication issues");
                 progCalculate.setUI(new BasicProgressBarUI() {
                     @Override 
-                    protected Color getSelectionBackground() { return Color.black; }
+                    protected Color getSelectionForeground() { return Color.red; }
                   });
             }else{
                 try {
-                    for (int i = 0; i < percent; i++) {
+                    for (int percentscroll = 0; percentscroll <= percent; percentscroll++) {
                         Thread.sleep(10);
                         if (percentscroll >= 0 && percentscroll <= 20) {    
                             lblPercent.setForeground(Color.RED); 
@@ -1526,9 +1528,7 @@ public class SnowDay extends javax.swing.JFrame {
                             lblPercent.setForeground(Color.BLUE);  
                         }
                         
-                        lblPercent.setText((percentscroll) + "%");
-                            
-                        percentscroll++;
+                        lblPercent.setText((percentscroll) + "%");                        
                     }
                 } catch (InterruptedException e) {
 
@@ -1697,7 +1697,7 @@ public class SnowDay extends javax.swing.JFrame {
      * regenerated by the Form Editor.
      */
     
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+  // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
         lblDay = new javax.swing.JLabel();
@@ -1778,6 +1778,7 @@ public class SnowDay extends javax.swing.JFrame {
 
         optToday.setText("Today");
         optToday.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 optTodayActionPerformed(evt);
             }
@@ -1786,6 +1787,7 @@ public class SnowDay extends javax.swing.JFrame {
 
         optTomorrow.setText("Tomorrow");
         optTomorrow.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 optTomorrowActionPerformed(evt);
             }
@@ -1796,6 +1798,7 @@ public class SnowDay extends javax.swing.JFrame {
         btnCalculate.setBorder(null);
         btnCalculate.setEnabled(false);
         btnCalculate.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCalculateActionPerformed(evt);
             }
@@ -1805,6 +1808,7 @@ public class SnowDay extends javax.swing.JFrame {
         lstDays.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 or more" }));
         lstDays.setName("lstDays"); // NOI18N
         lstDays.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lstDaysActionPerformed(evt);
             }
@@ -1823,14 +1827,10 @@ public class SnowDay extends javax.swing.JFrame {
         txtWJRT.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtWJRT.setText("ABC 12 School Closings");
         txtWJRT.setToolTipText("");
-        txtWJRT.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtWJRTActionPerformed(evt);
-            }
-        });
         getContentPane().add(txtWJRT, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 330, -1));
 
         lblRadar.setIcon(new javax.swing.JLabel() {
+            @Override
             public javax.swing.Icon getIcon() {
                 try {
                     return new javax.swing.ImageIcon(
@@ -1902,11 +1902,6 @@ public class SnowDay extends javax.swing.JFrame {
         txtTier4.setForeground(new java.awt.Color(255, 255, 255));
         txtTier4.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtTier4.setText("Districts near Grand Blanc");
-        txtTier4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTier4ActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtTier4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 310, -1));
 
         txtAtherton.setEditable(false);
@@ -1915,11 +1910,6 @@ public class SnowDay extends javax.swing.JFrame {
 
         txtBendle.setEditable(false);
         txtBendle.setText("Bendle:");
-        txtBendle.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBendleActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtBendle, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 310, -1));
 
         txtBentley.setEditable(false);
@@ -1936,11 +1926,6 @@ public class SnowDay extends javax.swing.JFrame {
 
         txtGoodrich.setEditable(false);
         txtGoodrich.setText("Goodrich:");
-        txtGoodrich.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtGoodrichActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtGoodrich, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 310, -1));
 
         txtTier3.setEditable(false);
@@ -1948,119 +1933,54 @@ public class SnowDay extends javax.swing.JFrame {
         txtTier3.setForeground(new java.awt.Color(255, 255, 255));
         txtTier3.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtTier3.setText("Districts in Genesee County");
-        txtTier3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTier3ActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtTier3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 140, 310, -1));
 
         txtBeecher.setEditable(false);
         txtBeecher.setText("Beecher:");
-        txtBeecher.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBeecherActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtBeecher, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 310, -1));
 
         txtClio.setEditable(false);
         txtClio.setText("Clio:");
-        txtClio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtClioActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtClio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 310, -1));
 
         txtDavison.setEditable(false);
         txtDavison.setText("Davison:");
-        txtDavison.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDavisonActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtDavison, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 310, -1));
 
         txtFenton.setEditable(false);
         txtFenton.setText("Fenton:");
-        txtFenton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtFentonActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtFenton, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 220, 310, -1));
 
         txtFlushing.setEditable(false);
         txtFlushing.setText("Flushing:");
-        txtFlushing.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtFlushingActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtFlushing, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 310, -1));
 
         txtGenesee.setEditable(false);
         txtGenesee.setText("Genesee:");
-        txtGenesee.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtGeneseeActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtGenesee, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 260, 310, -1));
 
         txtKearsley.setEditable(false);
         txtKearsley.setText("Kearsley:");
-        txtKearsley.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtKearsleyActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtKearsley, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 310, -1));
 
         txtLKFenton.setEditable(false);
         txtLKFenton.setText("Lake Fenton:");
-        txtLKFenton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtLKFentonActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtLKFenton, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 310, -1));
 
         txtLinden.setEditable(false);
         txtLinden.setText("Linden:");
-        txtLinden.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtLindenActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtLinden, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 310, -1));
 
         txtMontrose.setEditable(false);
         txtMontrose.setText("Montrose:");
-        txtMontrose.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMontroseActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtMontrose, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 340, 310, -1));
 
         txtMorris.setEditable(false);
         txtMorris.setText("Mount Morris:");
-        txtMorris.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtMorrisActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtMorris, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 310, -1));
 
         txtSzCreek.setEditable(false);
         txtSzCreek.setText("Swartz Creek:");
-        txtSzCreek.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSzCreekActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtSzCreek, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 310, -1));
 
         txtTier2.setEditable(false);
@@ -2068,47 +1988,22 @@ public class SnowDay extends javax.swing.JFrame {
         txtTier2.setForeground(new java.awt.Color(255, 255, 255));
         txtTier2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtTier2.setText("Districts in Neighboring Counties");
-        txtTier2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTier2ActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtTier2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 310, -1));
 
         txtDurand.setEditable(false);
         txtDurand.setText("Durand:");
-        txtDurand.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDurandActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtDurand, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 310, -1));
 
         txtHolly.setEditable(false);
         txtHolly.setText("Holly:");
-        txtHolly.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtHollyActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtHolly, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 440, 310, -1));
 
         txtLapeer.setEditable(false);
         txtLapeer.setText("Lapeer:");
-        txtLapeer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtLapeerActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtLapeer, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 460, 310, -1));
 
         txtOwosso.setEditable(false);
         txtOwosso.setText("Owosso:");
-        txtOwosso.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtOwossoActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtOwosso, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 480, 310, -1));
 
         txtTier1.setEditable(false);
@@ -2116,47 +2011,22 @@ public class SnowDay extends javax.swing.JFrame {
         txtTier1.setForeground(new java.awt.Color(255, 255, 255));
         txtTier1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtTier1.setText("Academies / Institutions");
-        txtTier1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTier1ActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtTier1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 500, 310, -1));
 
         txtGBAcademy.setEditable(false);
         txtGBAcademy.setText("Grand Blanc Academy:");
-        txtGBAcademy.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtGBAcademyActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtGBAcademy, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 520, 310, -1));
 
         txtGISD.setEditable(false);
         txtGISD.setText("Genesee I.S.D.:");
-        txtGISD.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtGISDActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtGISD, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 540, 310, -1));
 
         txtHolyFamily.setEditable(false);
         txtHolyFamily.setText("Holy Family:");
-        txtHolyFamily.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtHolyFamilyActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtHolyFamily, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 560, 310, -1));
 
         txtWPAcademy.setEditable(false);
         txtWPAcademy.setText("Woodland Park Academy:");
-        txtWPAcademy.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtWPAcademyActionPerformed(evt);
-            }
-        });
         pnlClosings.add(txtWPAcademy, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 580, 310, -1));
 
         scrClosings.setViewportView(pnlClosings);
@@ -2167,6 +2037,7 @@ public class SnowDay extends javax.swing.JFrame {
 
         itemAbout.setText("About");
         itemAbout.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 itemAboutActionPerformed(evt);
             }
@@ -2178,7 +2049,7 @@ public class SnowDay extends javax.swing.JFrame {
         setJMenuBar(menu);
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
     private void btnCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalculateActionPerformed
         btnCalculate.setEnabled(false);
@@ -2214,114 +2085,6 @@ public class SnowDay extends javax.swing.JFrame {
         /* Create and display the form */
         new About(this, true).setVisible(true);
     }//GEN-LAST:event_itemAboutActionPerformed
-
-    private void txtWJRTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtWJRTActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtWJRTActionPerformed
-
-    private void txtBendleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBendleActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBendleActionPerformed
-
-    private void txtTier4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTier4ActionPerformed
-
-    private void txtGoodrichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGoodrichActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtGoodrichActionPerformed
-
-    private void txtTier1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTier1ActionPerformed
-
-    private void txtBeecherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBeecherActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBeecherActionPerformed
-
-    private void txtDavisonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDavisonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDavisonActionPerformed
-
-    private void txtFentonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFentonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFentonActionPerformed
-
-    private void txtFlushingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFlushingActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFlushingActionPerformed
-
-    private void txtGeneseeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGeneseeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtGeneseeActionPerformed
-
-    private void txtKearsleyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtKearsleyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtKearsleyActionPerformed
-
-    private void txtClioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtClioActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtClioActionPerformed
-
-    private void txtLKFentonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLKFentonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtLKFentonActionPerformed
-
-    private void txtLindenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLindenActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtLindenActionPerformed
-
-    private void txtMontroseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMontroseActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtMontroseActionPerformed
-
-    private void txtMorrisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMorrisActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtMorrisActionPerformed
-
-    private void txtTier3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTier3ActionPerformed
-
-    private void txtSzCreekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSzCreekActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSzCreekActionPerformed
-
-    private void txtDurandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDurandActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDurandActionPerformed
-
-    private void txtWPAcademyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtWPAcademyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtWPAcademyActionPerformed
-
-    private void txtTier2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTier2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTier2ActionPerformed
-
-    private void txtGBAcademyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGBAcademyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtGBAcademyActionPerformed
-
-    private void txtGISDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGISDActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtGISDActionPerformed
-
-    private void txtHolyFamilyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHolyFamilyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtHolyFamilyActionPerformed
-
-    private void txtOwossoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtOwossoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtOwossoActionPerformed
-
-    private void txtLapeerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLapeerActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtLapeerActionPerformed
-
-    private void txtHollyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHollyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtHollyActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCalculate;
