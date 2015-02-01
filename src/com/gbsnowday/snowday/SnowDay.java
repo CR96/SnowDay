@@ -2,10 +2,10 @@ package com.gbsnowday.snowday;
 
 import java.awt.Color;
 import java.awt.Toolkit;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
@@ -372,6 +372,21 @@ public class SnowDay extends javax.swing.JFrame {
         }
     }
     
+    private void special() {
+        daysarray.add(dayscount, lstDays.getSelectedIndex());
+        System.out.println(lstDays.getSelectedIndex());
+        dayscount++;
+        int[] specialarray1 = {3, 7, 1, 7, 3, 1, 2, 1};
+        int[] specialarray2 = {3, 3, 1, 5, 3, 1, 2, 2};
+        if (daysarray.toString().equals(Arrays.toString(specialarray1))) {
+            txtInfo.setText(txtInfo.getText() + "\n\nSilence will fall when the question is asked.");
+            txtInfo.setForeground(Color.blue);
+        }else if (daysarray.toString().equals(Arrays.toString(specialarray2)) || date.equals("April 22 2015")) {
+            txtInfo.setText(txtInfo.getText() + "\n\nThe Doctor\n22/04/2011\n5:02pm\nLake Silencio, Utah");
+            txtInfo.setForeground(Color.blue);
+        }
+    }
+    
     private void checkWeekend() {
         //Friday is 5
         //Saturday is 6
@@ -720,9 +735,7 @@ public class SnowDay extends javax.swing.JFrame {
             //This is the current listings page.
 
             try {
-                //schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
-                File z = new File("C:\\Users\\Corey\\Desktop\\Test\\Trials.htm");
-                schools = Jsoup.parse(z, "UTF-8", "");
+                schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
                 //Attempt to parse input
                 schools.select("td[bgcolor]").stream().map((row) -> {
                     //Reading closings - name of institution and status
@@ -1223,9 +1236,7 @@ public class SnowDay extends javax.swing.JFrame {
 
             //Live html
             try {
-                //weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
-                File w = new File("C:\\Users\\Corey\\Desktop\\Test\\WeatherSnow.htm");
-                weatherdoc = Jsoup.parse(w, "UTF-8", "");
+                weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
                 //"Searching for elements in class 'warn'
                 Elements weatherWarn = weatherdoc.getElementsByClass("warn");
                 //Saving elements to searchable string weathertext
@@ -2079,6 +2090,7 @@ public class SnowDay extends javax.swing.JFrame {
         }else{
             btnCalculate.setEnabled(true);
         }
+        special();
     }//GEN-LAST:event_lstDaysActionPerformed
 
     private void itemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAboutActionPerformed
