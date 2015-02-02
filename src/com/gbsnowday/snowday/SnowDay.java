@@ -1,8 +1,14 @@
 package com.gbsnowday.snowday;
 
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JTextField;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
@@ -114,14 +121,16 @@ public class SnowDay extends javax.swing.JFrame {
     boolean Lapeer; //Check for "Chatfield School-Lapeer", "Greater Lapeer Transit Authority",
     // "Lapeer CMH Day Programs", "Lapeer Co. Ed-Tech Center", "Lapeer County Ofices", "
     // Lapeer District Library", "Lapeer Senior Center", and "St. Paul Lutheran-Lapeer"
-    boolean Owosso; //Check for "Owosso Senior Center", "Baker College-Owosso", and "St. Paul Catholic-Owosso"
+    boolean Owosso; //Check for "Owosso Senior Center", "Baker College-Owosso", "Owosso Social Security Office",
+    // and "St. Paul Catholic-Owosso"
 
     boolean Beecher;
     boolean Clio; //Check for "Clio Area Senior Center", "Clio City Hall", and "Cornerstone Clio"
-    boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", and "Montessori Academy-Davison"
+    boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", "Montessori Academy-Davison",
+    // and "Ross Medical Education-Davison"
     boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", and "Fenton Montessori Academy"
     boolean Flushing; //Check for "Flushing Senior Citizens Center" and "St. Robert-Flushing"
-    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", "Genesee District Library",
+    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", and "Genesee District Library",
     // "Genesee Co. Mobile Meals", "Genesee Hlth Sys Day Programs", "Genesee Stem Academy", and "Genesee I.S.D."
     boolean Kearsley;
     boolean LKFenton;
@@ -189,7 +198,7 @@ public class SnowDay extends javax.swing.JFrame {
         
         //Only run checkWeekend() if today or tomorrow is still valid
         if (todayValid || tomorrowValid) {
-            //checkWeekend();
+            checkWeekend();
         }
         
         //Set the contents of txtInfo
@@ -374,7 +383,6 @@ public class SnowDay extends javax.swing.JFrame {
     
     private void special() {
         daysarray.add(dayscount, lstDays.getSelectedIndex());
-        System.out.println(lstDays.getSelectedIndex());
         dayscount++;
         int[] specialarray1 = {3, 7, 1, 7, 3, 1, 2, 1};
         int[] specialarray2 = {3, 3, 1, 5, 3, 1, 2, 2};
@@ -973,7 +981,8 @@ public class SnowDay extends javax.swing.JFrame {
             }
             if (!(Davison)) {
                 if (orgNameLine[i].contains("Davison") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Faith") && !orgNameLine[i].contains("Montessori")) {
+                        && !orgNameLine[i].contains("Faith") && !orgNameLine[i].contains("Medical")
+                        && !orgNameLine[i].contains("Montessori")) {
                     closings.set(9, "Davison: " + statusLine[i]);
                     if (statusLine[i].contains("Closed Today") && dayrun == 0) {
                         tier3today++;
@@ -1155,7 +1164,8 @@ public class SnowDay extends javax.swing.JFrame {
             }
             if (!(Owosso)) {
                 if (orgNameLine[i].contains("Owosso") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Baker") && !orgNameLine[i].contains("Paul")) {
+                        && !orgNameLine[i].contains("Baker") && !orgNameLine[i].contains("Paul")
+                        && !orgNameLine[i].contains("Security")) {
                     closings.set(22, "Owosso: " + statusLine[i]);
                     if (statusLine[i].contains("Closed Today") && dayrun == 0) {
                         tier2today++;
@@ -1710,7 +1720,7 @@ public class SnowDay extends javax.swing.JFrame {
     
   // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
-
+        
         lblDay = new javax.swing.JLabel();
         lblPrev = new javax.swing.JLabel();
         optToday = new javax.swing.JRadioButton();
@@ -1837,7 +1847,8 @@ public class SnowDay extends javax.swing.JFrame {
         txtWJRT.setForeground(new java.awt.Color(255, 255, 255));
         txtWJRT.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtWJRT.setText("ABC 12 School Closings");
-        txtWJRT.setToolTipText("");
+        txtWJRT.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        txtWJRT.setToolTipText("Click to open ABC 12 closings");
         getContentPane().add(txtWJRT, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 330, -1));
 
         lblRadar.setIcon(new javax.swing.JLabel() {
@@ -1893,7 +1904,8 @@ public class SnowDay extends javax.swing.JFrame {
         txtNWS.setForeground(new java.awt.Color(255, 255, 255));
         txtNWS.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         txtNWS.setText("National Weather Service Warnings");
-        txtNWS.setToolTipText("");
+        txtNWS.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        txtNWS.setToolTipText("Click to open weather");
         getContentPane().add(txtNWS, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 10, 410, -1));
 
         txtWeather.setEditable(false);
@@ -2059,9 +2071,37 @@ public class SnowDay extends javax.swing.JFrame {
 
         setJMenuBar(menu);
 
+        
+        //Start listeners
+        closingslistener(txtWJRT);
+        weatherlistener(txtNWS);
+        
         pack();
     }// </editor-fold>                        
 
+    private void closingslistener(JTextField closings) {
+        closings.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI("http://www.abc12.com/category/213603/school-closings"));
+                } catch (URISyntaxException | IOException ex) {
+                }
+            }
+        });
+    }
+    
+    private void weatherlistener(JTextField nws) {
+        nws.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI("http://forecast.weather.gov/afm/PointClick.php?lat=42.9275&lon=-83.6299"));
+                } catch (URISyntaxException | IOException ex) {
+                }
+            }
+        });
+    }
     private void btnCalculateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalculateActionPerformed
         btnCalculate.setEnabled(false);
         try {

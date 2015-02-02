@@ -70,8 +70,7 @@ public class About extends javax.swing.JDialog {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Desktop.getDesktop().browse(new URI("http://gbsnowday.weebly.com"));
-                } catch (URISyntaxException | IOException ex) {
-                       System.out.println("Fix ME!");
+                } catch (URISyntaxException | IOException ex) {                  
                 }
             }
         });
@@ -83,8 +82,7 @@ public class About extends javax.swing.JDialog {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Desktop.getDesktop().browse(new URI("http://twitter.com/gbsnowday"));
-                } catch (URISyntaxException | IOException ex) {
-                        System.out.println("Fix ME!");
+                } catch (URISyntaxException | IOException ex) {            
                 }
             }
         });
@@ -96,8 +94,7 @@ public class About extends javax.swing.JDialog {
             public void mouseClicked(MouseEvent e) {
                 try {
                     Desktop.getDesktop().mail(new URI("mailto:gbsnowday@gmail.com"));
-                } catch (URISyntaxException | IOException ex) {
-                        System.out.println("Fix ME!");
+                } catch (URISyntaxException | IOException ex) {                       
                 }
             }
         });
