@@ -124,6 +124,7 @@ public class About extends javax.swing.JDialog {
         web = new javax.swing.JLabel();
         mail = new javax.swing.JLabel();
         twitter = new javax.swing.JLabel();
+        lblVersion = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
@@ -170,6 +171,8 @@ public class About extends javax.swing.JDialog {
         twitter.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         twitter.setText("twitter.com/GBSnowDay");
 
+        lblVersion.setText("v1.1.1");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -187,7 +190,9 @@ public class About extends javax.swing.JDialog {
                             .addComponent(twitter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(lblDev, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap()
+                        .addComponent(lblVersion)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -210,7 +215,9 @@ public class About extends javax.swing.JDialog {
                         .addComponent(twitter))
                     .addComponent(picSnowday))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                .addComponent(okButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(okButton)
+                    .addComponent(lblVersion))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
@@ -283,6 +290,7 @@ public class About extends javax.swing.JDialog {
     private javax.swing.JLabel lblDev;
     private javax.swing.JLabel lblGB;
     private javax.swing.JLabel lblSnowday;
+    private javax.swing.JLabel lblVersion;
     private javax.swing.JLabel mail;
     private javax.swing.JButton okButton;
     private javax.swing.JLabel picSnowday;

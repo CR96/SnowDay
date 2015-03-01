@@ -23,8 +23,6 @@ import javax.swing.plaf.basic.BasicProgressBarUI;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 @SuppressWarnings("serial")
 public class SnowDay extends javax.swing.JFrame {
@@ -75,10 +73,10 @@ public class SnowDay extends javax.swing.JFrame {
     String orgName;
     String status;
     String schooltext;
-    String weathertext;
 
     String[] orgNameLine;
     String[] statusLine;
+    String[] weatherwarn;
 
     //Declare lists that will be used in ListAdapters
     List<String> GBInfo = new ArrayList<>();
@@ -277,7 +275,7 @@ public class SnowDay extends javax.swing.JFrame {
             infoCount++;
             todayValid = false;
         } else if (date.equals("February 15 2015")) {
-            infoList.add(infoCount, "Tomorrow is President's Day. School will not be not in session.");
+            infoList.add(infoCount, "Tomorrow is President's Day. School will not be in session.");
             infoCount++;
             todayValid = false;
             tomorrowValid = false;
@@ -743,7 +741,7 @@ public class SnowDay extends javax.swing.JFrame {
             //This is the current listings page.
 
             try {
-                schools = Jsoup.connect("http://ftpcontent2.worldnow.com/wjrt/school/closings.htm").get();
+                schools = Jsoup.connect("http://gray.ftp.clickability.com/wjrt/school/closings.htm").get();
                 //Attempt to parse input
                 schools.select("td[bgcolor]").stream().map((row) -> {
                     //Reading closings - name of institution and status
@@ -1246,35 +1244,18 @@ public class SnowDay extends javax.swing.JFrame {
 
             //Live html
             try {
-                weatherdoc = Jsoup.connect("http://forecast.weather.gov/afm/PointClick.php?lat=42.92580&lon=-83.61870").get();
-                //"Searching for elements in class 'warn'
-                Elements weatherWarn = weatherdoc.getElementsByClass("warn");
-                //Saving elements to searchable string weathertext
-                weathertext = weatherWarn.toString();
-                
+                 weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
+                //Saving to searchable string array weatherwarn
+                  weatherwarn=weatherdoc.toString().split("<title>");
+                  
                 //60% complete
                 progCalculate.setValue(60);
                 
-                if (weathertext.equals("")) {
-                    //weathertext is empty.
-                    //Searching for element 'hazards_content'
-                    //This element should always be present even if no hazards are present.
-                    Element weatherNull = weatherdoc.getElementById("hazards_content");
-
-                    if (weatherNull.toString().contains("No Hazards in Effect")) {
-                        //Webpage parsed correctly: no hazards present.
-                        weather.set(0, "No applicable weather warnings.");
-                        NWSFail = false;
-                    }
-                } else {
-                    //Hazards found. Use the data
-                    getWeather();
-                }
-            } catch (IOException e) {
+                  getWeather();
+            }catch (IOException e) {
                 //Connectivity issues
-                nwsInfo.add(nwsCount, "Could not connect to National Weather Service.");
-                nwsInfo.add(nwsCount + 1, "Check your internet connection.");
-                nwsCount += 2;
+                nwsInfo.add(nwsCount, "Could not connect to National Weather Service. Check your internet connection.");
+                nwsCount++;
                 NWSFail = true;
             } catch (NullPointerException e) {
                 //Webpage layout not recognized.
@@ -1283,102 +1264,103 @@ public class SnowDay extends javax.swing.JFrame {
                 nwsCount += 2;
                 NWSFail = true;
             }
-
+            
             //Weather scraper has finished.
             NWSActive = false;
         }
     }
     
-    private void getWeather() {
+   private void getWeather() {
         /*Only the highest weatherpercent is stored (not cumulative).
         Watches affect tomorrow's calculation.
         Advisories and Warnings affect today's calculation.*/
+        for (int i = 1; i < weatherwarn.length; i++) {
+            if (weatherwarn[i].contains("Significant Weather Advisory")) {
+                //Significant Weather Advisory - 15% weatherpercent
+                SigWeather = true;
+                weathertoday = 15;
+            }
+            if (weatherwarn[i].contains("Winter Weather Advisory")) {
+                //Winter Weather Advisory - 30% weatherpercent
+                WinterAdvisory = true;
+                weathertoday = 30;
+            }
+            if (weatherwarn[i].contains("Lake-Effect Snow Advisory")) {
+                //Lake Effect Snow Advisory - 40% weatherpercent
+                LakeSnowAdvisory = true;
+                weathertoday = 40;
+            }
+            if (weatherwarn[i].contains("Freezing Rain Advisory")) {
+                //Freezing Rain - 40% weatherpercent
+                Rain = true;
+                weathertoday = 40;
+            }
+            if (weatherwarn[i].contains("Freezing Drizzle Advisory")) {
+                //Freezing Drizzle - 40% weatherpercent
+                Drizzle = true;
+                weathertoday = 40;
+            }
+            if (weatherwarn[i].contains("Freezing Fog Advisory")) {
+                //Freezing Fog - 40% weatherpercent
+                Fog = true;
+                weathertoday = 40;
+            }
+            if (weatherwarn[i].contains("Wind Chill Advisory")) {
+                //Wind Chill Advisory - 40% weatherpercent
+                WindChillAdvisory = true;
+                weathertoday = 40;
+            }
+            if (weatherwarn[i].contains("Ice Storm Warning")) {
+                //Ice Storm Warning - 70% weatherpercent
+                IceStorm = true;
+                weathertoday = 70;
+            }
+            if (weatherwarn[i].contains("Wind Chill Watch")) {
+                //Wind Chill Watch - 70% weatherpercent
+                WindChillWatch = true;
+                weathertomorrow = 70;
+            }
+            if (weatherwarn[i].contains("Wind Chill Warning")) {
+                //Wind Chill Warning - 70% weatherpercent
+                WindChillWarn = true;
+                weathertoday = 70;
+            }
+            if (weatherwarn[i].contains("Winter Storm Watch")) {
+                //Winter Storm Watch - 80% weatherpercent
+                WinterWatch = true;
+                weathertomorrow = 80;
+            }
+            if (weatherwarn[i].contains("Winter Storm Warning")) {
+                //Winter Storm Warning - 80% weatherpercent
+                WinterWarn = true;
+                weathertoday = 80;
+            }
+            if (weatherwarn[i].contains("Lake-Effect Snow Watch")) {
+                //Lake Effect Snow Watch - 80% weatherpercent
+                LakeSnowWatch = true;
+                weathertomorrow = 80;
+            }
+            if (weatherwarn[i].contains("Lake-Effect Snow Warning")) {
+                //Lake Effect Snow Warning - 80% weatherpercent
+                LakeSnowWarn = true;
+                weathertoday = 80;
+            }
+            if (weatherwarn[i].contains("Blizzard Watch")) {
+                //Blizzard Watch - 90% weatherpercent
+                BlizzardWatch = true;
+                weathertomorrow = 90;
+            }
+            if (weatherwarn[i].contains("Blizzard Warning")) {
+                //Blizzard Warning - 90% weatherpercent
+                BlizzardWarn = true;
+                weathertoday = 90;
+            }
+        }
 
-        if (weathertext.contains("Significant Weather Advisory")) {
-            //Significant Weather Advisory - 15% weatherpercent
-            SigWeather = true;
-            weathertoday = 15;
-        }
-        if (weathertext.contains("Winter Weather Advisory")) {
-            //Winter Weather Advisory - 30% weatherpercent
-            WinterAdvisory = true;
-            weathertoday = 30;
-        }
-        if (weathertext.contains("Lake-Effect Snow Advisory")) {
-            //Lake Effect Snow Advisory - 40% weatherpercent
-            LakeSnowAdvisory = true;
-            weathertoday = 40;
-        }
-        if (weathertext.contains("Freezing Rain Advisory")) {
-            //Freezing Rain - 40% weatherpercent
-            Rain = true;
-            weathertoday = 40;
-        }
-        if (weathertext.contains("Freezing Drizzle Advisory")) {
-            //Freezing Drizzle - 40% weatherpercent
-            Drizzle = true;
-            weathertoday = 40;
-        }
-        if (weathertext.contains("Freezing Fog Advisory")) {
-            //Freezing Fog - 40% weatherpercent
-            Fog = true;
-            weathertoday = 40;
-        }
-        if (weathertext.contains("Wind Chill Advisory")) {
-            //Wind Chill Advisory - 40% weatherpercent
-            WindChillAdvisory = true;
-            weathertoday = 40;
-        }
-        if (weathertext.contains("Ice Storm Warning")) {
-            //Ice Storm Warning - 70% weatherpercent
-            IceStorm = true;
-            weathertoday = 70;
-        }
-        if (weathertext.contains("Wind Chill Watch")) {
-            //Wind Chill Watch - 70% weatherpercent
-            WindChillWatch = true;
-            weathertomorrow = 70;
-        }
-        if (weathertext.contains("Wind Chill Warning")) {
-            //Wind Chill Warning - 70% weatherpercent
-            WindChillWarn = true;
-            weathertoday = 70;
-        }
-        if (weathertext.contains("Winter Storm Watch")) {
-            //Winter Storm Watch - 80% weatherpercent
-            WinterWatch = true;
-            weathertomorrow = 80;
-        }
-        if (weathertext.contains("Winter Storm Warning")) {
-            //Winter Storm Warning - 80% weatherpercent
-            WinterWarn = true;
-            weathertoday = 80;
-        }
-        if (weathertext.contains("Lake-Effect Snow Watch")) {
-            //Lake Effect Snow Watch - 80% weatherpercent
-            LakeSnowWatch = true;
-            weathertomorrow = 80;
-        }
-        if (weathertext.contains("Lake-Effect Snow Warning")) {
-            //Lake Effect Snow Warning - 80% weatherpercent
-            LakeSnowWarn = true;
-            weathertoday = 80;
-        }
-        if (weathertext.contains("Blizzard Watch")) {
-            //Blizzard Watch - 90% weatherpercent
-            BlizzardWatch = true;
-            weathertomorrow = 90;
-        }
-        if (weathertext.contains("Blizzard Warning")) {
-            //Blizzard Warning - 90% weatherpercent
-            BlizzardWarn = true;
-            weathertoday = 90;
-        }
-
-        //If none of the above warnings are present
-        if (weathertoday == 0 && weathertomorrow == 0) {
-            weather.set(0, "No applicable weather warnings.");
-        }
+            //If none of the above warnings are present
+            if (weathertoday == 0 && weathertomorrow == 0) {
+                weather.set(0, "No applicable weather warnings.");
+            }
 
         //Set entries in the list in order of decreasing category (warn -> watch -> advisory)
         if (BlizzardWarn) {
@@ -2084,7 +2066,7 @@ public class SnowDay extends javax.swing.JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    Desktop.getDesktop().browse(new URI("http://www.abc12.com/category/213603/school-closings"));
+                    Desktop.getDesktop().browse(new URI("http://www.abc12.com/closings"));
                 } catch (URISyntaxException | IOException ex) {
                 }
             }
