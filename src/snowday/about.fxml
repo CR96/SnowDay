@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="snowday.AboutController">
+    <ImageView fitHeight="256.0" fitWidth="256.0" layoutX="14.0" layoutY="39.0" preserveRatio="true">
+        <Image url="@icons/icon.png" />
+    </ImageView>
+    <Label layoutX="339.0" layoutY="153.0" text="Developed by Corey Rowe">
+        <font>
+          <Font size="18.0" />
+        </font>
+    </Label>
+    <Label layoutX="280.0" layoutY="87.0" text="Snow Day Calculator">
+        <font>
+          <Font size="36.0" />
+        </font>
+    </Label>
+    <Label layoutX="270.0" layoutY="52.0" text="Grand Blanc Community Schools">
+        <font>
+          <Font size="24.0" />
+        </font>
+    </Label>
+    <HBox layoutX="283.0" layoutY="220.0" prefHeight="64.0" prefWidth="320.0" spacing="16">
+        <Button fx:id="btnTwitter" mnemonicParsing="false" onAction="#twitter" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
+            <graphic>
+                <ImageView fitHeight="48.0" fitWidth="48.0">
+                    <Image url="@icons/twitter.png" />
+                </ImageView>
+            </graphic>
+         <tooltip>
+            <Tooltip text="Tweet @GBSnowDay" />
+         </tooltip>
+        </Button>
+        <Button fx:id="btnEmail" layoutX="68.0" mnemonicParsing="false" onAction="#email" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
+            <graphic>
+                <ImageView fitHeight="36.0" fitWidth="36.0">
+                    <Image url="@icons/email.png" />
+                </ImageView>
+            </graphic>
+         <tooltip>
+            <Tooltip text="Email gbsnowday@gmail.com" />
+         </tooltip>
+        </Button>
+        <Button fx:id="btnWeb" layoutX="132.0" mnemonicParsing="false" onAction="#web" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
+            <graphic>
+                <ImageView fitHeight="48.0" fitWidth="48.0">
+                    <Image url="@icons/web.png" />
+                </ImageView>
+            </graphic>
+         <tooltip>
+            <Tooltip text="Visit website" />
+         </tooltip>
+        </Button>
+        <Button fx:id="btnGit" layoutX="200.0" mnemonicParsing="false" onAction="#git" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
+            <graphic>
+                <ImageView fitHeight="48.0" fitWidth="48.0">
+                    <Image url="@icons/github.png" />
+                </ImageView>
+            </graphic>
+         <tooltip>
+            <Tooltip text="View project on GitHub" />
+         </tooltip>
+        </Button>
+    </HBox>
+   <Button fx:id="btnClose" layoutX="570.0" layoutY="315.0" mnemonicParsing="false" onAction="#close" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" text="Close" />
+</AnchorPane>

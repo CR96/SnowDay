@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane alignment="CENTER" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="snowday.SnowDayController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+      <RowConstraints />
+      <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="43.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="708.0" minHeight="680.0" prefHeight="680.0" />
+    </rowConstraints>
+    <HBox GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+        <MenuBar HBox.hgrow="ALWAYS">
+            <Menu mnemonicParsing="false" text="Menu">
+                <MenuItem fx:id="itemAbout" mnemonicParsing="false" onAction="#showAboutDialog" text="About" />
+            </Menu>
+        </MenuBar>
+    </HBox>
+    <VBox prefHeight="713.0" prefWidth="320.0" spacing="16.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <Label fx:id="lblDay" text="Run calculation for:" />
+        <RadioButton fx:id="optToday" mnemonicParsing="false" onAction="#checkCalculationEnabled" text="Today" />
+        <RadioButton fx:id="optTomorrow" mnemonicParsing="false" onAction="#checkCalculationEnabled" text="Tomorrow" />
+        <Label fx:id="lblPrev" prefHeight="21.0" prefWidth="300.0" text="How many snow days have occurred?" />
+        <ComboBox fx:id="lstDays" onAction="#checkCalculationEnabled" prefHeight="32.0" prefWidth="127.0" promptText="Select">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="0" />
+                    <String fx:value="1" />
+                    <String fx:value="2" />
+                    <String fx:value="3" />
+                    <String fx:value="4" />
+                    <String fx:value="5" />
+                    <String fx:value="6" />
+                    <String fx:value="7" />
+                    <String fx:value="8" />
+                    <String fx:value="9" />
+                    <String fx:value="10 or more" />
+                </FXCollections>
+            </items>
+        </ComboBox>
+        <Button fx:id="btnCalculate" disable="true" mnemonicParsing="false" onAction="#Calculate" prefHeight="31.0" prefWidth="500.0" text="Calculate" />
+        <TextArea fx:id="txtInfo" editable="false" prefHeight="176.0" prefWidth="240.0" wrapText="true" />
+        <Label fx:id="lblPercent" alignment="CENTER" contentDisplay="CENTER" prefHeight="200.0" prefWidth="288.0" text="100%" textAlignment="CENTER" visible="false" wrapText="true">
+            <font>
+                <Font name="System Bold" size="72.0" />
+            </font>
+        </Label>
+      <Label fx:id="lblError" alignment="CENTER" contentDisplay="CENTER" textAlignment="CENTER" wrapText="true"/>
+        <ProgressBar fx:id="progCalculate" prefHeight="23.0" prefWidth="500.0" progress="0.0" />
+        <fx:define>
+            <ToggleGroup fx:id="toggleGroup" />
+        </fx:define>
+      <GridPane.margin>
+         <Insets />
+      </GridPane.margin>
+      <padding>
+         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+      </padding>
+    </VBox>
+    <VBox alignment="TOP_CENTER" prefHeight="688.0" prefWidth="474.0" spacing="16.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
+        <Label fx:id="lblNWS" alignment="CENTER" onMouseClicked="#openWeatherWeb" onMouseEntered="#setCursorHand" onMouseExited="#setCursorDefault" prefHeight="21.0" prefWidth="528.0" style="-fx-background-color: LIGHTBLUE;" text="National Weather Service Warnings" textAlignment="CENTER">
+         <tooltip>
+            <Tooltip text="Open National Weather Service website" />
+         </tooltip></Label>
+        <TextArea fx:id="txtWeather" editable="false" prefHeight="120.0" prefWidth="509.0" />
+        <ImageView fitHeight="525.0" fitWidth="525.0" pickOnBounds="true" smooth="false">
+            <Image url="http://radar.weather.gov/Conus/Loop/centgrtlakes_loop.gif" />
+        </ImageView>
+      <GridPane.margin>
+         <Insets />
+      </GridPane.margin>
+      <padding>
+         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+      </padding>
+    </VBox>
+    <VBox alignment="TOP_CENTER" prefHeight="585.0" prefWidth="380.0" spacing="16.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+        <Label fx:id="lblWJRT" alignment="CENTER" onMouseClicked="#openClosingsWeb" onMouseEntered="#setCursorHand" onMouseExited="#setCursorDefault" prefHeight="21.0" prefWidth="580.0" style="-fx-background-color: PINK;" text="School Closings">
+         <tooltip>
+            <Tooltip text="Open ABC 12 Closings website" />
+         </tooltip></Label>
+        <TextArea fx:id="txtGB" editable="false" prefHeight="75.0" prefWidth="348.0" text="Grand Blanc: " wrapText="true" />
+        <ScrollPane fx:id="scrClosings" fitToHeight="true" fitToWidth="true" pannable="true" pickOnBounds="false" prefHeight="530.0" prefWidth="348.0">
+            <VBox prefHeight="900.0" prefWidth="329.0">
+                <TextField fx:id="txtTier4" alignment="CENTER" editable="false" style="-fx-background-color: LIGHTBLUE; -fx-border-color: TRANSPARENT;" text="Districts near Grand Blanc" />
+                <TextArea fx:id="txtAtherton" editable="false" text="Atherton: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtBendle" editable="false" text="Bendle: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtBentley" editable="false" text="Bentley: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtCarman" editable="false" text="Carman: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtFlint" editable="false" text="Flint: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextField fx:id="txtTier3" alignment="CENTER" editable="false" style="-fx-background-color: LIGHTBLUE" text="Districts in Genesee County" />
+                <TextArea fx:id="txtGoodrich" editable="false" text="Goodrich: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtBeecher" editable="false" text="Beecher: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtClio" editable="false" text="Clio: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtDavison" editable="false" text="Davison: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtFenton" editable="false" text="Fenton: " wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font></TextArea>
+                <TextArea fx:id="txtFlushing" editable="false" text="Flushing: " wrapText="true">
+                <font>
+                    <Font size="14.0" />
+                </font></TextArea>
+                <TextArea fx:id="txtGenesee" editable="false" text="Genesee: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtKearsley" editable="false" text="Kearsley: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtLKFenton" editable="false" text="Lake Fenton: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtLinden" editable="false" text="Linden: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtMontrose" editable="false" text="Montrose: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtMorris" editable="false" text="Mount Morris: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtSzCreek" editable="false" text="Swartz Creek: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextField fx:id="txtTier2" alignment="CENTER" editable="false" style="-fx-background-color: LIGHTBLUE" text="Districts in Neighboring Counties" />
+                <TextArea fx:id="txtDurand" editable="false" text="Durand: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtHolly" editable="false" text="Holly: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtLapeer" editable="false" text="Lapeer: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtOwosso" editable="false" text="Owosso: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextField fx:id="txtTier1" alignment="CENTER" editable="false" style="-fx-background-color: LIGHTBLUE" text="Academies / Institutions" />
+                <TextArea fx:id="txtGBAcademy" editable="false" text="Grand Blanc Academy: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtGISD" editable="false" text="Genesee I.S.D.: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtHolyFamily" editable="false" text="Holy Family: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+                <TextArea fx:id="txtWPAcademy" editable="false" prefHeight="32.0" text="Woodland Park Academy: " wrapText="true">
+                    <font>
+                        <Font size="14.0" />
+                    </font></TextArea>
+            </VBox>
+
+        </ScrollPane>
+      <GridPane.margin>
+         <Insets />
+      </GridPane.margin>
+      <padding>
+         <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
+      </padding>
+    </VBox>
+   <rotationAxis>
+      <Point3D />
+   </rotationAxis>
+</GridPane>
