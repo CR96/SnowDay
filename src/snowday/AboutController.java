@@ -1,49 +1,65 @@
 package snowday;
 
+import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class AboutController {
+    
+    /*Copyright 2014-2015 Corey Rowe
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+         http:www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.*/
+    
+    @FXML
+    ResourceBundle bundle = ResourceBundle
+            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
 
     public Button btnTwitter;
     public Button btnEmail;
     public Button btnWeb;
     public Button btnGit;
 
-    public Button btnClose;
+    public Button btnInfo;
 
     public void setCursorHand() {
-        btnClose.getScene().setCursor(Cursor.HAND);
+        btnTwitter.getScene().setCursor(Cursor.HAND);
     }
 
     public void setCursorNormal() {
-        btnClose.getScene().setCursor(Cursor.DEFAULT);
+        btnTwitter.getScene().setCursor(Cursor.DEFAULT);
     }
 
     public void twitter() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("https://twitter.com/gbsnowday"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("twitter")));
     }
 
     public void email() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("mailto:gbsnowday@gmail.com"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("email")));
     }
 
     public void web() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("https://gbsnowday.weebly.com"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("website")));
     }
 
     public void git() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("https://github.com/CR96/SnowDay"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("git")));
     }
 
-    public void close() {
-        Stage stage = (Stage) btnClose.getScene().getWindow();
-        stage.close();
+    public void showLicenseDialog() {
+        LicenseDialog.display();
     }
 }

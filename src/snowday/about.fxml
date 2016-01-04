@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+        
+<!--Copyright 2014-2015 Corey Rowe
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http:www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.-->
+        
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
@@ -9,19 +20,19 @@
     <ImageView fitHeight="256.0" fitWidth="256.0" layoutX="14.0" layoutY="39.0" preserveRatio="true">
         <Image url="@icons/icon.png" />
     </ImageView>
-    <Label layoutX="339.0" layoutY="153.0" text="Developed by Corey Rowe">
+    <Label alignment="CENTER" layoutX="280.0" layoutY="154.0" prefHeight="27.0" prefWidth="320.0" text="%dev_name">
         <font>
           <Font size="18.0" />
         </font>
     </Label>
-    <Label layoutX="280.0" layoutY="87.0" text="Snow Day Calculator">
+    <Label alignment="CENTER" layoutX="280.0" layoutY="87.0" prefHeight="53.0" prefWidth="320.0" text="%app_name">
         <font>
-          <Font size="36.0" />
+          <Font size="35.0" />
         </font>
     </Label>
-    <Label layoutX="270.0" layoutY="52.0" text="Grand Blanc Community Schools">
+    <Label alignment="CENTER" layoutX="280.0" layoutY="52.0" prefHeight="35.0" prefWidth="320.0" text="%GBCS">
         <font>
-          <Font size="24.0" />
+          <Font size="22.0" />
         </font>
     </Label>
     <HBox layoutX="283.0" layoutY="220.0" prefHeight="64.0" prefWidth="320.0" spacing="16">
@@ -32,7 +43,7 @@
                 </ImageView>
             </graphic>
          <tooltip>
-            <Tooltip text="Tweet @GBSnowDay" />
+            <Tooltip text="%dev_twitter" />
          </tooltip>
         </Button>
         <Button fx:id="btnEmail" layoutX="68.0" mnemonicParsing="false" onAction="#email" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
@@ -42,7 +53,7 @@
                 </ImageView>
             </graphic>
          <tooltip>
-            <Tooltip text="Email gbsnowday@gmail.com" />
+            <Tooltip text="%email_desc" />
          </tooltip>
         </Button>
         <Button fx:id="btnWeb" layoutX="132.0" mnemonicParsing="false" onAction="#web" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
@@ -52,7 +63,7 @@
                 </ImageView>
             </graphic>
          <tooltip>
-            <Tooltip text="Visit website" />
+            <Tooltip text="%site_desc" />
          </tooltip>
         </Button>
         <Button fx:id="btnGit" layoutX="200.0" mnemonicParsing="false" onAction="#git" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
@@ -62,9 +73,9 @@
                 </ImageView>
             </graphic>
          <tooltip>
-            <Tooltip text="View project on GitHub" />
+            <Tooltip text="%git_desc" />
          </tooltip>
         </Button>
     </HBox>
-   <Button fx:id="btnClose" layoutX="570.0" layoutY="315.0" mnemonicParsing="false" onAction="#close" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" text="Close" />
+    <Button fx:id="btnInfo" layoutX="397.0" layoutY="315.0" mnemonicParsing="false" onAction="#showLicenseDialog" text="%action_info" />
 </AnchorPane>

@@ -7,12 +7,17 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class Main extends Application {
 
+    ResourceBundle bundle = ResourceBundle.getBundle("bundles.LangBundle", new Locale("en", "EN"));
+    
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("snowday.fxml"));
-        primaryStage.setTitle("Snow Day Calculator");
+        Parent root = FXMLLoader.load(getClass().getResource("snowday.fxml"), bundle);
+        primaryStage.setTitle(bundle.getString("app_name"));
         primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("icons/icon.png")));
         primaryStage.setScene(new Scene(root, 1200, 720));
         primaryStage.setResizable(false);

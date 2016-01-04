@@ -2,6 +2,7 @@ package snowday;
 
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
@@ -14,23 +15,27 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.util.*;
+import java.util.List;
 
 public class SnowDayController {
-    /*Copyright 2014 Corey Rowe
+    /*Copyright 2014-2015 Corey Rowe
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -41,8 +46,13 @@ public class SnowDayController {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
+    ResourceBundle bundle = ResourceBundle
+            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
+
     //Declare scene controls
     public Button btnCalculate;
+    public Button btnRadar;
+    
     public MenuItem itemAbout;
     public Label lblDay;
     public Label lblPercent;
@@ -92,10 +102,12 @@ public class SnowDayController {
     public TextField txtTier4;
     public Label lblWJRT;
     public TextArea txtWPAcademy;
-    public TextArea txtWeather;
+    public ListView<String> lstWeather;
 
     //Declare variables
-    String date;
+    String datetoday;
+    String datetomorrow;
+    String textdate;
 
     int dayscount = 0;
     boolean todayValid;
@@ -105,6 +117,9 @@ public class SnowDayController {
 
     int days;
     int dayrun;
+
+    List<String> orgName = new ArrayList<>();
+    List<String> status = new ArrayList<>();
 
     //Declare lists that will be used in ListAdapters
     ArrayList<String> infoList = new ArrayList<>();
@@ -117,20 +132,15 @@ public class SnowDayController {
     DateTime dt = new DateTime();
     int weekday = dt.getDayOfWeek();
 
-    String orgName;
-    String status;
     String schooltext;
 
-    String[] orgNameLine;
-    String[] statusLine;
-    String[] weatherwarn;
-
     //Declare lists that will be used in ListAdapters
-    ArrayList<String> GBInfo = new ArrayList<>();
-    ArrayList<String> closings = new ArrayList<>();
-    ArrayList<String> wjrtInfo = new ArrayList<>();
-    ArrayList<String> weather = new ArrayList<>();
-    ArrayList<String> nwsInfo = new ArrayList<>();
+    List<String> closings = new ArrayList<>();
+
+    List<String> weatherWarn = new ArrayList<>();
+    List<String> weatherSummary = new ArrayList<>();
+    List<String> weatherExpire = new ArrayList<>();
+    List<String> weatherLink = new ArrayList<>();
 
     int GBCount = 1;
     int weatherCount = 0;
@@ -163,59 +173,53 @@ public class SnowDayController {
 
     boolean Durand; //Check for "Durand Senior Center"
     boolean Holly;  //Check for "Holly Academy"
-    boolean Lapeer; //Check for "Chatfield School-Lapeer", "Greater Lapeer Transit Authority",
-    // "Lapeer CMH Day Programs", "Lapeer Co. Ed-Tech Center", "Lapeer County Ofices", "
-    // Lapeer District Library", "Lapeer Senior Center", and "St. Paul Lutheran-Lapeer"
-    boolean Owosso; //Check for "Owosso Senior Center", "Baker College-Owosso", "Owosso Social Security Office",
-    // and "St. Paul Catholic-Owosso"
+    boolean Lapeer; //Check for "Lapeer County CMH", "Lapeer Vocational Tech.", "Lapeer Team Work",
+    // "Lapeer Senior Center", "Lapeer Co. Education Technology Center", "Lapeer Co. Intermed. Special Ed",
+    // "Lapeer Growth and Opportunity, Inc.", "Lapeer District Library", "Lapeer County Offices", "NEMSCA-Lapeer Head Start",
+    // "Greater Lapeer Transportation Authority", "Foster Grandparents-Lapeer, Genesee, Shiawassee", "Davenport University-Lapeer",
+    // "MSU Extension Service-Lapeer Co.", "Community Connections-Lapeer", and "Chatfield School-Lapeer"
+    boolean Owosso; //Check for "Owosso Christian School", "Owosso Senior Center",
+    // "Owosso Seventh-day Adventist School", and "Social Security Administration-Owosso"
 
     boolean Beecher;
-    boolean Clio; //Check for "Clio Area Senior Center", "Clio City Hall", and "Cornerstone Clio"
+    boolean Clio; //Check for "Clio Area Christian School", Clio Area Senior Center",
+    // "Clio City Hall", and "Cornerstone Clio"
     boolean Davison; //Check for "Davison Senior Center", "Faith Baptist School-Davison", "Montessori Academy-Davison",
     // and "Ross Medical Education-Davison"
-    boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", and "Fenton Montessori Academy"
+    boolean Fenton; //Check for "Lake Fenton", "Fenton City Hall", "Fenton Academy of Cosmetology",
+    // and "Fenton Montessori Academy"
     boolean Flushing; //Check for "Flushing Senior Citizens Center" and "St. Robert-Flushing"
-    boolean Genesee; //Check for "Freedom Work-Genesee Co.", "Genesee Christian-Burton", and "Genesee District Library",
-    // "Genesee Co. Mobile Meals", "Genesee Hlth Sys Day Programs", "Genesee Stem Academy", and "Genesee I.S.D."
+    boolean Genesee; //Check for "Genesee I.S.D.", "Genesee Health System Day Programs", "Genesee Health System",
+    // "Genesee Health Plan", "Genesee Academy", "Genesee Area Skill Center", "Genesee Christian School",
+    // "Genesee County Free Medical Clinic", "Genesee District Library", "Genesee County Mobile Meal Program",
+    // "Genesee STEM Academy", "Genesee Co Circuit Court", "Genesee County Government", "Genesee County Literacy Coalition",
+    // "Flint Genesee Job Corps", "Leadership Genesee", "Freedom Work Genesee Co.", "Youth Leadership Genesee",
+    // "67th District Court-Genesee Co.", "MSU Extension Service-Genesee Co.",
+    // "Genesee Christian-Burton", and "Foster Grandparents-Lapeer, Genesee, Shiawassee"
     boolean Kearsley;
     boolean LKFenton;
     boolean Linden; //Check for "Linden Charter Academy"
     boolean Montrose; //Check for "Montrose Senior Center"
-    boolean Morris;  //Check for "Mt Morris Twp Administration" and "St. Mary's-Mt. Morris"
-    boolean SzCreek; //Check for "Swartz Creek Area Senior Ctr." and "Swartz Creek Montessori"
+    boolean Morris;  //Check for "Mt Morris Twp Administration" and "St. Mary Church Religious Ed-Mt. Morris"
+    boolean SzCreek; //Check for "Swartz Creek Area Senior Center" and "Swartz Creek Montessori"
 
     boolean Atherton;
     boolean Bendle;
     boolean Bentley;
-    boolean Carman; //Check for "Carman-Ainsworth Senior Ctr."
+    boolean Carman; //Check for "Carman-Ainsworth Senior Center"
     boolean Flint; //Thankfully this is listed as "Flint Community Schools" -
-    // otherwise there would be 25 exceptions to check for.
+    // otherwise there would be a lot of exceptions to check for.
     boolean Goodrich;
 
-    boolean GB; //Check for "Freedom Work-Grand Blanc", "Grand Blanc Academy", "Grand Blanc City Offices",
-    // "Grand Blanc Senior Center", and "Holy Family-Grand Blanc"
+    boolean GB; //Check for "Grand Blanc Senior Center", "Grand Blanc Academy", "Grand Blanc Road Montessori",
+    // "Grand Blanc Gymnastics Co.", and "Freedom Work Grand Blanc"
 
-    //True when Grand Blanc is already open (GB will be false - only checked
-    //during or after school hours)
-    boolean GBOpen;
+    boolean GBOpen; //True if GB is already open (GB = false and time is during or after school hours)
 
-    //Every weather warning this program searches for
-    boolean SigWeather;
-    boolean WinterAdvisory;
-    boolean WinterWatch;
-    boolean LakeSnowAdvisory;
-    boolean LakeSnowWatch;
-    boolean Rain;
-    boolean Drizzle;
-    boolean Fog;
-    boolean WindChillAdvisory;
-    boolean WindChillWatch;
-    boolean BlizzardWatch;
-    boolean WinterWarn;
-    boolean LakeSnowWarn;
-    boolean IceStorm;
-    boolean WindChillWarn;
-    boolean BlizzardWarn;
+    boolean GBMessage; //Grand Blanc has a message (e.g. "Early Dismissal") but isn't actually closed.
+
+    //Don't try to show weather warning information if no warnings are present
+    boolean WeatherWarningsPresent;
 
     //Scraper status
     boolean WJRTActive = true;
@@ -255,25 +259,28 @@ public class SnowDayController {
         }
     }
 
+    public void showRadar() {
+        RadarDialog.display();
+    }
+    
     public void showAboutDialog() throws IOException {
         Stage stage = new Stage();
-        stage.setTitle("About");
+        stage.setTitle(bundle.getString("action_about"));
         stage.getIcons().add(new javafx.scene.image.Image(Main.class.getResourceAsStream("icons/icon.png")));
         stage.initModality(Modality.APPLICATION_MODAL);
-        Pane pane = FXMLLoader.load(getClass().getResource("about.fxml"));
+        Pane pane = FXMLLoader.load(getClass().getResource("about.fxml"), bundle);
         Scene scene = new Scene(pane);
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
     }
 
-
     public void openClosingsWeb() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("http://www.abc12.com/closings"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("closingsweb")));
     }
 
     public void openWeatherWeb() throws URISyntaxException, IOException {
-        Desktop.getDesktop().browse(new URI("http://forecast.weather.gov/afm/PointClick.php?lat=42.9275&lon=-83.6299"));
+        Desktop.getDesktop().browse(new URI(bundle.getString("weatherweb")));
     }
 
     public void setCursorHand() {
@@ -303,143 +310,196 @@ public class SnowDayController {
 
         //Set the current month, day, and year
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMMM dd yyyy");
-        date = currentDate.format(calendar.getTime());
 
-        infoList.add(0, "Current Date: " + date);
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        datetoday = sdt.format(calendar.getTime());
+
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMMM dd yyyy", Locale.US);
+        textdate = currentDate.format(calendar.getTime());
+
+        calendar.add(Calendar.DATE, 1);
+
+        datetomorrow = sdt.format(calendar.getTime());
+
+        infoList.add(0, "Current Date: " + textdate);
 
         /*Check for days school is not in session (such as Winter Break, development days, etc.)
         Uses a mixture of SimpleDateFormat for simple string comparison and JodaTime for more
         complicated arguments*/
 
-        if (date.equals("December 09 2014") || date.equals("February 03 2015")
-                || date.equals("May 05 2015")) {
-            infoList.add(infoCount, "REMINDER: Tomorrow is a Late Start.");
+        if (dt.getMonthOfYear() == 6 && dt.getDayOfMonth() > 15) {
+            //Summer break (June)
+            infoList.add(infoCount, bundle.getString("Summer"));
             infoCount++;
-        } else if (date.equals("December 10 2014") || date.equals("February 04 2015")
-                || date.equals("May 06 2015")) {
-            infoList.add(infoCount, "REMINDER: Today is a Late Start.");
+            todayValid = false;
+            tomorrowValid = false;
+        } else if (dt.getMonthOfYear() > 6 && dt.getMonthOfYear() <= 8) {
+            //Summer break (July and August)
+            infoList.add(infoCount, bundle.getString("Summer"));
             infoCount++;
-        } else if (date.equals("December 21 2014")) {
-            infoList.add(infoCount, "Winter Break begins tomorrow.");
+            todayValid = false;
+            tomorrowValid = false;
+        } else if (dt.getMonthOfYear() == 9 && dt.getDayOfMonth() < 7) {
+            //Summer break (September)
+            infoList.add(infoCount, bundle.getString("Summer"));
+            infoCount++;
+            todayValid = false;
+            tomorrowValid = false;
+        }else if (textdate.equals("September 07 2015")) {
+            infoList.add(infoCount, bundle.getString("YearStart"));
+            infoCount++;
+            todayValid = false;
+        }else if (textdate.equals("September 25 2015")) {
+            infoList.add(infoCount, bundle.getString("HC"));
+            infoCount++;
+        }else if (textdate.equals("October 20 2015") || textdate.equals("December 08 2015")
+                || textdate.equals("February 02 2016") || textdate.equals("May 03 2016")) {
+            infoList.add(infoCount, bundle.getString("LSTomorrow"));
+            infoCount++;
+        } else if (textdate.equals("October 21 2015") || textdate.equals("December 09 2015")
+                || textdate.equals("February 03 2016") || textdate.equals("May 04 2016")) {
+            infoList.add(infoCount, bundle.getString("LSToday"));
+            infoCount++;
+        }else if (textdate.equals("November 26 2015")) {
+            infoList.add(infoCount, bundle.getString("Thanksgiving"));
+            infoCount++;
+            todayValid = false;
+            tomorrowValid = false;
+        }else if (textdate.equals("November 26 2015") || textdate.equals("November 27 2015")) {
+            infoList.add(infoCount, bundle.getString("ThanksgivingRecess"));
+            infoCount++;
+            todayValid = false;
+        } else if (textdate.equals("December 22 2015")) {
+            infoList.add(infoCount, bundle.getString("WinterBreakTomorrow"));
             infoCount++;
             tomorrowValid = false;
-        } else if (date.equals("December 22 2014") || date.equals("December 23 2014")
-                || date.equals("December 24 2014") || date.equals("December 25 2014")
-                || date.equals("December 26 2014") || date.equals("December 27 2014")
-                || date.equals("December 28 2014") || date.equals("December 29 2014")
-                || date.equals("December 30 2014") || date.equals("December 31 2014")
-                || date.equals("January 01 2015") || date.equals("January 02 2015")) {
+        } else if (textdate.equals("December 23 2015") || textdate.equals("December 24 2015")
+                || textdate.equals("December 25 2015") || textdate.equals("December 26 2015") || textdate.equals("December 27 2014")
+                || textdate.equals("December 27 2015") || textdate.equals("December 28 2015")
+                || textdate.equals("December 29 2015") || textdate.equals("December 30 2015")
+                || textdate.equals("December 31 2015") || textdate.equals("January 01 2016")) {
             //Winter Break
-            if (date.equals("December 25 2014")) {
-                infoList.add(infoCount, "Merry Christmas!");
+            if (textdate.equals("December 25 2015")) {
+                infoList.add(infoCount, bundle.getString("Christmas"));
                 infoCount++;
-            } else if (date.equals("January 01 2015")) {
-                infoList.add(infoCount, "Happy New Year!");
+            } else if (textdate.equals("January 01 2016")) {
+                infoList.add(infoCount, bundle.getString("NewYear"));
                 infoCount++;
             }
 
-            infoList.add(infoCount, "Enjoy your winter break!");
+            infoList.add(infoCount, bundle.getString("WinterBreak"));
+            infoCount++;
+        } else if (textdate.equals("January 17 2016")) {
+            infoList.add(infoCount, bundle.getString("MLKTomorrow") + bundle.getString("NoSessionTomorrow"));
             infoCount++;
             todayValid = false;
             tomorrowValid = false;
-        } else if (date.equals("January 18 2015")) {
-            infoList.add(infoCount, "Tomorrow is Martin Luther King Day. School will not be in session.");
-            infoCount++;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (date.equals("January 19 2015")) {
+        } else if (textdate.equals("January 18 2016")) {
             //MLK Day
-            infoList.add(infoCount, "Happy Martin Luther King Day! School is not in session.");
-            infoCount += 2;
+            infoList.add(infoCount, bundle.getString("MLK") + bundle.getString("NoSessionToday"));
             infoCount++;
             todayValid = false;
-            //Special case: teacher records day is the following day
-            tomorrowValid = false;
-        } else if (date.equals("January 20 2015")) {
-            infoList.add(infoCount, "Today is Teacher Records Day. School is not in session.");
-            infoCount++;
-            todayValid = false;
-        } else if (date.equals("February 15 2015")) {
-            infoList.add(infoCount, "Tomorrow is President's Day. School will not be in session.");
-            infoCount++;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (date.equals("February 16 2015")) {
-            infoList.add(infoCount, "Happy President's Day! School is not in session.");
-            infoCount++;
-            todayValid = false;
-        } else if (date.equals("March 10 2015")) {
-            infoList.add(infoCount, "REMINDER: Tomorrow is a Half Day for elementary and middle school students.");
-            infoCount++;
-        }else if (date.equals("March 11 2015") || date.equals("March 12 2015")) {
-            infoList.add(infoCount, "REMINDER: Today and Tomorrow are Half Days for elementary and middle school students.");
-            infoCount++;
-        } else if (date.equals("March 13 2015")) {
-            infoList.add(infoCount, "REMINDER: Today is a Half Day for elementary and middle school students.");
-            infoCount++;
-        } else if (date.equals("April 01 2015")) {
-            infoList.add(infoCount, "REMINDER: Tomorrow is a Half Day.");
-            infoCount++;
-        } else if (date.equals("April 02 2015")) {
-            infoList.add(infoCount, "REMINDER: Today is a Half Day.");
-            infoList.add(infoCount, "Spring Break begins tomorrow.");
+        }else if (textdate.equals("January 24 2016")) {
+            infoList.add(infoCount, bundle.getString("RecordsTomorrow") + bundle.getString("NoSessionTomorrow"));
             infoCount++;
             tomorrowValid = false;
-        } else if (date.equals("April 03 2015") || date.equals("April 04 2015")
-                || date.equals("April 05 2015") || date.equals("April 06 2015")
-                || date.equals("April 07 2015") || date.equals("April 08 2015")
-                || date.equals("April 09 2015") || date.equals("April 10 2015")) {
-            //Spring Break
-            if (date.equals("April 05 2015")) {
-                infoList.add(infoCount, "Happy Easter!");
+        } else if (textdate.equals("January 25 2016")) {
+            infoList.add(infoCount, bundle.getString("Records") + bundle.getString("NoSessionToday"));
+            infoCount++;
+            todayValid = false;
+        }else if (textdate.equals("February 11 2016")) {
+            infoList.add(infoCount, bundle.getString("LincolnTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoCount++;
+            tomorrowValid = false;
+        } else if (textdate.equals("February 12 2016")) {
+            infoList.add(infoCount, bundle.getString("Lincoln") + bundle.getString("NoSessionToday"));
+            infoCount++;
+            todayValid = false;
+        } else if (textdate.equals("February 14 2016")) {
+            infoList.add(infoCount, bundle.getString("PresidentTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoCount++;
+            todayValid = false;
+            tomorrowValid = false;
+        } else if (textdate.equals("February 15 2016")) {
+            infoList.add(infoCount, bundle.getString("President") + bundle.getString("NoSessionToday"));
+            infoCount++;
+            todayValid = false;
+        } else if (textdate.equals("November 10 2015") || textdate.equals("March 08 2016")) {
+            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSTomorrow"));
+            infoCount++;
+        }else if (textdate.equals("November 11 2015") || textdate.equals("November 12 2015")
+                || textdate.equals("March 09 2016") || textdate.equals("March 10 2016")) {
+            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSTodayTomorrow"));
+            infoCount++;
+        } else if (textdate.equals("November 13 2015") || textdate.equals("March 11 2016")) {
+            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSToday"));
+            infoCount++;
+        } else if (textdate.equals("November 24 2015") || textdate.equals("September 24 2015")
+                || textdate.equals("October 08 2015")
+                || textdate.equals("March 31 2016")) {
+            infoList.add(infoCount, bundle.getString("HalfDayTomorrow"));
+            infoCount++;
+        }else if (textdate.equals("November 25 2015") || textdate.equals("September 25 2015")
+                || textdate.equals("October 09 2015")) {
+            if (textdate.equals("November 25 2015")) {
+                infoList.add(infoCount, bundle.getString("ThanksgivingRecessTomorrow"));
                 infoCount++;
+                tomorrowValid = false;
             }
 
-            infoList.add(infoCount, "Enjoy your Spring Break!");
+            infoList.add(infoCount, bundle.getString("HalfDay"));
+            infoCount++;
+        }else if (textdate.equals("March 24 2016")) {
+            infoList.add(infoCount, bundle.getString("GoodFridayTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoCount++;
+            tomorrowValid = false;
+        }else if (textdate.equals("March 25 2016")) {
+            infoList.add(infoCount, bundle.getString("GoodFriday") + bundle.getString("NoSessionToday"));
+            infoCount++;
+            todayValid = false;
+        }else if (textdate.equals("March 27 2016")) {
+            infoList.add(infoCount, bundle.getString("Easter"));
+            infoCount++;
+            todayValid = false;
+        } else if (textdate.equals("April 01 2016")) {
+            infoList.add(infoCount, bundle.getString("HalfDay"));
+            infoList.add(infoCount + 1, bundle.getString("SpringBreakTomorrow"));
+            infoCount+=2;
+            tomorrowValid = false;
+        } else if (textdate.equals("April 02 2016") || textdate.equals("April 03 2016")
+                || textdate.equals("April 04 2016") || textdate.equals("April 05 2016")
+                || textdate.equals("April 06 2016") || textdate.equals("April 07 2016")
+                || textdate.equals("April 08 2016")) {
+            //Spring Break
+
+            infoList.add(infoCount, bundle.getString("SpringBreak"));
             infoCount++;
             todayValid = false;
             tomorrowValid = false;
-        } else if (date.equals("April 22 2015")) {
-            infoList.add(infoCount, "Tomorrow is Staff Professional Development Day. School will not be in session.");
+        } else if (textdate.equals("November 02 2015") || textdate.equals("April 27 2016")) {
+            infoList.add(infoCount, bundle.getString("PDDTomorrow") + bundle.getString("NoSessionTomorrow"));
             infoCount++;
             tomorrowValid = false;
-        } else if (date.equals("April 23 2015")) {
-            infoList.add(infoCount, "Today is Staff Professional Development Day. School is not in session.");
+        } else if (textdate.equals("November 03 2015") || textdate.equals("April 28 2016")) {
+            infoList.add(infoCount, bundle.getString("PDD") + bundle.getString("NoSessionToday"));
             infoCount++;
             todayValid = false;
-        } else if (date.equals("April 24 2015")) {
-            infoList.add(infoCount, "Tomorrow is Memorial Day. School will not be in session.");
+        } else if (textdate.equals("May 29 2016")) {
+            infoList.add(infoCount, bundle.getString("MemorialDayTomorrow") + bundle.getString("NoSessionTomorrow"));
             infoCount++;
             tomorrowValid = false;
-        } else if (date.equals("April 25 2015")) {
-            infoList.add(infoCount, "Happy Memorial Day! School is not in session.");
+        } else if (textdate.equals("May 30 2016")) {
+            infoList.add(infoCount, bundle.getString("MemorialDay") + bundle.getString("NoSessionToday"));
             infoCount++;
             todayValid = false;
-        } else if (date.equals("May 19 2015")) {
-            infoList.add(infoCount, "Congratulations Senior Class of 2015!");
+        } else if (textdate.equals("June 02 2016")) {
+            infoList.add(infoCount, bundle.getString("Senior"));
             infoCount++;
             bobcats = true;
-        } else if (date.equals("June 11 2015")) {
-            infoList.add(infoCount, "Today is the last day of school!");
+        } else if (textdate.equals("June 15 2016")) {
+            infoList.add(infoCount, bundle.getString("YearEnd"));
             infoCount++;
             tomorrowValid = false;
-        } else if (dt.getMonthOfYear() == 6 && dt.getDayOfMonth() > 11) {
-            //Summer break (June)
-            infoList.add(infoCount, "Enjoy your Summer!");
-            infoCount++;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (dt.getMonthOfYear() > 6 && dt.getMonthOfYear() < 8) {
-            //Summer break (July and August)
-            infoList.add(infoCount, "Enjoy your Summer!");
-            infoCount++;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (dt.getMonthOfYear() == 9) {
-            /*Summmer break (September)
-            Conditions for the first day of the 2015-16 year
-            to be determined*/
         }
 
         //If items were added...
@@ -471,10 +531,10 @@ public class SnowDayController {
         int[] specialarray1 = {2, 6, 0, 6, 2, 0, 1, 0};
         int[] specialarray2 = {2, 0, 4, 2, 0, 1};
         if (daysarray.toString().equals(Arrays.toString(specialarray1))) {
-            txtInfo.setText(txtInfo.getText() + "\n\nSilence will fall when the question is asked.");
+            txtInfo.setText(txtInfo.getText() + bundle.getString("special1"));
             txtInfo.setStyle("-fx-text-fill: blue");
         }else if (daysarray.toString().equals(Arrays.toString(specialarray2))) {
-            txtInfo.setText(txtInfo.getText() + "\n\nThe Doctor\n22/04/2011\n5:02pm\nLake Silencio, Utah");
+            txtInfo.setText(txtInfo.getText() + bundle.getString("special2"));
             txtInfo.setStyle("-fx-text-fill: blue");
         }
     }
@@ -485,19 +545,19 @@ public class SnowDayController {
         //Sunday is 7
 
         if (weekday == 5) {
-            infoList.add(infoCount, "Tomorrow is Saturday.");
+            infoList.add(infoCount, bundle.getString("SaturdayTomorrow"));
             optTomorrow.setDisable(true);
             optTomorrow.setSelected(false);
             infoCount++;
         } else if (weekday == 6) {
-            infoList.add(infoCount, "Today is Saturday. Try again tomorrow!");
+            infoList.add(infoCount, bundle.getString("SaturdayToday"));
             optToday.setDisable(true);
             optToday.setSelected(false);
             optTomorrow.setDisable(true);
             optTomorrow.setSelected(false);
             infoCount++;
         } else if (weekday == 7) {
-            infoList.add(infoCount, "Today is Sunday.");
+            infoList.add(infoCount, bundle.getString("SundayToday"));
             optToday.setDisable(true);
             optToday.setSelected(false);
             infoCount++;
@@ -550,15 +610,18 @@ public class SnowDayController {
 
     private void Reset() {
 
+        progCalculate.setProgress(0);
+
         lblPercent.setVisible(false);
 
-        txtWeather.setDisable(true);
-        txtGB.setDisable(true);
+        lstWeather.setDisable(true);
         scrClosings.setDisable(true);
 
         lblPercent.setText("");
         txtGB.setText("");
-        txtWeather.setText("");
+        txtGB.setVisible(false);
+
+        lstWeather.getItems().clear();
 
         schoolpercent = 0;
         weatherpercent = 0;
@@ -609,29 +672,13 @@ public class SnowDayController {
         Goodrich = false;
         Carman = false;
         GB = false;
-
-        SigWeather = false;
-        WinterAdvisory = false;
-        WinterWatch = false;
-        LakeSnowAdvisory = false;
-        LakeSnowWatch = false;
-        Rain = false;
-        Drizzle = false;
-        Fog = false;
-        WindChillAdvisory = false;
-        WindChillWatch = false;
-        BlizzardWatch = false;
-        WinterWarn = false;
-        LakeSnowWarn = false;
-        IceStorm = false;
-        WindChillWarn = false;
-        BlizzardWarn = false;
-
+        
         closings.clear();
-        wjrtInfo.clear();
-        weather.clear();
-        nwsInfo.clear();
-        GBInfo.clear();
+
+        weatherWarn.clear();
+        weatherSummary.clear();
+        weatherExpire.clear();
+        weatherLink.clear();
 
         //Add the 27 fixed closings values so they can be set out of sequence
         closings.add(0, "");
@@ -662,12 +709,6 @@ public class SnowDayController {
         closings.add(25, "");
         closings.add(26, "");
 
-        //Add the first GBInfo value so it can be set out of sequence
-        GBInfo.add(0, "");
-
-        //Add the first weather value so it can be set out of sequence
-        weather.add(0, "");
-
         wjrtCount = 0;
         weatherCount = 0;
         nwsCount = 0;
@@ -676,165 +717,145 @@ public class SnowDayController {
         txtAtherton.setText("Atherton:");
         txtAtherton.setStyle("-fx-control-inner-background: white");
 
-        txtBendle.setText("Bendle:");
+        txtBendle.setText(bundle.getString("Bendle"));
         txtBendle.setStyle("-fx-control-inner-background: white");
 
-        txtBentley.setText("Bentley:");
+        txtBentley.setText(bundle.getString("Bentley"));
         txtBentley.setStyle("-fx-control-inner-background: white");
 
-        txtCarman.setText("Carman-Ainsworth:");
+        txtCarman.setText(bundle.getString("Carman"));
         txtCarman.setStyle("-fx-control-inner-background: white");
 
-        txtFlint.setText("Flint:");
+        txtFlint.setText(bundle.getString("Flint"));
         txtFlint.setStyle("-fx-control-inner-background: white");
 
-        txtGoodrich.setText("Goodrich:");
+        txtGoodrich.setText(bundle.getString("Goodrich"));
         txtGoodrich.setStyle("-fx-control-inner-background: white");
 
-        txtBeecher.setText("Beecher:");
+        txtBeecher.setText(bundle.getString("Beecher"));
         txtBeecher.setStyle("-fx-control-inner-background: white");
 
-        txtClio.setText("Clio:");
+        txtClio.setText(bundle.getString("Clio"));
         txtClio.setStyle("-fx-control-inner-background: white");
 
-        txtDavison.setText("Davison:");
+        txtDavison.setText(bundle.getString("Davison"));
         txtDavison.setStyle("-fx-control-inner-background: white");
 
-        txtFenton.setText("Fenton:");
+        txtFenton.setText(bundle.getString("Fenton"));
         txtFenton.setStyle("-fx-control-inner-background: white");
 
-        txtFlushing.setText("Flushing:");
+        txtFlushing.setText(bundle.getString("Flushing"));
         txtFlushing.setStyle("-fx-control-inner-background: white");
 
-        txtGenesee.setText("Genesee:");
+        txtGenesee.setText(bundle.getString("Genesee"));
         txtGenesee.setStyle("-fx-control-inner-background: white");
 
-        txtKearsley.setText("Kearsley:");
+        txtKearsley.setText(bundle.getString("Kearsley"));
         txtKearsley.setStyle("-fx-control-inner-background: white");
 
-        txtLKFenton.setText("Lake Fenton:");
+        txtLKFenton.setText(bundle.getString("LKFenton"));
         txtLKFenton.setStyle("-fx-control-inner-background: white");
 
-        txtLinden.setText("Linden:");
+        txtLinden.setText(bundle.getString("Linden"));
         txtLinden.setStyle("-fx-control-inner-background: white");
 
-        txtMontrose.setText("Montrose:");
+        txtMontrose.setText(bundle.getString("Montrose"));
         txtMontrose.setStyle("-fx-control-inner-background: white");
 
-        txtMorris.setText("Mount Morris:");
+        txtMorris.setText(bundle.getString("Morris"));
         txtMorris.setStyle("-fx-control-inner-background: white");
 
-        txtSzCreek.setText("Swartz Creek:");
+        txtSzCreek.setText(bundle.getString("SzCreek"));
         txtSzCreek.setStyle("-fx-control-inner-background: white");
 
-        txtDurand.setText("Durand:");
+        txtDurand.setText(bundle.getString("Durand"));
         txtDurand.setStyle("-fx-control-inner-background: white");
 
-        txtHolly.setText("Holly:");
+        txtHolly.setText(bundle.getString("Holly"));
         txtHolly.setStyle("-fx-control-inner-background: white");
 
-        txtLapeer.setText("Lapeer:");
+        txtLapeer.setText(bundle.getString("Lapeer"));
         txtLapeer.setStyle("-fx-control-inner-background: white");
 
-        txtOwosso.setText("Owosso:");
+        txtOwosso.setText(bundle.getString("Owosso"));
         txtOwosso.setStyle("-fx-control-inner-background: white");
 
-        txtGBAcademy.setText("Grand Blanc Academy:");
+        txtGBAcademy.setText(bundle.getString("GBAcademy"));
         txtGBAcademy.setStyle("-fx-control-inner-background: white");
 
-        txtGISD.setText("Genesee I.S.D.:");
+        txtGISD.setText(bundle.getString("GISD"));
         txtGISD.setStyle("-fx-control-inner-background: white");
 
-        txtHolyFamily.setText("Holy Family:");
+        txtHolyFamily.setText(bundle.getString("HolyFamily"));
         txtHolyFamily.setStyle("-fx-control-inner-background: white");
 
-        txtWPAcademy.setText("Woodland Park Academy:");
+        txtWPAcademy.setText(bundle.getString("WPAcademy"));
         txtWPAcademy.setStyle("-fx-control-inner-background: white");
 
         btnCalculate.setDisable(true);
-
-        //progCalculate.setString("");
-        progCalculate.setProgress(0);
     }
 
     private class WJRTScraper implements Runnable {
         @Override
         public void run() {
-            Document schools;
+            Document schools = null;
 
             /**WJRT SCHOOL CLOSINGS SCRAPER**/
             //Scrape School Closings from WJRT with Jsoup.
             //Run scraper in an Async task.
 
-            //This is the current listings page.
-
             try {
-                schools = Jsoup.connect("http://gray.ftp.clickability.com/wjrt/school/closings.htm").get();
+                //This is the current listings page.
+                //schools = Jsoup.connect("http://abc12.com/closings").get();
+                schools = Jsoup.parse(new File("C:\\Users\\Corey\\Downloads\\Test\\NewTest.htm"), "UTF-8");
+
                 //Attempt to parse input
-                schools.select("td[bgcolor]").stream().map((row) -> {
-                    //Reading closings - name of institution and status
-                    orgName = orgName + "\n" + (row.select("font.orgname").first().text());
-                    return row;
-                }).forEach((row) -> status = status + "\n" + (row.select("font.status").first().text()));
+
+                Element table = schools.select("table").last();
+                Elements rows = table.select("tr");
+
+                for (int i = 1; i < rows.size(); i++) { //Skip header row
+                    Element row = rows.get(i);
+                    orgName.add(row.select("td").get(0).text());
+                    status.add(row.select("td").get(1).text());
+                }
 
                 //20% complete
                 progCalculate.setProgress(20);
 
+            } catch (IOException e) {
 
+                //Connectivity issues
+                txtGB.setText(bundle.getString("WJRTConnectionError") + bundle.getString("NoConnection"));
+                WJRTFail = true;
 
-                //Checking for null pointers not caught by NullPointerException
-                if (orgName == null || status == null) {
-                    //orgName or status is null.
+            } catch (NullPointerException | IndexOutOfBoundsException e) {
+
+                if (schools != null) {
                     schooltext = schools.text();
-                    //This shows in place of the table (as plain text) if no schools or institutions are closed.
-                    if (schooltext.contains("no active records")) {
-                        //No schools are closed.
-                        wjrtInfo.add(wjrtCount, "No schools are closed.");
-                        wjrtCount++;
-                        WJRTFail = false;
-                    } else {
-                        //Webpage layout was not recognized.
-                        wjrtInfo.add(wjrtCount, "Unable to read WJRT closings.");
-                        wjrtInfo.add(wjrtCount + 1, "If this error persists please contact the developer.");
-                        wjrtCount += 2;
-                        WJRTFail = true;
-
-                    }
-
-                    //orgName and status have no content.
-                    //Set dummy content so the scraper doesn't fail with a NullPointerException.
-                    orgName = "DummyLine1\nDummyLine2\nDummyLine3";
-                    status = "DummyLine1\nDummyLine2\nDummyLine3";
-
+                }else{
+                    schooltext = "";
                 }
 
-            } catch (IOException e) {
-                //Connectivity issues
-                wjrtInfo.add(wjrtCount, "Could not connect to ABC 12.");
-                wjrtInfo.add(wjrtCount + 1, "Check your internet connection.");
-                wjrtCount += 2;
-                WJRTFail = true;
+                //This shows in place of the table (as plain text) if no schools or institutions are closed.
+                if (schooltext.contains("no closings or delays")) {
+                    //No schools are closed.
+                    WJRTFail = false;
 
-            } catch (NullPointerException e) {
-                //Webpage layout was not recognized.
-                wjrtInfo.add(wjrtCount, "Unable to read WJRT closings.");
-                wjrtInfo.add(wjrtCount + 1, "If this error persists please contact the developer.");
-                wjrtCount += 2;
-                WJRTFail = true;
+                    //Add a blank entry so checkClosings() still works correctly
+                    orgName.add(" ");
+
+                } else {
+                    //Webpage layout was not recognized.
+                    txtGB.setText(bundle.getString("WJRTParseError") + bundle.getString("ErrorContact"));
+                    WJRTFail = true;
+                }
             }
 
             //Only run if WJRTFail is false to avoid NullPointerExceptions
             if (!WJRTFail) {
-                //Splitting orgName and status strings by line break.
-                //Saving to orgNameLine and statusLine.
-                //This will create string arrays that can be parsed by for loops.
-                orgNameLine = orgName.split("\n");
-                statusLine = status.split("\n");
-
-
                 //Sanity check - make sure Grand Blanc isn't already closed before predicting
                 checkGBClosed();
-
 
                 //Check school closings
                 checkClosings();
@@ -848,21 +869,24 @@ public class SnowDayController {
 
 
     private void checkGBClosed() {
-        //Checking if GB is closed.
-        for (int i = 1; i < orgNameLine.length; i++) {
-            //If GB hasn't been found...
+        //Checking if Grand Blanc is closed.
+        for (int i = 0; i < orgName.size(); i++) {
+            //If Grand Blanc hasn't been found...
             if (!GB) {
-                if (orgNameLine[i].contains("Grand Blanc") && !orgNameLine[i].contains("Academy")
-                        && !orgNameLine[i].contains("Freedom") && !orgNameLine[i].contains("Offices")
-                        && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Holy")) {
-                    GBInfo.set(0, "Grand Blanc: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0
-                            || statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
-                        GBInfo.add(GBCount, "Enjoy your Snow Day!");
-                        GBCount++;
-                        //GB Found
+                if (orgName.get(i).contains("Grand Blanc") && !orgName.get(i).contains("Academy")
+                        && !orgName.get(i).contains("Freedom") && !orgName.get(i).contains("Offices")
+                        && !orgName.get(i).contains("City") && !orgName.get(i).contains("Senior")
+                        && !orgName.get(i).contains("Holy") && !orgName.get(i).contains("Montessori")
+                        && !orgName.get(i).contains("Gym")) {
+                    txtGB.setText(bundle.getString("GB") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                        txtGB.setText(txtGB.getText() + bundle.getString("SnowDay"));
+                        //GB is closed.
                         GB = true;
+                    }else{
+                        //GB at least has a message.
+                        GBMessage = true;
                     }
                     break;
                 }
@@ -870,22 +894,21 @@ public class SnowDayController {
         }
 
         if (!GB) {
-            //If GB is still false, GB is open
-            if (dayrun == 0) {
-                GBInfo.set(0, "Grand Blanc: Open Today");
-            }else if (dayrun == 1) {
-                GBInfo.set(0, "Grand Blanc: Open Tomorrow");
+            //Grand Blanc is open.
+            if (!GBMessage) {
+                txtGB.setText(bundle.getString("GB") +  bundle.getString("NotClosed"));
             }
-            if (dt.getHourOfDay() >= 7 && dt.getHourOfDay() < 16 && dayrun == 0) {
-                //Time is between 7AM and 4PM. School is already in session.
-                GBInfo.add(GBCount, "School is already in session.");
-                GBCount++;
-                GBOpen = true;
-            } else if (dt.getHourOfDay() >= 16 && dayrun == 0) {
-                //Time is after 4PM. School is already out.
-                GBInfo.add(GBCount, "School has already been dismissed.");
-                GBCount++;
-                GBOpen = true;
+
+            if (dayrun == 0) {
+                if (dt.getHourOfDay() >= 7 && dt.getHourOfDay() < 16) {
+                    //Time is between 7AM and 4PM. School is already in session.
+                    txtGB.setText(txtGB.getText() + bundle.getString("SchoolOpen"));
+                    GBOpen = true;
+                } else if (dt.getHourOfDay() >= 16) {
+                    //Time is after 4PM. School is already out.
+                    txtGB.setText(txtGB.getText() + bundle.getString("Dismissed"));
+                    GBOpen = true;
+                }
             }
         }
     }
@@ -899,360 +922,372 @@ public class SnowDayController {
         --->If the status entry contains "Closed Tomorrow" and the calculation is being run for 'tomorrow',
             increase that tier's 'tomorrow' count*/
 
-        for (int i = 1; i < orgNameLine.length; i++) {
+        for (int i = 0; i < orgName.size(); i++) {
             if (!(Atherton)) {
-                if (orgNameLine[i].contains("Atherton")) {
-                    closings.set(1, "Atherton: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Atherton")) {
+                    closings.set(1, bundle.getString("Atherton") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Atherton = true;
                 } else {
-                    closings.set(1, "Atherton: OPEN");
+                    closings.set(1, bundle.getString("Atherton") + bundle.getString("Open"));
                 }
             }
             if (!(Bendle)) {
-                if (orgNameLine[i].contains("Bendle")) {
-                    closings.set(2, "Bendle: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Bendle")) {
+                    closings.set(2, bundle.getString("Bendle") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Bendle = true;
                 } else {
-                    closings.set(2, "Bendle: OPEN");
+                    closings.set(2, bundle.getString("Bendle") + bundle.getString("Open"));
                 }
             }
             if (!(Bentley)) {
-                if (orgNameLine[i].contains("Bentley")) {
-                    closings.set(3, "Bentley: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Bentley")) {
+                    closings.set(3, bundle.getString("Bentley") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Bentley = true;
                 } else {
-                    closings.set(3, "Bentley: OPEN");
+                    closings.set(3, bundle.getString("Bentley") + bundle.getString("Open"));
                 }
             }
             if (!(Carman)) {
-                if (orgNameLine[i].contains("Carman-Ainsworth") && !orgNameLine[i].contains("Senior")) {
-                    closings.set(4, "Carman-Ainsworth: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Carman-Ainsworth") && !orgName.get(i).contains("Senior")) {
+                    closings.set(4, bundle.getString("Carman") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Carman = true;
                 } else {
-                    closings.set(4, "Carman: OPEN");
+                    closings.set(4, bundle.getString("Carman") + bundle.getString("Open"));
                 }
             }
             if (!(Flint)) {
-                if (orgNameLine[i].contains("Flint Community Schools")) {
-                    closings.set(5, "Flint: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Flint Community Schools")) {
+                    closings.set(5, bundle.getString("Flint") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Flint = true;
                 } else {
-                    closings.set(5, "Flint: OPEN");
+                    closings.set(5, bundle.getString("Flint") + bundle.getString("Open"));
                 }
             }
             if (!(Goodrich)) {
-                if (orgNameLine[i].contains("Goodrich")) {
-                    closings.set(6, "Goodrich: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Goodrich")) {
+                    closings.set(6, bundle.getString("Goodrich") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Goodrich = true;
                 } else {
-                    closings.set(6, "Goodrich: OPEN");
+                    closings.set(6, bundle.getString("Goodrich") + bundle.getString("Open"));
                 }
             }
             if (!(Beecher)) {
-                if (orgNameLine[i].contains("Beecher")) {
-                    closings.set(7, "Beecher: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Beecher")) {
+                    closings.set(7, bundle.getString("Beecher") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Beecher = true;
                 } else {
-                    closings.set(7, "Beecher: OPEN");
+                    closings.set(7, bundle.getString("Beecher") + bundle.getString("Open"));
                 }
             }
             if (!(Clio)) {
-                if (orgNameLine[i].contains("Clio") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Cornerstone")) {
-                    closings.set(8, "Clio: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Clio") && !orgName.get(i).contains("Christian")
+                        && !orgName.get(i).contains("Senior") && !orgName.get(i).contains("City")
+                        && !orgName.get(i).contains("Cornerstone")) {
+                    closings.set(8, bundle.getString("Clio") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Clio = true;
                 } else {
-                    closings.set(8, "Clio: OPEN");
+                    closings.set(8, bundle.getString("Clio") + bundle.getString("Open"));
                 }
             }
             if (!(Davison)) {
-                if (orgNameLine[i].contains("Davison") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Faith") && !orgNameLine[i].contains("Medical")
-                        && !orgNameLine[i].contains("Montessori")) {
-                    closings.set(9, "Davison: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Davison") && !orgName.get(i).contains("Senior")
+                        && !orgName.get(i).contains("Faith") && !orgName.get(i).contains("Medical")
+                        && !orgName.get(i).contains("Montessori")) {
+                    closings.set(9, bundle.getString("Davison") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Davison = true;
                 } else {
-                    closings.set(9, "Davison: OPEN");
+                    closings.set(9, bundle.getString("Davison") + bundle.getString("Open"));
                 }
             }
             if (!(Fenton)) {
-                if (orgNameLine[i].contains("Fenton") && !orgNameLine[i].contains("Lake")
-                        && !orgNameLine[i].contains("City") && !orgNameLine[i].contains("Montessori")) {
-                    closings.set(10, "Fenton: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Fenton") && !orgName.get(i).contains("Lake")
+                        && !orgName.get(i).contains("City") && !orgName.get(i).contains("Academy")
+                        && !orgName.get(i).contains("Montessori")) {
+                    closings.set(10, bundle.getString("Fenton") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Fenton = true;
                 } else {
-                    closings.set(10, "Fenton: OPEN");
+                    closings.set(10, bundle.getString("Fenton") + bundle.getString("Open"));
                 }
             }
             if (!(Flushing)) {
-                if (orgNameLine[i].contains("Flushing") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Robert")) {
-                    closings.set(11, "Flushing: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Flushing") && !orgName.get(i).contains("Senior")
+                        && !orgName.get(i).contains("Robert")) {
+                    closings.set(11, bundle.getString("Flushing") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Flushing = true;
                 } else {
-                    closings.set(11, "Flushing: OPEN");
+                    closings.set(11, bundle.getString("Flushing") + bundle.getString("Open"));
                 }
             }
             if (!(Genesee)) {
-                if (orgNameLine[i].contains("Genesee") && !orgNameLine[i].contains("Freedom")
-                        && !orgNameLine[i].contains("Christian") && !orgNameLine[i].contains("Library")
-                        && !orgNameLine[i].contains("Mobile") && !orgNameLine[i].contains("Programs")
-                        && !orgNameLine[i].contains("Hlth") && !orgNameLine[i].contains("Sys")
-                        && !orgNameLine[i].contains("Stem") && !orgNameLine[i].contains("I.S.D.")) {
-                    closings.set(12, "Genesee: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Genesee") && !orgName.get(i).contains("Freedom")
+                        && !orgName.get(i).contains("Christian") && !orgName.get(i).contains("Library")
+                        && !orgName.get(i).contains("Mobile") && !orgName.get(i).contains("Programs")
+                        && !orgName.get(i).contains("Health") && !orgName.get(i).contains("Medical")
+                        && !orgName.get(i).contains("Academy") && !orgName.get(i).contains("Skill")
+                        && !orgName.get(i).contains("Sys") && !orgName.get(i).contains("STEM")
+                        && !orgName.get(i).contains("Court") && !orgName.get(i).contains("County")
+                        && !orgName.get(i).contains("Job") && !orgName.get(i).contains("Leadership")
+                        && !orgName.get(i).contains("Freedom") && !orgName.get(i).contains("MSU")
+                        && !orgName.get(i).contains("I.S.D.") && !orgName.get(i).contains("Foster")) {
+                    closings.set(12, bundle.getString("Genesee") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Genesee = true;
                 } else {
-                    closings.set(12, "Genesee: OPEN");
+                    closings.set(12, bundle.getString("Genesee") + bundle.getString("Open"));
                 }
             }
             if (!(Kearsley)) {
-                if (orgNameLine[i].contains("Kearsley")) {
-                    closings.set(13, "Kearsley: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Kearsley")) {
+                    closings.set(13, bundle.getString("Kearsley") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Kearsley = true;
                 } else {
-                    closings.set(13, "Kearsley: OPEN");
+                    closings.set(13, bundle.getString("Kearsley") + bundle.getString("Open"));
                 }
             }
             if (!(LKFenton)) {
-                if (orgNameLine[i].contains("Lake Fenton")) {
-                    closings.set(14, "Lake Fenton: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Lake Fenton")) {
+                    closings.set(14, bundle.getString("LKFenton") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     LKFenton = true;
                 } else {
-                    closings.set(14, "Lake Fenton: OPEN");
+                    closings.set(14, bundle.getString("LKFenton") + bundle.getString("Open"));
                 }
             }
             if (!(Linden)) {
-                if (orgNameLine[i].contains("Linden") && !orgNameLine[i].contains("Charter")) {
-                    closings.set(15, "Linden: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Linden") && !orgName.get(i).contains("Charter")) {
+                    closings.set(15, bundle.getString("Linden") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Linden = true;
                 } else {
-                    closings.set(15, "Linden: OPEN");
+                    closings.set(15, bundle.getString("Linden") + bundle.getString("Open"));
                 }
             }
             if (!(Montrose)) {
-                if (orgNameLine[i].contains("Montrose") && !orgNameLine[i].contains("Senior")) {
-                    closings.set(16, "Montrose: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Montrose") && !orgName.get(i).contains("Senior")) {
+                    closings.set(16, bundle.getString("Montrose") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    } else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    } else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Montrose = true;
                 } else {
-                    closings.set(16, "Montrose: OPEN");
+                    closings.set(16, bundle.getString("Montrose") + bundle.getString("Open"));
                 }
             }
             if (!(Morris)) {
-                if (orgNameLine[i].contains("Mt. Morris") && !orgNameLine[i].contains("Administration")
-                        && !orgNameLine[i].contains("Twp") && !orgNameLine[i].contains("Mary")) {
-                    closings.set(17, "Mount Morris: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Mt. Morris") && !orgName.get(i).contains("Administration")
+                        && !orgName.get(i).contains("Twp") && !orgName.get(i).contains("Mary")) {
+                    closings.set(17, bundle.getString("Morris") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
-                    Morris= true;
+                    Morris = true;
                 } else {
-                    closings.set(17, "Mount Morris: OPEN");
+                    closings.set(17, bundle.getString("Morris") + bundle.getString("Open"));
                 }
             }
             if (!(SzCreek)) {
-                if (orgNameLine[i].contains("Swartz Creek") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Montessori")) {
-                    closings.set(18, "Swartz Creek: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Swartz Creek") && !orgName.get(i).contains("Senior")
+                        && !orgName.get(i).contains("Montessori")) {
+                    closings.set(18, bundle.getString("SzCreek") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     SzCreek = true;
                 } else {
-                    closings.set(18, "Swartz Creek: OPEN");
+                    closings.set(18, bundle.getString("SzCreek") + bundle.getString("Open"));
                 }
             }
             if (!(Durand)) {
-                if (orgNameLine[i].contains("Durand") && !orgNameLine[i].contains("Senior")) {
-                    closings.set(19, "Durand: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Durand") && !orgName.get(i).contains("Senior")) {
+                    closings.set(19, bundle.getString("Durand") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Durand = true;
                 } else {
-                    closings.set(19, "Durand: OPEN");
+                    closings.set(19, bundle.getString("Durand") + bundle.getString("Open"));
                 }
             }
             if (!(Holly)) {
-                if (orgNameLine[i].contains("Holly") && !orgNameLine[i].contains("Academy")) {
-                    closings.set(20, "Holly: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Holly") && !orgName.get(i).contains("Academy")) {
+                    closings.set(20, bundle.getString("Holly") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Holly = true;
                 } else {
-                    closings.set(20, "Holly: OPEN");
+                    closings.set(20, bundle.getString("Holly") + bundle.getString("Open"));
                 }
             }
             if (!(Lapeer)) {
-                if (orgNameLine[i].contains("Lapeer") && !orgNameLine[i].contains("Chatfield")
-                        && !orgNameLine[i].contains("Transit") && !orgNameLine[i].contains("CMH")
-                        && !orgNameLine[i].contains("Tech") && !orgNameLine[i].contains("Offices")
-                        && !orgNameLine[i].contains("Library") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Paul")) {
-                    closings.set(21, "Lapeer: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Lapeer") && !orgName.get(i).contains("Chatfield")
+                        && !orgName.get(i).contains("Greater") && !orgName.get(i).contains("CMH")
+                        && !orgName.get(i).contains("Tech") && !orgName.get(i).contains("Team")
+                        && !orgName.get(i).contains("Center") && !orgName.get(i).contains("Special")
+                        && !orgName.get(i).contains("Growth") && !orgName.get(i).contains("Offices")
+                        && !orgName.get(i).contains("Library") && !orgName.get(i).contains("Head")
+                        && !orgName.get(i).contains("Senior") && !orgName.get(i).contains("Foster")
+                        && !orgName.get(i).contains("Davenport") && !orgName.get(i).contains("MSU")
+                        && !orgName.get(i).contains("Paul") && !orgName.get(i).contains("Connections")) {
+                    closings.set(21, bundle.getString("Lapeer") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Lapeer = true;
                 } else {
-                    closings.set(21, "Lapeer: OPEN");
+                    closings.set(21, bundle.getString("Lapeer") + bundle.getString("Open"));
                 }
             }
             if (!(Owosso)) {
-                if (orgNameLine[i].contains("Owosso") && !orgNameLine[i].contains("Senior")
-                        && !orgNameLine[i].contains("Baker") && !orgNameLine[i].contains("Paul")
-                        && !orgNameLine[i].contains("Security")) {
-                    closings.set(22, "Owosso: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Owosso") && !orgName.get(i).contains("Christian")
+                        && !orgName.get(i).contains("Senior") && !orgName.get(i).contains("Adventist")
+                        && !orgName.get(i).contains("Baker") && !orgName.get(i).contains("Paul")
+                        && !orgName.get(i).contains("Security")) {
+                    closings.set(22, bundle.getString("Owosso") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Owosso = true;
                 } else {
-                    closings.set(22, "Owosso: OPEN");
+                    closings.set(22, bundle.getString("Owosso") + bundle.getString("Open"));
                 }
             }
             if (!(GBAcademy)) {
-                if (orgNameLine[i].contains("Grand Blanc Academy")) {
-                    closings.set(23, "Grand Blanc Academy: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Grand Blanc Academy")) {
+                    closings.set(23, bundle.getString("GBAcademy") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     GBAcademy = true;
                 } else {
-                    closings.set(23, "Grand Blanc Academy: OPEN");
+                    closings.set(23, bundle.getString("GBAcademy") + bundle.getString("Open"));
                 }
             }
             if (!(GISD)) {
-                if (orgNameLine[i].contains("Genesee I.S.D.")) {
-                    closings.set(24, "Genesee I.S.D.: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Genesee I.S.D.")) {
+                    closings.set(24, bundle.getString("GISD") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     GISD = true;
                 } else {
-                    closings.set(24, "Genesee I.S.D.: OPEN");
+                    closings.set(24, bundle.getString("GISD") + bundle.getString("Open"));
                 }
             }
             if (!(HolyFamily)) {
-                if (orgNameLine[i].contains("Holy Family")) {
-                    closings.set(25, "Holy Family: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Holy Family")) {
+                    closings.set(25, bundle.getString("HolyFamily") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     HolyFamily = true;
                 } else {
-                    closings.set(25, "Holy Family: OPEN");
+                    closings.set(25, bundle.getString("HolyFamily") + bundle.getString("Open"));
                 }
             }
             if (!(WPAcademy)) {
-                if (orgNameLine[i].contains("Woodland Park Academy")) {
-                    closings.set(26, "Woodland Park Academy: " + statusLine[i]);
-                    if (statusLine[i].contains("Closed Today") && dayrun == 0) {
+                if (orgName.get(i).contains("Woodland Park Academy")) {
+                    closings.set(26, bundle.getString("WPAcademy") + status.get(i));
+                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (statusLine[i].contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     WPAcademy = true;
                 } else {
-                    closings.set(26, "Woodland Park Academy: OPEN");
+                    closings.set(26, bundle.getString("WPAcademy") + bundle.getString("Open"));
                 }
             }
         }
@@ -1263,6 +1298,7 @@ public class SnowDayController {
 
 
     private class WeatherScraper implements Runnable {
+        @SuppressWarnings("ForLoopReplaceableByForEach")
         @Override
         public void run() {
             /**NATIONAL WEATHER SERVICE SCRAPER**/
@@ -1272,25 +1308,55 @@ public class SnowDayController {
 
             //Live html
             try {
-                weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
-                //Saving to searchable string array weatherwarn
-                weatherwarn=weatherdoc.toString().split("<title>");
+                //weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
+                weatherdoc = Jsoup.parse(new File("C:\\Users\\Corey\\Downloads\\Test\\rss.txt"), "UTF-8");
+                Elements title = weatherdoc.select("title");
+                Elements summary = weatherdoc.select("summary");
+                Elements expiretime = weatherdoc.select("cap|expires");
+                Elements link = weatherdoc.select("link");
 
-                //60% complete
-                progCalculate.setProgress(60);
+
+                if (title != null) {
+                    for (int i = 0; i < title.size(); i++) {
+                        weatherWarn.add(title.get(i).text().replace(" by NWS", ""));
+                    }
+
+                    if (!weatherWarn.get(1).contains("no active")) {
+                        //Weather warnings are present.
+                        WeatherWarningsPresent = true;
+                    }
+                }
+                if (expiretime != null) {
+                    for (int i = 0; i < expiretime.size(); i++) {
+                        weatherExpire.add(expiretime.get(i).text());
+                    }
+                }
+
+                if (summary != null) {
+                    for (int i = 0; i < summary.size(); i++) {
+                        weatherSummary.add(summary.get(i).text() + "...");
+                    }
+                }
+
+                if (weatherLink != null) {
+                    for (int i = 0; i < link.size(); i++) {
+                        weatherLink.add(link.get(i).attr("href"));
+                    }
+                }
 
                 getWeather();
+
             }catch (IOException e) {
                 //Connectivity issues
-                nwsInfo.add(nwsCount, "Could not connect to National Weather Service. Check your internet connection.");
-                nwsCount++;
+                weatherWarn.add(bundle.getString("WeatherConnectionError") + bundle.getString("NoConnection"));
                 NWSFail = true;
-            } catch (NullPointerException e) {
+
+            } catch (NullPointerException | IndexOutOfBoundsException e) {
                 //Webpage layout not recognized.
-                nwsInfo.add(nwsCount, "Unable to read weather information.");
-                nwsInfo.add(nwsCount + 1, "If this error persists please contact the developer.");
-                nwsCount += 2;
+                weatherWarn.clear();
+                weatherWarn.add(bundle.getString("WeatherParseError") + bundle.getString("ErrorContact"));
                 NWSFail = true;
+
             }
 
             //Weather scraper has finished.
@@ -1300,145 +1366,84 @@ public class SnowDayController {
 
     private void getWeather() {
         /*Only the highest weatherpercent is stored (not cumulative).
-        Watches affect tomorrow's calculation.
-        Advisories and Warnings affect today's calculation.*/
-        for (int i = 1; i < weatherwarn.length; i++) {
-            if (weatherwarn[i].contains("Significant Weather Advisory")) {
+        Calculation is affected based on when warning expires.*/
+        for (int i = 0; i < weatherWarn.size(); i++) {
+            if (weatherWarn.get(i).contains("Significant Weather Advisory")) {
                 //Significant Weather Advisory - 15% weatherpercent
-                SigWeather = true;
-                weathertoday = 15;
+                checkWarningTime(i, 15);
             }
-            if (weatherwarn[i].contains("Winter Weather Advisory")) {
+            if (weatherWarn.get(i).contains("Winter Weather Advisory")) {
                 //Winter Weather Advisory - 30% weatherpercent
-                WinterAdvisory = true;
-                weathertoday = 30;
+                checkWarningTime(i, 30);
             }
-            if (weatherwarn[i].contains("Lake-Effect Snow Advisory")) {
+            if (weatherWarn.get(i).contains("Lake-Effect Snow Advisory")) {
                 //Lake Effect Snow Advisory - 40% weatherpercent
-                LakeSnowAdvisory = true;
-                weathertoday = 40;
+                checkWarningTime(i, 40);
             }
-            if (weatherwarn[i].contains("Freezing Rain Advisory")) {
+            if (weatherWarn.get(i).contains("Freezing Rain Advisory")) {
                 //Freezing Rain - 40% weatherpercent
-                Rain = true;
-                weathertoday = 40;
+                checkWarningTime(i, 40);
             }
-            if (weatherwarn[i].contains("Freezing Drizzle Advisory")) {
+            if (weatherWarn.get(i).contains("Freezing Drizzle Advisory")) {
                 //Freezing Drizzle - 40% weatherpercent
-                Drizzle = true;
-                weathertoday = 40;
+                checkWarningTime(i, 40);
             }
-            if (weatherwarn[i].contains("Freezing Fog Advisory")) {
+            if (weatherWarn.get(i).contains("Freezing Fog Advisory")) {
                 //Freezing Fog - 40% weatherpercent
-                Fog = true;
-                weathertoday = 40;
+                checkWarningTime(i, 40);
             }
-            if (weatherwarn[i].contains("Wind Chill Advisory")) {
+            if (weatherWarn.get(i).contains("Wind Chill Advisory")) {
                 //Wind Chill Advisory - 40% weatherpercent
-                WindChillAdvisory = true;
-                weathertoday = 40;
+                checkWarningTime(i, 40);
             }
-            if (weatherwarn[i].contains("Ice Storm Warning")) {
+            if (weatherWarn.get(i).contains("Ice Storm Warning")) {
                 //Ice Storm Warning - 70% weatherpercent
-                IceStorm = true;
-                weathertoday = 70;
+                checkWarningTime(i, 70);
             }
-            if (weatherwarn[i].contains("Wind Chill Watch")) {
+            if (weatherWarn.get(i).contains("Wind Chill Watch")) {
                 //Wind Chill Watch - 70% weatherpercent
-                WindChillWatch = true;
-                weathertomorrow = 70;
+                checkWarningTime(i, 70);
             }
-            if (weatherwarn[i].contains("Wind Chill Warning")) {
+            if (weatherWarn.get(i).contains("Wind Chill Warning")) {
                 //Wind Chill Warning - 70% weatherpercent
-                WindChillWarn = true;
-                weathertoday = 70;
+                checkWarningTime(i, 70);
             }
-            if (weatherwarn[i].contains("Winter Storm Watch")) {
+            if (weatherWarn.get(i).contains("Winter Storm Watch")) {
                 //Winter Storm Watch - 80% weatherpercent
-                WinterWatch = true;
-                weathertomorrow = 80;
+                checkWarningTime(i, 80);
             }
-            if (weatherwarn[i].contains("Winter Storm Warning")) {
+            if (weatherWarn.get(i).contains("Winter Storm Warning")) {
                 //Winter Storm Warning - 80% weatherpercent
-                WinterWarn = true;
-                weathertoday = 80;
+                checkWarningTime(i, 80);
             }
-            if (weatherwarn[i].contains("Lake-Effect Snow Watch")) {
+            if (weatherWarn.get(i).contains("Lake-Effect Snow Watch")) {
                 //Lake Effect Snow Watch - 80% weatherpercent
-                LakeSnowWatch = true;
-                weathertomorrow = 80;
+                checkWarningTime(i, 80);
             }
-            if (weatherwarn[i].contains("Lake-Effect Snow Warning")) {
+            if (weatherWarn.get(i).contains("Lake-Effect Snow Warning")) {
                 //Lake Effect Snow Warning - 80% weatherpercent
-                LakeSnowWarn = true;
-                weathertoday = 80;
+                checkWarningTime(i, 80);
             }
-            if (weatherwarn[i].contains("Blizzard Watch")) {
+            if (weatherWarn.get(i).contains("Blizzard Watch")) {
                 //Blizzard Watch - 90% weatherpercent
-                BlizzardWatch = true;
-                weathertomorrow = 90;
+                checkWarningTime(i, 90);
             }
-            if (weatherwarn[i].contains("Blizzard Warning")) {
+            if (weatherWarn.get(i).contains("Blizzard Warning")) {
                 //Blizzard Warning - 90% weatherpercent
-                BlizzardWarn = true;
-                weathertoday = 90;
+                checkWarningTime(i, 90);
             }
         }
+    }
 
-        //If none of the above warnings are present
-        if (weathertoday == 0 && weathertomorrow == 0) {
-            weather.set(0, "No applicable weather warnings.");
+    private void checkWarningTime(int i, int w) {
+        
+        if (weatherExpire.get(i - 1).substring(0, 10).equals(datetoday)) {
+            weathertoday = w;
         }
 
-        //Set entries in the list in order of decreasing category (warn -> watch -> advisory)
-        if (BlizzardWarn) {
-            weather.add(weatherCount, "Blizzard Warning");
-            weatherCount++;
-        }if (LakeSnowWarn) {
-            weather.add(weatherCount, "Lake-Effect Snow Warning");
-            weatherCount++;
-        }if (WinterWarn) {
-            weather.add(weatherCount, "Winter Storm Warning");
-            weatherCount++;
-        }if (WindChillWarn) {
-            weather.add(weatherCount, "Wind Chill Warning");
-            weatherCount++;
-        }if (IceStorm) {
-            weather.add(weatherCount, "Ice Storm Warning");
-            weatherCount++;
-        }if (BlizzardWatch){
-            weather.add(weatherCount, "Blizzard Watch");
-            weatherCount++;
-        }if (LakeSnowWatch) {
-            weather.add(weatherCount, "Lake-Effect Snow Watch");
-            weatherCount++;
-        }if (WinterWatch) {
-            weather.add(weatherCount, "Winter Storm Watch");
-            weatherCount++;
-        }if (WindChillWatch) {
-            weather.add(weatherCount, "Wind Chill Watch");
-            weatherCount++;
-        }if (LakeSnowAdvisory) {
-            weather.add(weatherCount, "Lake-Effect Snow Advisory");
-            weatherCount++;
-        }if (WinterAdvisory) {
-            weather.add(weatherCount, "Winter Weather Advisory");
-            weatherCount++;
-        }if (WindChillAdvisory) {
-            weather.add(weatherCount, "Wind Chill Advisory");
-            weatherCount++;
-        }if (Rain) {
-            weather.add(weatherCount, "Freezing Rain Advisory");
-            weatherCount++;
-        }if (Drizzle) {
-            weather.add(weatherCount, "Freezing Drizzle Advisory");
-            weatherCount++;
-        }if (Fog) {
-            weather.add(weatherCount, "Freezing Fog Advisory");
-            weatherCount++;
-        }if (SigWeather) {
-            weather.add(weatherCount, "Significant Weather Advisory");
-            weatherCount++;
+        if (weatherExpire.get(i - 1).substring(0, 10).equals(datetomorrow)) {
+            weathertoday = w;
+            weathertomorrow = w;
         }
 
         //80% complete
@@ -1534,17 +1539,27 @@ public class SnowDayController {
                 //Both scrapers failed. A percentage cannot be determined.
                 //Don't set the percent.
                 progCalculate.setStyle("-fx-text-fill: red");
-                Platform.runLater(() -> lblError.setText("Unable to run calculation."));
+                Platform.runLater(() -> lblError.setText(bundle.getString("CalculateError")));
                 progCalculate.setStyle("-fx-accent: red");
-                Platform.runLater(() -> lblPercent.setText("--"));
+                Platform.runLater(() -> lblPercent.setText(""));
+                
+                scrClosings.setDisable(true);
+                lstWeather.setDisable(true);
+                
             } else if (WJRTFail || NWSFail) {
                 //Partial failure
-                Platform.runLater(() -> lblError.setText("Network communication issues"));
+                Platform.runLater(() -> lblError.setText(bundle.getString("NoNetwork")));
                 progCalculate.setStyle("-fx-accent: orange");
+
+                if (!WJRTFail) {
+                    scrClosings.setDisable(false);
+                }else if (!NWSFail) {
+                    lstWeather.setDisable(false);
+                }
             }else{
                 try {
                     for (int percentscroll = 0; percentscroll <= percent; percentscroll++) {
-                        Thread.sleep(10);
+                        Thread.sleep(20);
                         if (percentscroll >= 0 && percentscroll <= 20) {
                             lblPercent.setStyle("-fx-text-fill: red");
                         } if (percentscroll > 20 && percentscroll <= 60) {
@@ -1557,29 +1572,13 @@ public class SnowDayController {
 
                         final int finalPercentscroll = percentscroll;
                         Platform.runLater(() -> lblPercent.setText((finalPercentscroll) + "%"));
-
-                        txtWeather.setDisable(false);
-                        txtGB.setDisable(false);
-                        scrClosings.setDisable(false);
                     }
                 } catch (InterruptedException ignored) {
                 }
 
-            }
-
-            //Set the content of txtGB
-            for (int i = 0; i < GBInfo.size(); i++) {
-                if (i == 0) {
-                    txtGB.setText(GBInfo.get(i));
-                }else{
-                    txtGB.setText(txtGB.getText() + "\n" + GBInfo.get(i));
-                }
-            }
-
-            //Red is 204 0 0
-            //Blue is 0 153 204
-            if (!WJRTFail) {
-                //WJRT has not failed.
+                lstWeather.setDisable(false);
+                scrClosings.setDisable(false);
+                
                 //If the school is closed, make it orange.
                 if (Atherton) {
                     txtAtherton.setStyle("-fx-control-inner-background: orange");
@@ -1661,41 +1660,60 @@ public class SnowDayController {
                 txtGISD.setText(closings.get(24));
                 txtHolyFamily.setText(closings.get(25));
                 txtWPAcademy.setText(closings.get(26));
+            }
 
-            }else{
-                //WJRT has failed.
-                for (int i = 0; i < wjrtInfo.size(); i++) {
-                    if (i == 0) {
-                        txtGB.setText(wjrtInfo.get(i));
-                    }else{
-                        txtGB.setText(txtGB.getText() + "\n" + wjrtInfo.get(i));
-                    }
+            //Remove blank entries
+            for (int i = 0; i < weatherWarn.size(); i++) {
+                if (weatherWarn.get(i).equals("")) {
+                    weatherWarn.remove(i);
                 }
             }
 
-            if (!NWSFail) {
-                //NWS has not failed.
-                for (int i = 0; i < weather.size(); i++) {
-                    if (i == 0) {
-                        txtWeather.setText(weather.get(i));
-                    }else{
-                        txtWeather.setText(txtWeather.getText() + "\n" + weather.get(i));
+            lstWeather.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+                @SuppressWarnings({"UnnecessaryLocalVariable", "unchecked"})
+                @Override
+                public ListCell<String> call(ListView<String> list) {
+                    final ListCell cell = new ListCell() {
+                        private Text text;
+
+                        @Override
+                        public void updateItem(Object item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (!isEmpty()) {
+                                text = new Text(item.toString());
+                                text.setWrappingWidth(lstWeather.getPrefWidth());
+                                Platform.runLater(() -> setGraphic(text));
+                            }
+                        }
+                    };
+                    return cell;
+                }
+            });
+
+            Platform.runLater(() -> {
+                lblNWS.setText(weatherWarn.get(0));
+                lstWeather.setItems(FXCollections.observableArrayList(weatherWarn));
+                lstWeather.getItems().remove(0);
+            });
+
+            lstWeather.setOnMouseClicked(click -> {
+
+                if (click.getClickCount() == 2) {
+                    int i = lstWeather.getSelectionModel().getSelectedIndex();
+
+                    if (WeatherWarningsPresent) {
+                        try {
+                            WeatherDialog.display(weatherWarn.get(i + 1), weatherSummary.get(i), weatherLink.get(i + 1));
+                        }catch (NullPointerException | IndexOutOfBoundsException e) {
+                            WeatherDialog.display(null, bundle.getString("WarningParseError"), null);
+                        }
                     }
                 }
-            }else{
-                //NWS has failed.
-                for (int i = 0; i < nwsInfo.size(); i++) {
-                    if (i == 0) {
-                        txtWeather.setText(nwsInfo.get(i));
-                    }else{
-                        txtWeather.setText(txtWeather.getText() + "\n" + nwsInfo.get(i));
-                    }
-                }
-            }
+            });
 
             btnCalculate.setDisable(false);
-            txtWeather.setDisable(false);
-            txtGB.setDisable(false);
+            lstWeather.setDisable(false);
+            txtGB.setVisible(true);
             scrClosings.setDisable(false);
         }
 
