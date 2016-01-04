@@ -806,8 +806,7 @@ public class SnowDayController {
 
             try {
                 //This is the current listings page.
-                //schools = Jsoup.connect("http://abc12.com/closings").get();
-                schools = Jsoup.parse(new File("C:\\Users\\Corey\\Downloads\\Test\\NewTest.htm"), "UTF-8");
+                schools = Jsoup.connect("http://abc12.com/closings").get();
 
                 //Attempt to parse input
 
@@ -1308,8 +1307,7 @@ public class SnowDayController {
 
             //Live html
             try {
-                //weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
-                weatherdoc = Jsoup.parse(new File("C:\\Users\\Corey\\Downloads\\Test\\rss.txt"), "UTF-8");
+                weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
                 Elements title = weatherdoc.select("title");
                 Elements summary = weatherdoc.select("summary");
                 Elements expiretime = weatherdoc.select("cap|expires");
