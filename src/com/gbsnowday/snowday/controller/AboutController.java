@@ -1,8 +1,9 @@
-package snowday;
+package com.gbsnowday.snowday.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import com.gbsnowday.snowday.ui.LicenseDialog;
 
 import java.awt.*;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class AboutController {
     
     @FXML
     ResourceBundle bundle = ResourceBundle
-            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     public Button btnTwitter;
     public Button btnEmail;

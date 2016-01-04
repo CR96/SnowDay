@@ -1,5 +1,6 @@
-package snowday;
+package com.gbsnowday.snowday.ui;
 
+import com.gbsnowday.snowday.main.Main;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Hyperlink;
@@ -32,20 +33,20 @@ public class LicenseDialog {
     limitations under the License.*/
 
     static ResourceBundle bundle = ResourceBundle
-            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
     
     public static void display() {
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(bundle.getString("action_about"));
-        window.getIcons().add(new Image(Main.class.getResourceAsStream("icons/icon.png")));
+        window.getIcons().add(new Image(Main.class.getResourceAsStream("/image/icon.png")));
         window.setWidth(625.0);
         window.setHeight(625.0);
         window.setResizable(false);
 
         ImageView imgIcon = new ImageView();
-        imgIcon.setImage(new Image(Main.class.getResourceAsStream("icons/icon.png"), 64.0, 64.0, true, true));
+        imgIcon.setImage(new Image(Main.class.getResourceAsStream("/image/icon.png"), 64.0, 64.0, true, true));
 
         Label lblTitle = new Label();
         Label lblUpdateTitle = new Label();

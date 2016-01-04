@@ -1,6 +1,7 @@
-package snowday;
+package com.gbsnowday.snowday.controller;
 
-
+import com.gbsnowday.snowday.ui.RadarDialog;
+import com.gbsnowday.snowday.ui.WeatherDialog;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -19,18 +20,17 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class SnowDayController {
     limitations under the License.*/
 
     ResourceBundle bundle = ResourceBundle
-            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     //Declare scene controls
     public Button btnCalculate;
@@ -112,8 +112,6 @@ public class SnowDayController {
     int dayscount = 0;
     boolean todayValid;
     boolean tomorrowValid;
-    boolean reminder;
-    boolean bobcats;
 
     int days;
     int dayrun;
@@ -124,13 +122,14 @@ public class SnowDayController {
     //Declare lists that will be used in ListAdapters
     ArrayList<String> infoList = new ArrayList<>();
     ArrayList<Integer> daysarray = new ArrayList<>();
-    int infoCount = 1;
+    
+    boolean infoPresent;
 
     //Figure out what tomorrow is
     //Saturday = 6, Sunday = 7
 
-    DateTime dt = new DateTime();
-    int weekday = dt.getDayOfWeek();
+    LocalDateTime dt = LocalDateTime.now();
+    int weekday = dt.getDayOfWeek().getValue();
 
     String schooltext;
 
@@ -141,11 +140,6 @@ public class SnowDayController {
     List<String> weatherSummary = new ArrayList<>();
     List<String> weatherExpire = new ArrayList<>();
     List<String> weatherLink = new ArrayList<>();
-
-    int GBCount = 1;
-    int weatherCount = 0;
-    int wjrtCount = 0;
-    int nwsCount = 0;
 
     //Individual components of the calculation
     int schoolpercent;
@@ -266,9 +260,9 @@ public class SnowDayController {
     public void showAboutDialog() throws IOException {
         Stage stage = new Stage();
         stage.setTitle(bundle.getString("action_about"));
-        stage.getIcons().add(new javafx.scene.image.Image(Main.class.getResourceAsStream("icons/icon.png")));
+        stage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/icon.png")));
         stage.initModality(Modality.APPLICATION_MODAL);
-        Pane pane = FXMLLoader.load(getClass().getResource("about.fxml"), bundle);
+        Pane pane = FXMLLoader.load(getClass().getResource("/view/about.fxml"), bundle);
         Scene scene = new Scene(pane);
         stage.setScene(scene);
         stage.setResizable(false);
@@ -327,51 +321,51 @@ public class SnowDayController {
         Uses a mixture of SimpleDateFormat for simple string comparison and JodaTime for more
         complicated arguments*/
 
-        if (dt.getMonthOfYear() == 6 && dt.getDayOfMonth() > 15) {
+        if (dt.getMonthValue() == 6 && dt.getDayOfMonth() > 15) {
             //Summer break (June)
-            infoList.add(infoCount, bundle.getString("Summer"));
-            infoCount++;
+            infoList.add(bundle.getString("Summer"));
+            infoPresent=true;
             todayValid = false;
             tomorrowValid = false;
-        } else if (dt.getMonthOfYear() > 6 && dt.getMonthOfYear() <= 8) {
+        } else if (dt.getMonthValue() > 6 && dt.getMonthValue() <= 8) {
             //Summer break (July and August)
-            infoList.add(infoCount, bundle.getString("Summer"));
-            infoCount++;
+            infoList.add(bundle.getString("Summer"));
+            infoPresent=true;
             todayValid = false;
             tomorrowValid = false;
-        } else if (dt.getMonthOfYear() == 9 && dt.getDayOfMonth() < 7) {
+        } else if (dt.getMonthValue() == 9 && dt.getDayOfMonth() < 7) {
             //Summer break (September)
-            infoList.add(infoCount, bundle.getString("Summer"));
-            infoCount++;
+            infoList.add(bundle.getString("Summer"));
+            infoPresent = true;
             todayValid = false;
             tomorrowValid = false;
         }else if (textdate.equals("September 07 2015")) {
-            infoList.add(infoCount, bundle.getString("YearStart"));
-            infoCount++;
+            infoList.add(bundle.getString("YearStart"));
+            infoPresent = true;
             todayValid = false;
         }else if (textdate.equals("September 25 2015")) {
-            infoList.add(infoCount, bundle.getString("HC"));
-            infoCount++;
+            infoList.add(bundle.getString("HC"));
+            infoPresent = true;
         }else if (textdate.equals("October 20 2015") || textdate.equals("December 08 2015")
                 || textdate.equals("February 02 2016") || textdate.equals("May 03 2016")) {
-            infoList.add(infoCount, bundle.getString("LSTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("LSTomorrow"));
+            infoPresent = true;
         } else if (textdate.equals("October 21 2015") || textdate.equals("December 09 2015")
                 || textdate.equals("February 03 2016") || textdate.equals("May 04 2016")) {
-            infoList.add(infoCount, bundle.getString("LSToday"));
-            infoCount++;
+            infoList.add(bundle.getString("LSToday"));
+            infoPresent = true;
         }else if (textdate.equals("November 26 2015")) {
-            infoList.add(infoCount, bundle.getString("Thanksgiving"));
-            infoCount++;
+            infoList.add(bundle.getString("Thanksgiving"));
+            infoPresent = true;
             todayValid = false;
             tomorrowValid = false;
         }else if (textdate.equals("November 26 2015") || textdate.equals("November 27 2015")) {
-            infoList.add(infoCount, bundle.getString("ThanksgivingRecess"));
-            infoCount++;
+            infoList.add(bundle.getString("ThanksgivingRecess"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("December 22 2015")) {
-            infoList.add(infoCount, bundle.getString("WinterBreakTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("WinterBreakTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         } else if (textdate.equals("December 23 2015") || textdate.equals("December 24 2015")
                 || textdate.equals("December 25 2015") || textdate.equals("December 26 2015") || textdate.equals("December 27 2014")
@@ -380,91 +374,91 @@ public class SnowDayController {
                 || textdate.equals("December 31 2015") || textdate.equals("January 01 2016")) {
             //Winter Break
             if (textdate.equals("December 25 2015")) {
-                infoList.add(infoCount, bundle.getString("Christmas"));
-                infoCount++;
+                infoList.add(bundle.getString("Christmas"));
+                infoPresent = true;
             } else if (textdate.equals("January 01 2016")) {
-                infoList.add(infoCount, bundle.getString("NewYear"));
-                infoCount++;
+                infoList.add(bundle.getString("NewYear"));
+                infoPresent = true;
             }
 
-            infoList.add(infoCount, bundle.getString("WinterBreak"));
-            infoCount++;
+            infoList.add(bundle.getString("WinterBreak"));
+            infoPresent = true;
         } else if (textdate.equals("January 17 2016")) {
-            infoList.add(infoCount, bundle.getString("MLKTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("MLKTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             todayValid = false;
             tomorrowValid = false;
         } else if (textdate.equals("January 18 2016")) {
             //MLK Day
-            infoList.add(infoCount, bundle.getString("MLK") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("MLK") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         }else if (textdate.equals("January 24 2016")) {
-            infoList.add(infoCount, bundle.getString("RecordsTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("RecordsTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         } else if (textdate.equals("January 25 2016")) {
-            infoList.add(infoCount, bundle.getString("Records") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("Records") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         }else if (textdate.equals("February 11 2016")) {
-            infoList.add(infoCount, bundle.getString("LincolnTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("LincolnTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         } else if (textdate.equals("February 12 2016")) {
-            infoList.add(infoCount, bundle.getString("Lincoln") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("Lincoln") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("February 14 2016")) {
-            infoList.add(infoCount, bundle.getString("PresidentTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("PresidentTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             todayValid = false;
             tomorrowValid = false;
         } else if (textdate.equals("February 15 2016")) {
-            infoList.add(infoCount, bundle.getString("President") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("President") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("November 10 2015") || textdate.equals("March 08 2016")) {
-            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("HalfDayConferenceMSTomorrow"));
+            infoPresent = true;
         }else if (textdate.equals("November 11 2015") || textdate.equals("November 12 2015")
                 || textdate.equals("March 09 2016") || textdate.equals("March 10 2016")) {
-            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSTodayTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("HalfDayConferenceMSTodayTomorrow"));
+            infoPresent = true;
         } else if (textdate.equals("November 13 2015") || textdate.equals("March 11 2016")) {
-            infoList.add(infoCount, bundle.getString("HalfDayConferenceMSToday"));
-            infoCount++;
+            infoList.add(bundle.getString("HalfDayConferenceMSToday"));
+            infoPresent = true;
         } else if (textdate.equals("November 24 2015") || textdate.equals("September 24 2015")
                 || textdate.equals("October 08 2015")
                 || textdate.equals("March 31 2016")) {
-            infoList.add(infoCount, bundle.getString("HalfDayTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("HalfDayTomorrow"));
+            infoPresent = true;
         }else if (textdate.equals("November 25 2015") || textdate.equals("September 25 2015")
                 || textdate.equals("October 09 2015")) {
             if (textdate.equals("November 25 2015")) {
-                infoList.add(infoCount, bundle.getString("ThanksgivingRecessTomorrow"));
-                infoCount++;
+                infoList.add(bundle.getString("ThanksgivingRecessTomorrow"));
+                infoPresent = true;
                 tomorrowValid = false;
             }
 
-            infoList.add(infoCount, bundle.getString("HalfDay"));
-            infoCount++;
+            infoList.add(bundle.getString("HalfDay"));
+            infoPresent = true;
         }else if (textdate.equals("March 24 2016")) {
-            infoList.add(infoCount, bundle.getString("GoodFridayTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("GoodFridayTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         }else if (textdate.equals("March 25 2016")) {
-            infoList.add(infoCount, bundle.getString("GoodFriday") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("GoodFriday") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         }else if (textdate.equals("March 27 2016")) {
-            infoList.add(infoCount, bundle.getString("Easter"));
-            infoCount++;
+            infoList.add(bundle.getString("Easter"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("April 01 2016")) {
-            infoList.add(infoCount, bundle.getString("HalfDay"));
-            infoList.add(infoCount + 1, bundle.getString("SpringBreakTomorrow"));
-            infoCount+=2;
+            infoList.add(bundle.getString("HalfDay"));
+            infoList.add(bundle.getString("SpringBreakTomorrow"));
+            infoPresent=true;
             tomorrowValid = false;
         } else if (textdate.equals("April 02 2016") || textdate.equals("April 03 2016")
                 || textdate.equals("April 04 2016") || textdate.equals("April 05 2016")
@@ -472,40 +466,41 @@ public class SnowDayController {
                 || textdate.equals("April 08 2016")) {
             //Spring Break
 
-            infoList.add(infoCount, bundle.getString("SpringBreak"));
-            infoCount++;
+            infoList.add(bundle.getString("SpringBreak"));
+            infoPresent = true;
             todayValid = false;
             tomorrowValid = false;
         } else if (textdate.equals("November 02 2015") || textdate.equals("April 27 2016")) {
-            infoList.add(infoCount, bundle.getString("PDDTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("PDDTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         } else if (textdate.equals("November 03 2015") || textdate.equals("April 28 2016")) {
-            infoList.add(infoCount, bundle.getString("PDD") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("PDD") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("May 29 2016")) {
-            infoList.add(infoCount, bundle.getString("MemorialDayTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoCount++;
+            infoList.add(bundle.getString("MemorialDayTomorrow") + bundle.getString("NoSessionTomorrow"));
+            infoPresent = true;
             tomorrowValid = false;
         } else if (textdate.equals("May 30 2016")) {
-            infoList.add(infoCount, bundle.getString("MemorialDay") + bundle.getString("NoSessionToday"));
-            infoCount++;
+            infoList.add(bundle.getString("MemorialDay") + bundle.getString("NoSessionToday"));
+            infoPresent = true;
             todayValid = false;
         } else if (textdate.equals("June 02 2016")) {
-            infoList.add(infoCount, bundle.getString("Senior"));
-            infoCount++;
-            bobcats = true;
+            infoList.add(bundle.getString("Senior"));
+            infoPresent = true;
+            txtInfo.setStyle("-fx-text-fill: red");
         } else if (textdate.equals("June 15 2016")) {
-            infoList.add(infoCount, bundle.getString("YearEnd"));
-            infoCount++;
+            infoList.add(bundle.getString("YearEnd"));
+            infoPresent = true;
             tomorrowValid = false;
         }
 
         //If items were added...
-        reminder = infoCount > 1;
-
-
+        if (infoPresent) {
+            txtInfo.setStyle("-fx-text-fill: blue");
+        }
+        
         //Determine if the calculation should be available
         if (!tomorrowValid && !todayValid) {
             optToday.setDisable(true);
@@ -545,26 +540,26 @@ public class SnowDayController {
         //Sunday is 7
 
         if (weekday == 5) {
-            infoList.add(infoCount, bundle.getString("SaturdayTomorrow"));
+            infoList.add(bundle.getString("SaturdayTomorrow"));
             optTomorrow.setDisable(true);
             optTomorrow.setSelected(false);
-            infoCount++;
+            infoPresent = true;
         } else if (weekday == 6) {
-            infoList.add(infoCount, bundle.getString("SaturdayToday"));
+            infoList.add(bundle.getString("SaturdayToday"));
             optToday.setDisable(true);
             optToday.setSelected(false);
             optTomorrow.setDisable(true);
             optTomorrow.setSelected(false);
-            infoCount++;
+            infoPresent = true;
         } else if (weekday == 7) {
-            infoList.add(infoCount, bundle.getString("SundayToday"));
+            infoList.add(bundle.getString("SundayToday"));
             optToday.setDisable(true);
             optToday.setSelected(false);
-            infoCount++;
+            infoPresent = true;
         }
     }
 
-    public void Calculate() throws InterruptedException {
+    public void Calculate() {
         /**
          * This application will predict the possibility of a snow day for Grand Blanc Community Schools.
          * Created by Corey Rowe, February 2014.
@@ -708,11 +703,6 @@ public class SnowDayController {
         closings.add(24, "");
         closings.add(25, "");
         closings.add(26, "");
-
-        wjrtCount = 0;
-        weatherCount = 0;
-        nwsCount = 0;
-        GBCount = 1;
 
         txtAtherton.setText("Atherton:");
         txtAtherton.setStyle("-fx-control-inner-background: white");
@@ -899,11 +889,11 @@ public class SnowDayController {
             }
 
             if (dayrun == 0) {
-                if (dt.getHourOfDay() >= 7 && dt.getHourOfDay() < 16) {
+                if (dt.getHour() >= 7 && dt.getHour() < 16) {
                     //Time is between 7AM and 4PM. School is already in session.
                     txtGB.setText(txtGB.getText() + bundle.getString("SchoolOpen"));
                     GBOpen = true;
-                } else if (dt.getHourOfDay() >= 16) {
+                } else if (dt.getHour() >= 16) {
                     //Time is after 4PM. School is already out.
                     txtGB.setText(txtGB.getText() + bundle.getString("Dismissed"));
                     GBOpen = true;

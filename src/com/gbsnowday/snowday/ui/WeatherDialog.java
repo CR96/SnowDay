@@ -1,4 +1,4 @@
-package snowday;
+package com.gbsnowday.snowday.ui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,7 +34,7 @@ public class WeatherDialog {
     limitations under the License.*/
 
     static ResourceBundle bundle = ResourceBundle
-            .getBundle("bundles.LangBundle", new Locale("en", "EN"));
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
     public static void display(String title, String summary, String link) {
@@ -42,13 +42,13 @@ public class WeatherDialog {
 
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(bundle.getString("weather"));
-        window.getIcons().add(new Image(Main.class.getResourceAsStream("icons/icon.png")));
+        window.getIcons().add(new Image(WeatherDialog.class.getResourceAsStream("/image/icon.png")));
         window.setWidth(720.0);
         window.setHeight(400.0);
         window.setResizable(false);
 
         ImageView imgWeather = new ImageView();
-        imgWeather.setImage(new Image(Main.class.getResourceAsStream("icons/weather.png")));
+        imgWeather.setImage(new Image(WeatherDialog.class.getResourceAsStream("/image/weather.png")));
 
         Label lblTitle = new Label();
         Label lblSummary = new Label();

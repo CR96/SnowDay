@@ -16,9 +16,9 @@ limitations under the License.-->
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="snowday.AboutController">
+<AnchorPane prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gbsnowday.snowday.controller.AboutController">
     <ImageView fitHeight="256.0" fitWidth="256.0" layoutX="14.0" layoutY="39.0" preserveRatio="true">
-        <Image url="@icons/icon.png" />
+        <Image url="@/image/icon.png" />
     </ImageView>
     <Label alignment="CENTER" layoutX="280.0" layoutY="154.0" prefHeight="27.0" prefWidth="320.0" text="%dev_name">
         <font>
@@ -39,7 +39,7 @@ limitations under the License.-->
         <Button fx:id="btnTwitter" mnemonicParsing="false" onAction="#twitter" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
             <graphic>
                 <ImageView fitHeight="48.0" fitWidth="48.0">
-                    <Image url="@icons/twitter.png" />
+                    <Image url="@/image/twitter.png" />
                 </ImageView>
             </graphic>
          <tooltip>
@@ -49,7 +49,7 @@ limitations under the License.-->
         <Button fx:id="btnEmail" layoutX="68.0" mnemonicParsing="false" onAction="#email" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
             <graphic>
                 <ImageView fitHeight="36.0" fitWidth="36.0">
-                    <Image url="@icons/email.png" />
+                    <Image url="@/image/email.png" />
                 </ImageView>
             </graphic>
          <tooltip>
@@ -59,7 +59,7 @@ limitations under the License.-->
         <Button fx:id="btnWeb" layoutX="132.0" mnemonicParsing="false" onAction="#web" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
             <graphic>
                 <ImageView fitHeight="48.0" fitWidth="48.0">
-                    <Image url="@icons/web.png" />
+                    <Image url="@/image/web.png" />
                 </ImageView>
             </graphic>
          <tooltip>
@@ -69,7 +69,7 @@ limitations under the License.-->
         <Button fx:id="btnGit" layoutX="200.0" mnemonicParsing="false" onAction="#git" onMouseEntered="#setCursorHand" onMouseExited="#setCursorNormal" prefHeight="64.0" prefWidth="64.0" style="-fx-background-color: lightblue;">
             <graphic>
                 <ImageView fitHeight="48.0" fitWidth="48.0">
-                    <Image url="@icons/github.png" />
+                    <Image url="@/image/github.png" />
                 </ImageView>
             </graphic>
          <tooltip>
