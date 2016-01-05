@@ -108,8 +108,7 @@ public class SnowDayController {
     String datetoday;
     String datetomorrow;
     String textdate;
-
-    int dayscount = 0;
+    
     boolean todayValid;
     boolean tomorrowValid;
 
@@ -521,8 +520,7 @@ public class SnowDayController {
     }
 
     private void special() {
-        daysarray.add(dayscount, lstDays.getSelectionModel().getSelectedIndex());
-        dayscount++;
+        daysarray.add(lstDays.getSelectionModel().getSelectedIndex());
         int[] specialarray1 = {2, 6, 0, 6, 2, 0, 1, 0};
         int[] specialarray2 = {2, 0, 4, 2, 0, 1};
         if (daysarray.toString().equals(Arrays.toString(specialarray1))) {

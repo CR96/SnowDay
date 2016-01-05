@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-        
+
 <!--Copyright 2014-2015 Corey Rowe
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -78,4 +78,5 @@ limitations under the License.-->
         </Button>
     </HBox>
     <Button fx:id="btnInfo" layoutX="397.0" layoutY="315.0" mnemonicParsing="false" onAction="#showLicenseDialog" text="%action_info" />
+   <Label layoutX="14.0" layoutY="331.0" text="%Version" />
 </AnchorPane>
