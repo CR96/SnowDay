@@ -2,6 +2,7 @@ package com.gbsnowday.snowday.controller;
 
 import com.gbsnowday.snowday.ui.RadarDialog;
 import com.gbsnowday.snowday.ui.WeatherDialog;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,11 +16,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -63,7 +66,7 @@ public class SnowDayController {
     public RadioButton optTomorrow;
 
     public Label lblError;
-    public ProgressBar progCalculate;
+    public ImageView imgCalculate;
 
     public ScrollPane scrClosings;
 
@@ -222,6 +225,8 @@ public class SnowDayController {
     or a webpage is down*/
     boolean WJRTFail;
     boolean NWSFail;
+
+    RotateTransition rt;
 
     //Threads
     Thread wjrt;
@@ -569,6 +574,19 @@ public class SnowDayController {
          * Obviously return 100% if GB is already closed.
          */
 
+        //Spin the snowflake
+        imgCalculate.setVisible(true);
+        
+        imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_blue.png")));
+        
+        rt = new RotateTransition(Duration.millis(2000), imgCalculate);
+        rt.setByAngle(720);
+        rt.setCycleCount(Animation.INDEFINITE);
+        rt.setAutoReverse(false);
+
+        rt.play();
+        
+        
         //Call a reset to clear any previous data
         Reset();
 
@@ -602,8 +620,8 @@ public class SnowDayController {
     }
 
     private void Reset() {
-
-        progCalculate.setProgress(0);
+        
+        lblError.setText("");
 
         lblPercent.setVisible(false);
 
@@ -806,9 +824,6 @@ public class SnowDayController {
                     orgName.add(row.select("td").get(0).text());
                     status.add(row.select("td").get(1).text());
                 }
-
-                //20% complete
-                progCalculate.setProgress(20);
 
             } catch (IOException e) {
 
@@ -1278,9 +1293,6 @@ public class SnowDayController {
                 }
             }
         }
-
-        //40% complete
-        progCalculate.setProgress(40);
     }
 
 
@@ -1431,9 +1443,6 @@ public class SnowDayController {
             weathertoday = w;
             weathertomorrow = w;
         }
-
-        //80% complete
-        progCalculate.setProgress(80);
     }
 
     private class PercentCalculate implements Runnable{
@@ -1513,8 +1522,6 @@ public class SnowDayController {
                 percent = 0;
             }
 
-            progCalculate.setProgress(100);
-
             lblPercent.setVisible(true);
             Platform.runLater(() -> lblPercent.setText("0%"));
 
@@ -1524,9 +1531,20 @@ public class SnowDayController {
             if (WJRTFail && NWSFail) {
                 //Both scrapers failed. A percentage cannot be determined.
                 //Don't set the percent.
-                progCalculate.setStyle("-fx-text-fill: red");
                 Platform.runLater(() -> lblError.setText(bundle.getString("CalculateError")));
-                progCalculate.setStyle("-fx-accent: red");
+                imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_red.png")));
+
+                rt.stop();
+                
+                FadeTransition red_blink = new FadeTransition(Duration.millis(500), imgCalculate);
+                red_blink.setCycleCount(19);
+                red_blink.setFromValue(0.0);
+                red_blink.setToValue(1.0);
+                red_blink.setAutoReverse(true);
+                
+                red_blink.play();
+                imgCalculate.setRotate(0.0);
+                
                 Platform.runLater(() -> lblPercent.setText(""));
                 
                 scrClosings.setDisable(true);
@@ -1535,7 +1553,18 @@ public class SnowDayController {
             } else if (WJRTFail || NWSFail) {
                 //Partial failure
                 Platform.runLater(() -> lblError.setText(bundle.getString("NoNetwork")));
-                progCalculate.setStyle("-fx-accent: orange");
+                imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_orange.png")));
+                
+                rt.stop();
+
+                FadeTransition orange_blink = new FadeTransition(Duration.millis(500), imgCalculate);
+                orange_blink.setCycleCount(19);
+                orange_blink.setFromValue(0.0);
+                orange_blink.setToValue(1.0);
+                orange_blink.setAutoReverse(true);
+                
+                orange_blink.play();
+                imgCalculate.setRotate(0.0);
 
                 if (!WJRTFail) {
                     scrClosings.setDisable(false);
@@ -1564,6 +1593,11 @@ public class SnowDayController {
 
                 lstWeather.setDisable(false);
                 scrClosings.setDisable(false);
+                
+                imgCalculate.setVisible(false);
+
+                rt.stop();
+                imgCalculate.setRotate(0.0);
                 
                 //If the school is closed, make it orange.
                 if (Atherton) {
