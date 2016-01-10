@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -22,6 +23,11 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, 1200, 720));
         primaryStage.setResizable(false);
         primaryStage.show();
+
+        SplashScreen splash = SplashScreen.getSplashScreen();
+        splash.close();
+
+
     }
 
     public static void main(String[] args) {
