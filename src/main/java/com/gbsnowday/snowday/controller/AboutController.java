@@ -1,9 +1,9 @@
 package com.gbsnowday.snowday.controller;
 
+import com.gbsnowday.snowday.ui.LicenseDialog;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
-import com.gbsnowday.snowday.ui.LicenseDialog;
 
 import java.awt.*;
 import java.io.IOException;
