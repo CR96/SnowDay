@@ -34,11 +34,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.List;
 
 public class SnowDayController {
-    /*Copyright 2014-2015 Corey Rowe
+    /*Copyright 2014-2016 Corey Rowe
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -132,6 +133,9 @@ public class SnowDayController {
 
     LocalDateTime dt = LocalDateTime.now();
     int weekday = dt.getDayOfWeek().getValue();
+
+    String weekdaytoday;
+    String weekdaytomorrow;
 
     String schooltext;
 
@@ -810,9 +814,17 @@ public class SnowDayController {
             //Scrape School Closings from WJRT with Jsoup.
             //Run scraper in an Async task.
 
+            //Get the day of the week as a string.
+            weekdaytoday = dt.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US);
+
+            //Get tomorrow's weekday as a string.
+            LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+            weekdaytomorrow = tomorrow.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US);
+
             try {
                 //This is the current listings page.
-                schools = Jsoup.connect("http://abc12.com/closings").get();
+                schools = Jsoup.connect("http://abc12.com/closings").timeout(10000).get();
 
                 //Attempt to parse input
 
@@ -881,7 +893,9 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Holy") && !orgName.get(i).contains("Montessori")
                         && !orgName.get(i).contains("Gym")) {
                     txtGB.setText(bundle.getString("GB") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0
+                            || status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
                             || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         txtGB.setText(txtGB.getText() + bundle.getString("SnowDay"));
                         //GB is closed.
@@ -928,9 +942,11 @@ public class SnowDayController {
             if (!(Atherton)) {
                 if (orgName.get(i).contains("Atherton")) {
                     closings.set(1, bundle.getString("Atherton") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Atherton = true;
@@ -941,9 +957,11 @@ public class SnowDayController {
             if (!(Bendle)) {
                 if (orgName.get(i).contains("Bendle")) {
                     closings.set(2, bundle.getString("Bendle") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Bendle = true;
@@ -954,9 +972,11 @@ public class SnowDayController {
             if (!(Bentley)) {
                 if (orgName.get(i).contains("Bentley")) {
                     closings.set(3, bundle.getString("Bentley") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Bentley = true;
@@ -967,9 +987,11 @@ public class SnowDayController {
             if (!(Carman)) {
                 if (orgName.get(i).contains("Carman-Ainsworth") && !orgName.get(i).contains("Senior")) {
                     closings.set(4, bundle.getString("Carman") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Carman = true;
@@ -980,9 +1002,11 @@ public class SnowDayController {
             if (!(Flint)) {
                 if (orgName.get(i).contains("Flint Community Schools")) {
                     closings.set(5, bundle.getString("Flint") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Flint = true;
@@ -993,9 +1017,11 @@ public class SnowDayController {
             if (!(Goodrich)) {
                 if (orgName.get(i).contains("Goodrich")) {
                     closings.set(6, bundle.getString("Goodrich") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier4today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier4tomorrow++;
                     }
                     Goodrich = true;
@@ -1006,9 +1032,11 @@ public class SnowDayController {
             if (!(Beecher)) {
                 if (orgName.get(i).contains("Beecher")) {
                     closings.set(7, bundle.getString("Beecher") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Beecher = true;
@@ -1021,9 +1049,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Senior") && !orgName.get(i).contains("City")
                         && !orgName.get(i).contains("Cornerstone")) {
                     closings.set(8, bundle.getString("Clio") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Clio = true;
@@ -1036,9 +1066,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Faith") && !orgName.get(i).contains("Medical")
                         && !orgName.get(i).contains("Montessori")) {
                     closings.set(9, bundle.getString("Davison") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Davison = true;
@@ -1051,9 +1083,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("City") && !orgName.get(i).contains("Academy")
                         && !orgName.get(i).contains("Montessori")) {
                     closings.set(10, bundle.getString("Fenton") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Fenton = true;
@@ -1065,9 +1099,11 @@ public class SnowDayController {
                 if (orgName.get(i).contains("Flushing") && !orgName.get(i).contains("Senior")
                         && !orgName.get(i).contains("Robert")) {
                     closings.set(11, bundle.getString("Flushing") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Flushing = true;
@@ -1087,9 +1123,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Freedom") && !orgName.get(i).contains("MSU")
                         && !orgName.get(i).contains("I.S.D.") && !orgName.get(i).contains("Foster")) {
                     closings.set(12, bundle.getString("Genesee") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Genesee = true;
@@ -1100,9 +1138,11 @@ public class SnowDayController {
             if (!(Kearsley)) {
                 if (orgName.get(i).contains("Kearsley")) {
                     closings.set(13, bundle.getString("Kearsley") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Kearsley = true;
@@ -1113,9 +1153,11 @@ public class SnowDayController {
             if (!(LKFenton)) {
                 if (orgName.get(i).contains("Lake Fenton")) {
                     closings.set(14, bundle.getString("LKFenton") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     LKFenton = true;
@@ -1126,9 +1168,11 @@ public class SnowDayController {
             if (!(Linden)) {
                 if (orgName.get(i).contains("Linden") && !orgName.get(i).contains("Charter")) {
                     closings.set(15, bundle.getString("Linden") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Linden = true;
@@ -1139,9 +1183,11 @@ public class SnowDayController {
             if (!(Montrose)) {
                 if (orgName.get(i).contains("Montrose") && !orgName.get(i).contains("Senior")) {
                     closings.set(16, bundle.getString("Montrose") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    } else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    } else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Montrose = true;
@@ -1153,9 +1199,11 @@ public class SnowDayController {
                 if (orgName.get(i).contains("Mt. Morris") && !orgName.get(i).contains("Administration")
                         && !orgName.get(i).contains("Twp") && !orgName.get(i).contains("Mary")) {
                     closings.set(17, bundle.getString("Morris") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     Morris = true;
@@ -1167,9 +1215,11 @@ public class SnowDayController {
                 if (orgName.get(i).contains("Swartz Creek") && !orgName.get(i).contains("Senior")
                         && !orgName.get(i).contains("Montessori")) {
                     closings.set(18, bundle.getString("SzCreek") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier3today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier3tomorrow++;
                     }
                     SzCreek = true;
@@ -1180,9 +1230,11 @@ public class SnowDayController {
             if (!(Durand)) {
                 if (orgName.get(i).contains("Durand") && !orgName.get(i).contains("Senior")) {
                     closings.set(19, bundle.getString("Durand") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Durand = true;
@@ -1193,9 +1245,11 @@ public class SnowDayController {
             if (!(Holly)) {
                 if (orgName.get(i).contains("Holly") && !orgName.get(i).contains("Academy")) {
                     closings.set(20, bundle.getString("Holly") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Holly = true;
@@ -1214,9 +1268,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Davenport") && !orgName.get(i).contains("MSU")
                         && !orgName.get(i).contains("Paul") && !orgName.get(i).contains("Connections")) {
                     closings.set(21, bundle.getString("Lapeer") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Lapeer = true;
@@ -1230,9 +1286,11 @@ public class SnowDayController {
                         && !orgName.get(i).contains("Baker") && !orgName.get(i).contains("Paul")
                         && !orgName.get(i).contains("Security")) {
                     closings.set(22, bundle.getString("Owosso") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier2today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier2tomorrow++;
                     }
                     Owosso = true;
@@ -1243,9 +1301,11 @@ public class SnowDayController {
             if (!(GBAcademy)) {
                 if (orgName.get(i).contains("Grand Blanc Academy")) {
                     closings.set(23, bundle.getString("GBAcademy") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     GBAcademy = true;
@@ -1256,9 +1316,11 @@ public class SnowDayController {
             if (!(GISD)) {
                 if (orgName.get(i).contains("Genesee I.S.D.")) {
                     closings.set(24, bundle.getString("GISD") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     GISD = true;
@@ -1269,9 +1331,11 @@ public class SnowDayController {
             if (!(HolyFamily)) {
                 if (orgName.get(i).contains("Holy Family")) {
                     closings.set(25, bundle.getString("HolyFamily") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     HolyFamily = true;
@@ -1282,9 +1346,11 @@ public class SnowDayController {
             if (!(WPAcademy)) {
                 if (orgName.get(i).contains("Woodland Park Academy")) {
                     closings.set(26, bundle.getString("WPAcademy") + status.get(i));
-                    if (status.get(i).contains("Closed Today") && dayrun == 0) {
+                    if (status.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                            || status.get(i).contains("Closed Today") && dayrun == 0) {
                         tier1today++;
-                    }else if (status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    }else if (status.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                            || status.get(i).contains("Closed Tomorrow") && dayrun == 1) {
                         tier1tomorrow++;
                     }
                     WPAcademy = true;
@@ -1307,7 +1373,7 @@ public class SnowDayController {
 
             //Live html
             try {
-                weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").get();
+                weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").timeout(10000).get();
                 Elements title = weatherdoc.select("title");
                 Elements summary = weatherdoc.select("summary");
                 Elements expiretime = weatherdoc.select("cap|expires");
