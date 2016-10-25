@@ -50,7 +50,9 @@ public class SnowDayController {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
-    ResourceBundle bundle = ResourceBundle
+    private ResourceBundle arrayBundle = ResourceBundle
+            .getBundle("bundle.ArrayBundle", new Locale("en", "EN"));
+    private ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     //Declare scene controls
@@ -62,7 +64,7 @@ public class SnowDayController {
     public Label lblPercent;
     public Label lblPrev;
 
-    public ComboBox lstDays;
+    public ComboBox<String> lstDays;
     public RadioButton optToday;
     public RadioButton optTomorrow;
 
@@ -158,6 +160,9 @@ public class SnowDayController {
         ToggleGroup group = new ToggleGroup();
         optToday.setToggleGroup(group);
         optTomorrow.setToggleGroup(group);
+
+        lstDays.setItems(FXCollections.observableArrayList(
+                arrayBundle.getString("days_array").split(",")));
 
         EventModel eventModel = new EventModel();
 
