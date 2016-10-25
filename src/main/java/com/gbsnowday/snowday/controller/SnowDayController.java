@@ -123,12 +123,10 @@ public class SnowDayController {
     private int tier3 = 0;
     private int tier4 = 0;
 
-    RotateTransition rt;
+    private RotateTransition rt;
 
     private ClosingsScraper closingsScraper;
     private WeatherScraper weatherScraper;
-
-    Thread p;
 
     private ClosingsModel mClosingsModel;
 
@@ -233,18 +231,17 @@ public class SnowDayController {
         }
     }
 
+    /*
+     * This application will predict the possibility of a snow day for Grand Blanc Community Schools.
+     * Created by Corey Rowe, February 2014.
+     * Factors:
+     * Weather warnings from the National Weather Service (includes snowfall, ice, and wind chill)
+     * Number of past snow days (more = smaller chance)
+     * Schools currently closed (data from WJRT)
+     * Schools in higher tiers (4 is highest) will increase the snow day chance.
+     * Obviously return 100% if GB is already closed.
+     */
     public void Calculate() throws ExecutionException, InterruptedException {
-        /**
-         * This application will predict the possibility of a snow day for Grand Blanc Community Schools.
-         * Created by Corey Rowe, February 2014.
-         * Factors:
-         * Weather warnings from the National Weather Service (includes snowfall, ice, and wind chill)
-         * Number of past snow days (more = smaller chance)
-         * Schools currently closed (data from WJRT)
-         * Schools in higher tiers (4 is highest) will increase the snow day chance.
-         * Obviously return 100% if GB is already closed.
-         */
-
         //Spin the snowflake
         imgCalculate.setVisible(true);
         
@@ -356,8 +353,8 @@ public class SnowDayController {
         weatherScraper.execute();
 
         //Final Percent Calculator
-        p = new Thread(new PercentCalculate());
-        p.start();
+        Thread percentThread = new Thread(new PercentCalculate());
+        percentThread.start();
 
     }
 
