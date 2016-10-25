@@ -1,5 +1,6 @@
 package com.gbsnowday.snowday.controller;
 
+import com.gbsnowday.snowday.model.EventModel;
 import com.gbsnowday.snowday.ui.RadarDialog;
 import com.gbsnowday.snowday.ui.WeatherDialog;
 import javafx.animation.*;
@@ -32,7 +33,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -111,10 +111,6 @@ public class SnowDayController {
     //Declare variables
     String datetoday;
     String datetomorrow;
-    String textdate;
-    
-    boolean todayValid;
-    boolean tomorrowValid;
 
     int days;
     int dayrun;
@@ -122,17 +118,12 @@ public class SnowDayController {
     List<String> orgName = new ArrayList<>();
     List<String> status = new ArrayList<>();
 
-    //Declare lists that will be used in ListAdapters
-    ArrayList<String> infoList = new ArrayList<>();
     ArrayList<Integer> daysarray = new ArrayList<>();
-    
-    boolean infoPresent;
 
     //Figure out what tomorrow is
     //Saturday = 6, Sunday = 7
 
     LocalDateTime dt = LocalDateTime.now();
-    int weekday = dt.getDayOfWeek().getValue();
 
     String weekdaytoday;
     String weekdaytomorrow;
@@ -243,15 +234,33 @@ public class SnowDayController {
         optToday.setToggleGroup(group);
         optTomorrow.setToggleGroup(group);
 
-        //Make sure the user doesn't try to run the program on the weekend or on specific dates
-        checkDate();
+        EventModel eventModel = new EventModel();
 
-        //Only run checkWeekend() if today or tomorrow is still valid
-        if (todayValid || tomorrowValid) {
-           checkWeekend();
+        boolean todayValid = eventModel.isTodayValid();
+        boolean tomorrowValid = eventModel.isTomorrowValid();
+
+        if (!todayValid && !tomorrowValid) {
+            optToday.setDisable(true);
+            optToday.setSelected(false);
+            optTomorrow.setDisable(true);
+            optTomorrow.setSelected(false);
+        } else if (!todayValid) {
+            optToday.setDisable(true);
+            optToday.setSelected(false);
+        } else if (!tomorrowValid) {
+            optTomorrow.setDisable(true);
+            optTomorrow.setSelected(false);
         }
 
-        //Set the contents of txtInfo
+        if (eventModel.isEventPresent()) {
+            txtInfo.setStyle("-fx-text-fill: blue");
+        }
+        if (eventModel.isBobcats()) {
+            txtInfo.setStyle("-fx-text-fill: red");
+        }
+
+        ArrayList<String> infoList = eventModel.getInfoList();
+        //Set the contents of lstInfo
         for (int i = 0; i < infoList.size(); i++) {
             if (i == 0) {
                 txtInfo.setText(infoList.get(i));
@@ -304,230 +313,6 @@ public class SnowDayController {
         special();
     }
 
-    private void checkDate() {
-
-        //These are set to false if the calculation cannot be run on that day
-        todayValid = true;
-        tomorrowValid = true;
-
-        //Set the current month, day, and year
-        Calendar calendar = Calendar.getInstance();
-
-        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        datetoday = sdt.format(calendar.getTime());
-
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMMM dd yyyy", Locale.US);
-        textdate = currentDate.format(calendar.getTime());
-
-        calendar.add(Calendar.DATE, 1);
-
-        datetomorrow = sdt.format(calendar.getTime());
-
-        infoList.add(0, "Current Date: " + textdate);
-
-        /*Check for days school is not in session (such as Winter Break, development days, etc.)
-        Uses a mixture of SimpleDateFormat for simple string comparison and JodaTime for more
-        complicated arguments*/
-
-        if (dt.getMonthValue() == 6 && dt.getDayOfMonth() > 15) {
-            //Summer break (June)
-            infoList.add(bundle.getString("Summer"));
-            infoPresent=true;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (dt.getMonthValue() > 6 && dt.getMonthValue() <= 8) {
-            //Summer break (July and August)
-            infoList.add(bundle.getString("Summer"));
-            infoPresent=true;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (dt.getMonthValue() == 9 && dt.getDayOfMonth() < 7) {
-            //Summer break (September)
-            infoList.add(bundle.getString("Summer"));
-            infoPresent = true;
-            todayValid = false;
-            tomorrowValid = false;
-        }else if (textdate.equals("September 07 2015")) {
-            infoList.add(bundle.getString("YearStart"));
-            infoPresent = true;
-            todayValid = false;
-        }else if (textdate.equals("September 25 2015")) {
-            infoList.add(bundle.getString("HC"));
-            infoPresent = true;
-        }else if (textdate.equals("October 20 2015") || textdate.equals("December 08 2015")
-                || textdate.equals("February 02 2016") || textdate.equals("May 03 2016")) {
-            infoList.add(bundle.getString("LSTomorrow"));
-            infoPresent = true;
-        } else if (textdate.equals("October 21 2015") || textdate.equals("December 09 2015")
-                || textdate.equals("February 03 2016") || textdate.equals("May 04 2016")) {
-            infoList.add(bundle.getString("LSToday"));
-            infoPresent = true;
-        }else if (textdate.equals("November 26 2015")) {
-            infoList.add(bundle.getString("Thanksgiving"));
-            infoPresent = true;
-            todayValid = false;
-            tomorrowValid = false;
-        }else if (textdate.equals("November 26 2015") || textdate.equals("November 27 2015")) {
-            infoList.add(bundle.getString("ThanksgivingRecess"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("December 22 2015")) {
-            infoList.add(bundle.getString("WinterBreakTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        } else if (textdate.equals("December 23 2015") || textdate.equals("December 24 2015")
-                || textdate.equals("December 25 2015") || textdate.equals("December 26 2015") || textdate.equals("December 27 2014")
-                || textdate.equals("December 27 2015") || textdate.equals("December 28 2015")
-                || textdate.equals("December 29 2015") || textdate.equals("December 30 2015")
-                || textdate.equals("December 31 2015") || textdate.equals("January 01 2016")) {
-            //Winter Break
-            if (textdate.equals("December 25 2015")) {
-                infoList.add(bundle.getString("Christmas"));
-                infoPresent = true;
-            } else if (textdate.equals("January 01 2016")) {
-                infoList.add(bundle.getString("NewYear"));
-                infoPresent = true;
-            }
-
-            infoList.add(bundle.getString("WinterBreak"));
-            infoPresent = true;
-        } else if (textdate.equals("January 17 2016")) {
-            infoList.add(bundle.getString("MLKTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (textdate.equals("January 18 2016")) {
-            //MLK Day
-            infoList.add(bundle.getString("MLK") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        }else if (textdate.equals("January 24 2016")) {
-            infoList.add(bundle.getString("RecordsTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        } else if (textdate.equals("January 25 2016")) {
-            infoList.add(bundle.getString("Records") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        }else if (textdate.equals("February 11 2016")) {
-            infoList.add(bundle.getString("LincolnTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        } else if (textdate.equals("February 12 2016")) {
-            infoList.add(bundle.getString("Lincoln") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("February 14 2016")) {
-            infoList.add(bundle.getString("PresidentTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (textdate.equals("February 15 2016")) {
-            infoList.add(bundle.getString("President") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("November 10 2015") || textdate.equals("March 08 2016")) {
-            infoList.add(bundle.getString("HalfDayConferenceMSTomorrow"));
-            infoPresent = true;
-        }else if (textdate.equals("November 11 2015") || textdate.equals("November 12 2015")
-                || textdate.equals("March 09 2016") || textdate.equals("March 10 2016")) {
-            infoList.add(bundle.getString("HalfDayConferenceMSTodayTomorrow"));
-            infoPresent = true;
-        } else if (textdate.equals("November 13 2015") || textdate.equals("March 11 2016")) {
-            infoList.add(bundle.getString("HalfDayConferenceMSToday"));
-            infoPresent = true;
-        } else if (textdate.equals("November 24 2015") || textdate.equals("September 24 2015")
-                || textdate.equals("October 08 2015")
-                || textdate.equals("March 31 2016")) {
-            infoList.add(bundle.getString("HalfDayTomorrow"));
-            infoPresent = true;
-        }else if (textdate.equals("November 25 2015") || textdate.equals("September 25 2015")
-                || textdate.equals("October 09 2015")) {
-            if (textdate.equals("November 25 2015")) {
-                infoList.add(bundle.getString("ThanksgivingRecessTomorrow"));
-                infoPresent = true;
-                tomorrowValid = false;
-            }
-
-            infoList.add(bundle.getString("HalfDay"));
-            infoPresent = true;
-        }else if (textdate.equals("March 24 2016")) {
-            infoList.add(bundle.getString("GoodFridayTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        }else if (textdate.equals("March 25 2016")) {
-            infoList.add(bundle.getString("GoodFriday") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        }else if (textdate.equals("March 27 2016")) {
-            infoList.add(bundle.getString("Easter"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("April 01 2016")) {
-            infoList.add(bundle.getString("HalfDay"));
-            infoList.add(bundle.getString("SpringBreakTomorrow"));
-            infoPresent=true;
-            tomorrowValid = false;
-        } else if (textdate.equals("April 02 2016") || textdate.equals("April 03 2016")
-                || textdate.equals("April 04 2016") || textdate.equals("April 05 2016")
-                || textdate.equals("April 06 2016") || textdate.equals("April 07 2016")
-                || textdate.equals("April 08 2016")) {
-            //Spring Break
-
-            infoList.add(bundle.getString("SpringBreak"));
-            infoPresent = true;
-            todayValid = false;
-            tomorrowValid = false;
-        } else if (textdate.equals("November 02 2015") || textdate.equals("April 27 2016")) {
-            infoList.add(bundle.getString("PDDTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        } else if (textdate.equals("November 03 2015") || textdate.equals("April 28 2016")) {
-            infoList.add(bundle.getString("PDD") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("May 29 2016")) {
-            infoList.add(bundle.getString("MemorialDayTomorrow") + bundle.getString("NoSessionTomorrow"));
-            infoPresent = true;
-            tomorrowValid = false;
-        } else if (textdate.equals("May 30 2016")) {
-            infoList.add(bundle.getString("MemorialDay") + bundle.getString("NoSessionToday"));
-            infoPresent = true;
-            todayValid = false;
-        } else if (textdate.equals("June 02 2016")) {
-            infoList.add(bundle.getString("Senior"));
-            infoPresent = true;
-            txtInfo.setStyle("-fx-text-fill: red");
-        } else if (textdate.equals("June 15 2016")) {
-            infoList.add(bundle.getString("YearEnd"));
-            infoPresent = true;
-            tomorrowValid = false;
-        }
-
-        //If items were added...
-        if (infoPresent) {
-            txtInfo.setStyle("-fx-text-fill: blue");
-        }
-        
-        //Determine if the calculation should be available
-        if (!tomorrowValid && !todayValid) {
-            optToday.setDisable(true);
-            optToday.setSelected(false);
-
-            optTomorrow.setDisable(true);
-            optTomorrow.setSelected(false);
-
-        } else if (!tomorrowValid) {
-            optTomorrow.setDisable(true);
-            optTomorrow.setSelected(false);
-
-        } else if (!todayValid) {
-            optToday.setDisable(true);
-            optToday.setSelected(false);
-
-        }
-    }
-
     private void special() {
         daysarray.add(lstDays.getSelectionModel().getSelectedIndex());
         int[] specialarray1 = {2, 6, 0, 6, 2, 0, 1, 0};
@@ -538,31 +323,6 @@ public class SnowDayController {
         }else if (daysarray.toString().equals(Arrays.toString(specialarray2))) {
             txtInfo.setText(txtInfo.getText() + bundle.getString("special2"));
             txtInfo.setStyle("-fx-text-fill: blue");
-        }
-    }
-
-    private void checkWeekend() {
-        //Friday is 5
-        //Saturday is 6
-        //Sunday is 7
-
-        if (weekday == 5) {
-            infoList.add(bundle.getString("SaturdayTomorrow"));
-            optTomorrow.setDisable(true);
-            optTomorrow.setSelected(false);
-            infoPresent = true;
-        } else if (weekday == 6) {
-            infoList.add(bundle.getString("SaturdayToday"));
-            optToday.setDisable(true);
-            optToday.setSelected(false);
-            optTomorrow.setDisable(true);
-            optTomorrow.setSelected(false);
-            infoPresent = true;
-        } else if (weekday == 7) {
-            infoList.add(bundle.getString("SundayToday"));
-            optToday.setDisable(true);
-            optToday.setSelected(false);
-            infoPresent = true;
         }
     }
 
