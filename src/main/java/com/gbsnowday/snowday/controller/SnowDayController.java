@@ -3,6 +3,7 @@ package com.gbsnowday.snowday.controller;
 import com.gbsnowday.snowday.model.ClosingsModel;
 import com.gbsnowday.snowday.model.EventModel;
 import com.gbsnowday.snowday.network.ClosingsScraper;
+import com.gbsnowday.snowday.network.WeatherScraper;
 import com.gbsnowday.snowday.ui.RadarDialog;
 import com.gbsnowday.snowday.ui.WeatherDialog;
 import javafx.animation.*;
@@ -26,16 +27,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class SnowDayController {
@@ -110,26 +107,15 @@ public class SnowDayController {
     public TextArea txtWPAcademy;
     public ListView<String> lstWeather;
 
-    //Declare variables
-    String datetoday;
-    String datetomorrow;
+    private int days;
+    private int dayrun;
 
-    int days;
-    int dayrun;
-
-    ArrayList<Integer> daysarray = new ArrayList<>();
-
-    List<String> weatherWarn = new ArrayList<>();
-    List<String> weatherSummary = new ArrayList<>();
-    List<String> weatherExpire = new ArrayList<>();
-    List<String> weatherLink = new ArrayList<>();
+    private ArrayList<Integer> daysarray = new ArrayList<>();
 
     //Individual components of the calculation
-    int schoolpercent;
-    int weathertoday;
-    int weathertomorrow;
-    int weatherpercent;
-    int percent;
+    private int schoolpercent;
+    private int weatherpercent;
+    private int percent;
 
     //Levels of school closings (near vs. far)
     private int tier1 = 0;
@@ -137,23 +123,14 @@ public class SnowDayController {
     private int tier3 = 0;
     private int tier4 = 0;
 
-    //Don't try to show weather warning information if no warnings are present
-    boolean WeatherWarningsPresent;
-
-    //Scraper status
-    boolean NWSActive = true;
-
-    /*Used for catching IOExceptions / NullPointerExceptions if there are connectivity issues
-    or a webpage is down*/
-    boolean NWSFail;
-
     RotateTransition rt;
 
-    ClosingsScraper closingsScraper;
-    Thread nws;
+    private ClosingsScraper closingsScraper;
+    private WeatherScraper weatherScraper;
+
     Thread p;
 
-    ClosingsModel mClosingsModel;
+    private ClosingsModel mClosingsModel;
 
     @FXML
     void initialize() {
@@ -343,9 +320,40 @@ public class SnowDayController {
 
         closingsScraper.execute();
 
-        /**NATIONAL WEATHER SERVICE SCRAPER**/
-        nws = new Thread(new WeatherScraper());
-        nws.start();
+        weatherScraper = new WeatherScraper(dayrun, weatherModel -> {
+            if (weatherScraper.isCancelled()) {
+                //Weather scraper has failed.
+                lblNWS.setText(weatherModel.error
+                        + "\n" + bundle.getString("CalculateWithoutWeather"));
+            }else{
+                //Set the weather percent
+                weatherpercent = weatherModel.weatherpercent;
+
+                Platform.runLater(() -> lblNWS.setText(weatherModel.warningTitles.get(0)));
+                lstWeather.setItems(FXCollections.observableArrayList(weatherModel.warningTitles));
+                lstWeather.getItems().remove(0);
+
+                lstWeather.setOnMouseClicked(click -> {
+
+                    if (click.getClickCount() == 2) {
+                        int i = lstWeather.getSelectionModel().getSelectedIndex();
+
+                        if (weatherModel.weatherWarningsPresent) {
+                            try {
+                                WeatherDialog.display(
+                                        weatherModel.warningTitles.get(i + 1),
+                                        weatherModel.warningSummaries.get(i),
+                                        weatherModel.warningLinks.get(i + 1));
+                            }catch (NullPointerException | IndexOutOfBoundsException e) {
+                                WeatherDialog.display(null, bundle.getString("WarningParseError"), null);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        weatherScraper.execute();
 
         //Final Percent Calculator
         p = new Thread(new PercentCalculate());
@@ -385,17 +393,6 @@ public class SnowDayController {
         tier2 = 0;
         tier3 = 0;
         tier4 = 0;
-
-        weathertoday = 0;
-        weathertomorrow = 0;
-
-        NWSActive = true;
-        NWSFail = false;
-
-        weatherWarn.clear();
-        weatherSummary.clear();
-        weatherExpire.clear();
-        weatherLink.clear();
 
         txtAtherton.setText("Atherton:");
         txtAtherton.setStyle("-fx-control-inner-background: white");
@@ -478,162 +475,13 @@ public class SnowDayController {
         btnCalculate.setDisable(true);
     }
 
-    private class WeatherScraper implements Runnable {
-        @SuppressWarnings("ForLoopReplaceableByForEach")
-        @Override
-        public void run() {
-            /**NATIONAL WEATHER SERVICE SCRAPER**/
-            //Change the percentage based on current storm/wind/temperature warnings.
-
-            Document weatherdoc;
-
-            //Live html
-            try {
-                weatherdoc = Jsoup.connect("http://alerts.weather.gov/cap/wwaatmget.php?x=MIZ061&y=0").timeout(10000).get();
-                Elements title = weatherdoc.select("title");
-                Elements summary = weatherdoc.select("summary");
-                Elements expiretime = weatherdoc.select("cap|expires");
-                Elements link = weatherdoc.select("link");
-
-
-                if (title != null) {
-                    for (int i = 0; i < title.size(); i++) {
-                        weatherWarn.add(title.get(i).text().replace(" by NWS", ""));
-                    }
-
-                    if (!weatherWarn.get(1).contains("no active")) {
-                        //Weather warnings are present.
-                        WeatherWarningsPresent = true;
-                    }
-                }
-                if (expiretime != null) {
-                    for (int i = 0; i < expiretime.size(); i++) {
-                        weatherExpire.add(expiretime.get(i).text());
-                    }
-                }
-
-                if (summary != null) {
-                    for (int i = 0; i < summary.size(); i++) {
-                        weatherSummary.add(summary.get(i).text() + "...");
-                    }
-                }
-
-                if (weatherLink != null) {
-                    for (int i = 0; i < link.size(); i++) {
-                        weatherLink.add(link.get(i).attr("href"));
-                    }
-                }
-
-                getWeather();
-
-            }catch (IOException e) {
-                //Connectivity issues
-                weatherWarn.add(bundle.getString("WeatherConnectionError") + bundle.getString("NoConnection"));
-                NWSFail = true;
-
-            } catch (NullPointerException | IndexOutOfBoundsException e) {
-                //Webpage layout not recognized.
-                weatherWarn.clear();
-                weatherWarn.add(bundle.getString("WeatherParseError") + bundle.getString("ErrorContact"));
-                NWSFail = true;
-
-            }
-
-            //Weather scraper has finished.
-            NWSActive = false;
-        }
-    }
-
-    private void getWeather() {
-        /*Only the highest weatherpercent is stored (not cumulative).
-        Calculation is affected based on when warning expires.*/
-        for (int i = 0; i < weatherWarn.size(); i++) {
-            if (weatherWarn.get(i).contains("Significant Weather Advisory")) {
-                //Significant Weather Advisory - 15% weatherpercent
-                checkWarningTime(i, 15);
-            }
-            if (weatherWarn.get(i).contains("Winter Weather Advisory")) {
-                //Winter Weather Advisory - 30% weatherpercent
-                checkWarningTime(i, 30);
-            }
-            if (weatherWarn.get(i).contains("Lake-Effect Snow Advisory")) {
-                //Lake Effect Snow Advisory - 40% weatherpercent
-                checkWarningTime(i, 40);
-            }
-            if (weatherWarn.get(i).contains("Freezing Rain Advisory")) {
-                //Freezing Rain - 40% weatherpercent
-                checkWarningTime(i, 40);
-            }
-            if (weatherWarn.get(i).contains("Freezing Drizzle Advisory")) {
-                //Freezing Drizzle - 40% weatherpercent
-                checkWarningTime(i, 40);
-            }
-            if (weatherWarn.get(i).contains("Freezing Fog Advisory")) {
-                //Freezing Fog - 40% weatherpercent
-                checkWarningTime(i, 40);
-            }
-            if (weatherWarn.get(i).contains("Wind Chill Advisory")) {
-                //Wind Chill Advisory - 40% weatherpercent
-                checkWarningTime(i, 40);
-            }
-            if (weatherWarn.get(i).contains("Ice Storm Warning")) {
-                //Ice Storm Warning - 70% weatherpercent
-                checkWarningTime(i, 70);
-            }
-            if (weatherWarn.get(i).contains("Wind Chill Watch")) {
-                //Wind Chill Watch - 70% weatherpercent
-                checkWarningTime(i, 70);
-            }
-            if (weatherWarn.get(i).contains("Wind Chill Warning")) {
-                //Wind Chill Warning - 70% weatherpercent
-                checkWarningTime(i, 70);
-            }
-            if (weatherWarn.get(i).contains("Winter Storm Watch")) {
-                //Winter Storm Watch - 80% weatherpercent
-                checkWarningTime(i, 80);
-            }
-            if (weatherWarn.get(i).contains("Winter Storm Warning")) {
-                //Winter Storm Warning - 80% weatherpercent
-                checkWarningTime(i, 80);
-            }
-            if (weatherWarn.get(i).contains("Lake-Effect Snow Watch")) {
-                //Lake Effect Snow Watch - 80% weatherpercent
-                checkWarningTime(i, 80);
-            }
-            if (weatherWarn.get(i).contains("Lake-Effect Snow Warning")) {
-                //Lake Effect Snow Warning - 80% weatherpercent
-                checkWarningTime(i, 80);
-            }
-            if (weatherWarn.get(i).contains("Blizzard Watch")) {
-                //Blizzard Watch - 90% weatherpercent
-                checkWarningTime(i, 90);
-            }
-            if (weatherWarn.get(i).contains("Blizzard Warning")) {
-                //Blizzard Warning - 90% weatherpercent
-                checkWarningTime(i, 90);
-            }
-        }
-    }
-
-    private void checkWarningTime(int i, int w) {
-        
-        if (weatherExpire.get(i - 1).substring(0, 10).equals(datetoday)) {
-            weathertoday = w;
-        }
-
-        if (weatherExpire.get(i - 1).substring(0, 10).equals(datetomorrow)) {
-            weathertoday = w;
-            weathertomorrow = w;
-        }
-    }
-
     private class PercentCalculate implements Runnable{
         @Override
         public void run(){
 
             //Give the scrapers time to act before displaying the percent
 
-            while (!closingsScraper.isDone() || NWSActive) {
+            while (!closingsScraper.isDone() || !weatherScraper.isDone()) {
                 try {
                     //Wait for scrapers to finish before continuing
                     Thread.sleep(100);
@@ -661,13 +509,6 @@ public class SnowDayController {
                     //Carman is closed along with 2+ close schools. 90% schoolpercent.
                     schoolpercent = 90;
                 }
-            }
-
-            //Set the weatherpercent
-            if (dayrun == 0) {
-                weatherpercent = weathertoday;
-            }else if (dayrun == 1) {
-                weatherpercent = weathertomorrow;
             }
 
             //Calculate the total percent.
@@ -706,7 +547,7 @@ public class SnowDayController {
             lblPercent.setStyle("-fx-text-fill: red");
 
             //Animate lblPercent
-            if (closingsScraper.isCancelled() && NWSFail) {
+            if (closingsScraper.isCancelled() && weatherScraper.isCancelled()) {
                 //Both scrapers failed. A percentage cannot be determined.
                 //Don't set the percent.
                 Platform.runLater(() -> lblError.setText(bundle.getString("CalculateError")));
@@ -728,7 +569,7 @@ public class SnowDayController {
                 scrClosings.setDisable(true);
                 lstWeather.setDisable(true);
                 
-            } else if (closingsScraper.isCancelled() || NWSFail) {
+            } else if (closingsScraper.isCancelled() || weatherScraper.isCancelled()) {
                 //Partial failure
                 Platform.runLater(() -> lblError.setText(bundle.getString("NoNetwork")));
                 imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_orange.png")));
@@ -746,7 +587,7 @@ public class SnowDayController {
 
                 if (!closingsScraper.isCancelled()) {
                     scrClosings.setDisable(false);
-                }else if (!NWSFail) {
+                }else if (!weatherScraper.isCancelled()) {
                     lstWeather.setDisable(false);
                 }
             }else{
@@ -778,13 +619,6 @@ public class SnowDayController {
                 imgCalculate.setRotate(0.0);
             }
 
-            //Remove blank entries
-            for (int i = 0; i < weatherWarn.size(); i++) {
-                if (weatherWarn.get(i).equals("")) {
-                    weatherWarn.remove(i);
-                }
-            }
-
             lstWeather.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
                 @SuppressWarnings({"UnnecessaryLocalVariable", "unchecked"})
                 @Override
@@ -803,27 +637,6 @@ public class SnowDayController {
                         }
                     };
                     return cell;
-                }
-            });
-
-            Platform.runLater(() -> {
-                lblNWS.setText(weatherWarn.get(0));
-                lstWeather.setItems(FXCollections.observableArrayList(weatherWarn));
-                lstWeather.getItems().remove(0);
-            });
-
-            lstWeather.setOnMouseClicked(click -> {
-
-                if (click.getClickCount() == 2) {
-                    int i = lstWeather.getSelectionModel().getSelectedIndex();
-
-                    if (WeatherWarningsPresent) {
-                        try {
-                            WeatherDialog.display(weatherWarn.get(i + 1), weatherSummary.get(i), weatherLink.get(i + 1));
-                        }catch (NullPointerException | IndexOutOfBoundsException e) {
-                            WeatherDialog.display(null, bundle.getString("WarningParseError"), null);
-                        }
-                    }
                 }
             });
 
