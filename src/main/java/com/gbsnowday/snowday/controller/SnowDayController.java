@@ -115,12 +115,6 @@ public class SnowDayController {
     private int weatherpercent;
     private int percent;
 
-    //Levels of school closings (near vs. far)
-    private int tier1 = 0;
-    private int tier2 = 0;
-    private int tier3 = 0;
-    private int tier4 = 0;
-
     private RotateTransition rt;
 
     private ClosingsScraper closingsScraper;
@@ -389,11 +383,6 @@ public class SnowDayController {
         weatherpercent = 0;
         percent = 0;
 
-        tier1 = 0;
-        tier2 = 0;
-        tier3 = 0;
-        tier4 = 0;
-
         clearSchoolText(txtAtherton, bundle.getString("Atherton"));
         clearSchoolText(txtBendle, bundle.getString("Bendle"));
         clearSchoolText(txtBentley, bundle.getString("Bentley"));
@@ -435,28 +424,6 @@ public class SnowDayController {
                     //Wait for scrapers to finish before continuing
                     Thread.sleep(100);
                 } catch (InterruptedException ignored) {
-                }
-            }
-
-            //Set the schoolpercent
-            if (tier1 > 2) {
-                //3+ academies are closed. 20% schoolpercent.
-                schoolpercent = 20;
-            }
-            if (tier2 > 2) {
-                //3+ schools in nearby counties are closed. 40% schoolpercent.
-                schoolpercent = 40;
-            }
-            if (tier3 > 2) {
-                //3+ schools in Genesee County are closed. 60% schoolpercent.
-                schoolpercent = 60;
-            }
-            if (tier4 > 2) {
-                //3+ schools near GB are closed. 80% schoolpercent.
-                schoolpercent = 80;
-                if (mClosingsModel.Carman) {
-                    //Carman is closed along with 2+ close schools. 90% schoolpercent.
-                    schoolpercent = 90;
                 }
             }
 
