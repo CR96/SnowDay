@@ -22,10 +22,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.*;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.awt.*;
@@ -339,7 +337,7 @@ public class SnowDayController {
                             try {
                                 WeatherDialog.display(
                                         weatherModel.warningTitles.get(i + 1),
-                                        weatherModel.warningSummaries.get(i),
+                                        weatherModel.warningSummaries.get(i - 1),
                                         weatherModel.warningLinks.get(i + 1));
                             }catch (NullPointerException | IndexOutOfBoundsException e) {
                                 WeatherDialog.display(null, bundle.getString("WarningParseError"), null);
@@ -609,33 +607,12 @@ public class SnowDayController {
 
                 lstWeather.setDisable(false);
                 scrClosings.setDisable(false);
-                
+
                 imgCalculate.setVisible(false);
 
                 rt.stop();
                 imgCalculate.setRotate(0.0);
             }
-
-            lstWeather.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
-                @SuppressWarnings({"UnnecessaryLocalVariable", "unchecked"})
-                @Override
-                public ListCell<String> call(ListView<String> list) {
-                    final ListCell cell = new ListCell() {
-                        private Text text;
-
-                        @Override
-                        public void updateItem(Object item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (!isEmpty()) {
-                                text = new Text(item.toString());
-                                text.setWrappingWidth(lstWeather.getPrefWidth());
-                                Platform.runLater(() -> setGraphic(text));
-                            }
-                        }
-                    };
-                    return cell;
-                }
-            });
 
             btnCalculate.setDisable(false);
             lstWeather.setDisable(false);
