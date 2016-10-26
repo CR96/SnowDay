@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public class Main extends Application {
 
-    ResourceBundle bundle = ResourceBundle.getBundle("bundle.LangBundle", new Locale("en", "EN"));
+    private ResourceBundle bundle = ResourceBundle.getBundle("bundle.LangBundle", new Locale("en", "EN"));
     
     @Override
     public void start(Stage primaryStage) throws Exception {
