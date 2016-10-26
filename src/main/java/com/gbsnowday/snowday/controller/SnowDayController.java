@@ -365,6 +365,11 @@ public class SnowDayController {
         }
     }
 
+    private void clearSchoolText(TextArea textArea, String text) {
+        textArea.setText(text);
+        textArea.setStyle("-fx-control-inner-background: white");
+    }
+
     private void Reset() {
         
         lblError.setText("");
@@ -389,83 +394,32 @@ public class SnowDayController {
         tier3 = 0;
         tier4 = 0;
 
-        txtAtherton.setText("Atherton:");
-        txtAtherton.setStyle("-fx-control-inner-background: white");
-
-        txtBendle.setText(bundle.getString("Bendle"));
-        txtBendle.setStyle("-fx-control-inner-background: white");
-
-        txtBentley.setText(bundle.getString("Bentley"));
-        txtBentley.setStyle("-fx-control-inner-background: white");
-
-        txtCarman.setText(bundle.getString("Carman"));
-        txtCarman.setStyle("-fx-control-inner-background: white");
-
-        txtFlint.setText(bundle.getString("Flint"));
-        txtFlint.setStyle("-fx-control-inner-background: white");
-
-        txtGoodrich.setText(bundle.getString("Goodrich"));
-        txtGoodrich.setStyle("-fx-control-inner-background: white");
-
-        txtBeecher.setText(bundle.getString("Beecher"));
-        txtBeecher.setStyle("-fx-control-inner-background: white");
-
-        txtClio.setText(bundle.getString("Clio"));
-        txtClio.setStyle("-fx-control-inner-background: white");
-
-        txtDavison.setText(bundle.getString("Davison"));
-        txtDavison.setStyle("-fx-control-inner-background: white");
-
-        txtFenton.setText(bundle.getString("Fenton"));
-        txtFenton.setStyle("-fx-control-inner-background: white");
-
-        txtFlushing.setText(bundle.getString("Flushing"));
-        txtFlushing.setStyle("-fx-control-inner-background: white");
-
-        txtGenesee.setText(bundle.getString("Genesee"));
-        txtGenesee.setStyle("-fx-control-inner-background: white");
-
-        txtKearsley.setText(bundle.getString("Kearsley"));
-        txtKearsley.setStyle("-fx-control-inner-background: white");
-
-        txtLKFenton.setText(bundle.getString("LKFenton"));
-        txtLKFenton.setStyle("-fx-control-inner-background: white");
-
-        txtLinden.setText(bundle.getString("Linden"));
-        txtLinden.setStyle("-fx-control-inner-background: white");
-
-        txtMontrose.setText(bundle.getString("Montrose"));
-        txtMontrose.setStyle("-fx-control-inner-background: white");
-
-        txtMorris.setText(bundle.getString("Morris"));
-        txtMorris.setStyle("-fx-control-inner-background: white");
-
-        txtSzCreek.setText(bundle.getString("SzCreek"));
-        txtSzCreek.setStyle("-fx-control-inner-background: white");
-
-        txtDurand.setText(bundle.getString("Durand"));
-        txtDurand.setStyle("-fx-control-inner-background: white");
-
-        txtHolly.setText(bundle.getString("Holly"));
-        txtHolly.setStyle("-fx-control-inner-background: white");
-
-        txtLapeer.setText(bundle.getString("Lapeer"));
-        txtLapeer.setStyle("-fx-control-inner-background: white");
-
-        txtOwosso.setText(bundle.getString("Owosso"));
-        txtOwosso.setStyle("-fx-control-inner-background: white");
-
-        txtGBAcademy.setText(bundle.getString("GBAcademy"));
-        txtGBAcademy.setStyle("-fx-control-inner-background: white");
-
-        txtGISD.setText(bundle.getString("GISD"));
-        txtGISD.setStyle("-fx-control-inner-background: white");
-
-        txtHolyFamily.setText(bundle.getString("HolyFamily"));
-        txtHolyFamily.setStyle("-fx-control-inner-background: white");
-
-        txtWPAcademy.setText(bundle.getString("WPAcademy"));
-        txtWPAcademy.setStyle("-fx-control-inner-background: white");
+        clearSchoolText(txtAtherton, bundle.getString("Atherton"));
+        clearSchoolText(txtBendle, bundle.getString("Bendle"));
+        clearSchoolText(txtBentley, bundle.getString("Bentley"));
+        clearSchoolText(txtCarman, bundle.getString("Carman"));
+        clearSchoolText(txtFlint, bundle.getString("Flint"));
+        clearSchoolText(txtGoodrich, bundle.getString("Goodrich"));
+        clearSchoolText(txtBeecher, bundle.getString("Beecher"));
+        clearSchoolText(txtClio, bundle.getString("Clio"));
+        clearSchoolText(txtDavison, bundle.getString("Davison"));
+        clearSchoolText(txtFenton, bundle.getString("Fenton"));
+        clearSchoolText(txtFlushing, bundle.getString("Flushing"));
+        clearSchoolText(txtGenesee, bundle.getString("Genesee"));
+        clearSchoolText(txtKearsley, bundle.getString("Kearsley"));
+        clearSchoolText(txtLKFenton, bundle.getString("LKFenton"));
+        clearSchoolText(txtLinden, bundle.getString("Linden"));
+        clearSchoolText(txtMontrose, bundle.getString("Montrose"));
+        clearSchoolText(txtMorris, bundle.getString("Morris"));
+        clearSchoolText(txtSzCreek, bundle.getString("SzCreek"));
+        clearSchoolText(txtDurand, bundle.getString("Durand"));
+        clearSchoolText(txtHolly, bundle.getString("Holly"));
+        clearSchoolText(txtLapeer, bundle.getString("Lapeer"));
+        clearSchoolText(txtOwosso, bundle.getString("Owosso"));
+        clearSchoolText(txtGBAcademy, bundle.getString("GBAcademy"));
+        clearSchoolText(txtGISD, bundle.getString("GISD"));
+        clearSchoolText(txtHolyFamily, bundle.getString("HolyFamily"));
+        clearSchoolText(txtWPAcademy, bundle.getString("WPAcademy"));
 
         btnCalculate.setDisable(true);
     }
