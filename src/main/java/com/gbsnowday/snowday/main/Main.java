@@ -25,7 +25,9 @@ public class Main extends Application {
         primaryStage.show();
 
         SplashScreen splash = SplashScreen.getSplashScreen();
-        splash.close();
+        if (splash != null) {
+            splash.close();
+        }
 
 
     }
