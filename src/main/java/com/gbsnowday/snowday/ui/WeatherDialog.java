@@ -33,11 +33,11 @@ public class WeatherDialog {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
-    static ResourceBundle bundle = ResourceBundle
+    private ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
-    public static void display(String title, String summary, String link) {
+    public void display(String title, String summary, String link) {
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);

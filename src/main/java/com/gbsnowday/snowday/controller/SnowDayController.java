@@ -168,7 +168,7 @@ public class SnowDayController {
     }
 
     public void showRadar() {
-        RadarDialog.display();
+        new RadarDialog().display();
     }
     
     public void showAboutDialog() throws IOException {
@@ -329,12 +329,12 @@ public class SnowDayController {
 
                         if (weatherModel.weatherWarningsPresent) {
                             try {
-                                WeatherDialog.display(
+                                new WeatherDialog().display(
                                         weatherModel.warningTitles.get(i + 1),
                                         weatherModel.warningSummaries.get(i - 1),
                                         weatherModel.warningLinks.get(i + 1));
                             }catch (NullPointerException | IndexOutOfBoundsException e) {
-                                WeatherDialog.display(null, bundle.getString("WarningParseError"), null);
+                                new WeatherDialog().display(null, bundle.getString("WarningParseError"), null);
                             }
                         }
                     }

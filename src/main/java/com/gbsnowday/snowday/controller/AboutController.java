@@ -26,7 +26,7 @@ public class AboutController {
     limitations under the License.*/
     
     @FXML
-    ResourceBundle bundle = ResourceBundle
+    private ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     public Button btnTwitter;
@@ -61,6 +61,6 @@ public class AboutController {
     }
 
     public void showLicenseDialog() {
-        LicenseDialog.display();
+        new LicenseDialog().display();
     }
 }

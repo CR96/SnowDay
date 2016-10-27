@@ -13,11 +13,11 @@ import java.util.ResourceBundle;
 
 public class RadarDialog {
 
-    static ResourceBundle bundle = ResourceBundle
+    private ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
-    public static void display() {
+    public void display() {
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
