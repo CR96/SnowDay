@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="snowday">
-    <output-path>$PROJECT_DIR$/out/artifacts/snowday</output-path>
-    <root id="archive" name="main.jar">
-      <element id="module-output" name="main" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jsoup/jsoup/1.10.1/jsoup-1.10.1.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>

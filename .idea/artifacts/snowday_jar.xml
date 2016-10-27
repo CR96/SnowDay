@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="snowday:jar">
+    <output-path>$PROJECT_DIR$/build/classes/artifacts/snowday_jar</output-path>
+    <root id="archive" name="snowday.jar">
+      <element id="module-output" name="snowday" />
+    </root>
+  </artifact>
+</component>
