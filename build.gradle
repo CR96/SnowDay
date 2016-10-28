@@ -1,7 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
 group 'com.gbsnowday'
 version '2.0.1'
+mainClassName = 'com.gbsnowday.snowday.main.Main'
 
-apply plugin: 'java'
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'GBCS Snow Day Calculator',
+                    'Implementation-Version': version,
+                    'Specification-Vendor': 'Corey Rowe',
+                    'Main-Class': mainClassName,
+                    'SplashScreen-Image': "image/icon.png"
+    }
+    baseName = project.name
+    from { configurations.compile.collect {it.isDirectory() ? it : zipTree(it) }}
+    with jar
+}
 
 repositories {
     mavenCentral()
