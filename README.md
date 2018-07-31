@@ -1,7 +1,7 @@
 SnowDay
 =======
 
-<img src="src/main/resources/image/icon.png" alt="Snow Day Calculator logo" width="128px" height="128px"/>
+<img src="src/main/resources/image/icon.png" alt="Grand Blanc Snow Day logo" width="128px" height="128px"/>
 
 Java program that predicts the chance of a snow day for Grand Blanc Community Schools.
 
