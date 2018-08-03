@@ -1,7 +1,5 @@
 package com.gbsnowday.snowday.model;
 
-import java.util.ArrayList;
-
 /*Copyright 2014-2016 Corey Rowe
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +15,62 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 public class WeatherModel {
-    public ArrayList<String> warningTitles = new ArrayList<>();
-    public ArrayList<String> warningExpireTimes = new ArrayList<>();
-    public ArrayList<String> warningReadableTimes = new ArrayList<>();
-    public ArrayList<String> warningSummaries = new ArrayList<>();
-    public ArrayList<String> warningLinks = new ArrayList<>();
+    private String warningTitle;
+    private String warningExpireTime;
+    private String warningReadableTime;
+    private String warningSummary;
+    private String warningLink;
 
-    public int weatherPercent;
+    public WeatherModel(String warningTitle) {
+        this.warningTitle = warningTitle;
+    }
 
-    public boolean weatherWarningsPresent;
+    public WeatherModel(
+            String warningTitle,
+            String warningExpireTime,
+            String warningReadableTime,
+            String warningSummary,
+            String warningLink) {
+        this.warningTitle = warningTitle;
+        this.warningExpireTime = warningExpireTime;
+        this.warningReadableTime = warningReadableTime;
+        this.warningSummary = warningSummary;
+        this.warningLink = warningLink;
+    }
 
-    public String error;
+    public String getWarningTitle() {
+        return warningTitle;
+    }
+
+    public String getWarningExpireTime() {
+        return warningExpireTime;
+    }
+
+    public void setWarningExpireTime(String warningExpireTime) {
+        this.warningExpireTime = warningExpireTime;
+    }
+
+    public String getWarningReadableTime() {
+        return warningReadableTime;
+    }
+
+    public void setWarningReadableTime(String warningReadableTime) {
+        this.warningReadableTime = warningReadableTime;
+    }
+
+    public String getWarningSummary() {
+        return warningSummary;
+    }
+
+    public void setWarningSummary(String warningSummary) {
+        this.warningSummary = warningSummary;
+    }
+
+    public String getWarningLink() {
+        return warningLink;
+    }
+
+    public void setWarningLink(String warningLink) {
+        this.warningLink = warningLink;
+    }
 }

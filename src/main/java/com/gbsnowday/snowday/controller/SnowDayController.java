@@ -2,6 +2,7 @@ package com.gbsnowday.snowday.controller;
 
 import com.gbsnowday.snowday.model.ClosingsModel;
 import com.gbsnowday.snowday.model.EventModel;
+import com.gbsnowday.snowday.model.WeatherModel;
 import com.gbsnowday.snowday.network.ClosingsScraper;
 import com.gbsnowday.snowday.network.WeatherScraper;
 import com.gbsnowday.snowday.ui.RadarDialog;
@@ -311,32 +312,44 @@ public class SnowDayController {
 
         closingsScraper.execute();
 
-        weatherScraper = new WeatherScraper(dayrun, weatherModel -> {
+        weatherScraper = new WeatherScraper(dayrun, weatherModels -> {
             if (weatherScraper.isCancelled()) {
                 //Weather scraper has failed.
-                lblNWS.setText(weatherModel.error
+                lblNWS.setText(weatherScraper.getError()
                         + "\n" + bundle.getString("CalculateWithoutWeather"));
             }else{
                 //Set the weather percent
-                weatherPercent = weatherModel.weatherPercent;
+                weatherPercent = weatherScraper.getWeatherPercent();
 
-                Platform.runLater(() -> lblNWS.setText(weatherModel.warningTitles.get(0)));
-                lstWeather.setItems(FXCollections.observableArrayList(weatherModel.warningTitles));
+                Platform.runLater(() -> lblNWS.setText(weatherModels.get(0).getWarningTitle()));
+
+                ArrayList<String> weatherWarningTitles = new ArrayList<>();
+
+                for (WeatherModel weatherModel : weatherModels) {
+                    weatherWarningTitles.add(weatherModel.getWarningTitle());
+                }
+
+                lstWeather.setItems(FXCollections.observableArrayList(weatherWarningTitles));
                 lstWeather.getItems().remove(0);
 
                 lstWeather.setOnMouseClicked(click -> {
 
                     if (click.getClickCount() == 2) {
-                        int i = lstWeather.getSelectionModel().getSelectedIndex();
+                        int i = lstWeather.getSelectionModel().getSelectedIndex() + 1;
 
-                        if (weatherModel.weatherWarningsPresent) {
+                        if (weatherScraper.isWeatherWarningPresent()) {
                             try {
                                 new WeatherDialog().display(
-                                        weatherModel.warningTitles.get(i + 1),
-                                        weatherModel.warningSummaries.get(i),
-                                        weatherModel.warningLinks.get(i + 1));
+                                        weatherModels.get(i).getWarningTitle(),
+                                        weatherModels.get(i).getWarningReadableTime(),
+                                        weatherModels.get(i).getWarningSummary(),
+                                        weatherModels.get(i).getWarningLink());
                             }catch (NullPointerException | IndexOutOfBoundsException e) {
-                                new WeatherDialog().display(null, bundle.getString("WarningParseError"), null);
+                                new WeatherDialog().display(
+                                        null,
+                                        null,
+                                        bundle.getString("WarningParseError"),
+                                        null);
                             }
                         }
                     }

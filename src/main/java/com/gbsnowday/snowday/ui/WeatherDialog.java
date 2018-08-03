@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -37,7 +38,7 @@ public class WeatherDialog {
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
-    public void display(String title, String summary, String link) {
+    public void display(String title, String time, String summary, String link) {
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
@@ -51,12 +52,14 @@ public class WeatherDialog {
         imgWeather.setImage(new Image(WeatherDialog.class.getResourceAsStream("/image/weather.png")));
 
         Label lblTitle = new Label();
+        Label lblTime = new Label();
         Label lblSummary = new Label();
 
         lblTitle.setText(title);
         lblTitle.setGraphic(imgWeather);
         lblTitle.setFont(Font.font ("Verdana", 20));
         lblTitle.setWrapText(true);
+        lblTime.setText(time);
         lblSummary.setText(summary);
         lblSummary.setWrapText(true);
 
@@ -78,11 +81,11 @@ public class WeatherDialog {
         });
 
         HBox titlebox = new HBox(16);
-        titlebox.getChildren().addAll(lblTitle);
+        titlebox.getChildren().add(lblTitle);
         titlebox.setAlignment(Pos.CENTER);
 
-        HBox summarybox = new HBox(16);
-        summarybox.getChildren().add(lblSummary);
+        VBox summarybox = new VBox(16);
+        summarybox.getChildren().addAll(lblTime, lblSummary);
         summarybox.setAlignment(Pos.CENTER);
 
         HBox buttons = new HBox(16);
