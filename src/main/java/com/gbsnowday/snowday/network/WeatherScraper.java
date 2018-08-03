@@ -46,8 +46,13 @@ public class WeatherScraper extends SwingWorker<WeatherModel, Void> {
         void processFinish(WeatherModel weatherModel);
     }
 
-    public WeatherScraper(int i, AsyncResponse delegate) {
-        dayrun = i;
+    /**
+     * Reads and parses weather warnings from the National Weather Service.
+     * @param dayrun Whether the calculation is being run for today or tomorrow
+     * @param delegate The interface implementation used to pass the WeatherModel object to the UI thread
+     */
+    public WeatherScraper(int dayrun, AsyncResponse delegate) {
+        this.dayrun = dayrun;
         this.delegate = delegate;
     }
 
