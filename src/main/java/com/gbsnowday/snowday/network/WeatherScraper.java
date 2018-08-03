@@ -176,7 +176,7 @@ public class WeatherScraper extends SwingWorker<WeatherModel, Void> {
      * Only the highest weather percent is stored (not cumulative).
      * Calculation is affected based on when warning expires.
      * @param warn The string identifying the warning to search for
-     * @param weight The value weatherpercent is set to if the warning is found
+     * @param weight The value weatherPercent is set to if the warning is found
      */
     private void checkWeatherWarning(String warn, int weight) {
         LocalDate warningDate = null;
@@ -199,10 +199,10 @@ public class WeatherScraper extends SwingWorker<WeatherModel, Void> {
                 if (warningDate != null) {
                     if ((warningDate.isEqual(today) || warningDate.isAfter(today))
                             && (dayrun == 0)) {
-                        weatherModel.weatherpercent = weight;
+                        weatherModel.weatherPercent = weight;
                     } else if ((warningDate.isEqual(tomorrow) || warningDate.isAfter(tomorrow))
                             && (dayrun == 1)) {
-                        weatherModel.weatherpercent = weight;
+                        weatherModel.weatherPercent = weight;
                     }
                 }
             }

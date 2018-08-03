@@ -23,7 +23,7 @@ public class WeatherModel {
     public ArrayList<String> warningSummaries = new ArrayList<>();
     public ArrayList<String> warningLinks = new ArrayList<>();
 
-    public int weatherpercent;
+    public int weatherPercent;
 
     public boolean weatherWarningsPresent;
 

@@ -111,8 +111,8 @@ public class SnowDayController {
     private ArrayList<Integer> daysarray = new ArrayList<>();
 
     //Individual components of the calculation
-    private int schoolpercent;
-    private int weatherpercent;
+    private int schoolPercent;
+    private int weatherPercent;
     private int percent;
 
     private RotateTransition rt;
@@ -271,7 +271,7 @@ public class SnowDayController {
                 txtGB.setText(closingsModel.error);
             } else {
                 //Set the school percent.
-                schoolpercent = closingsModel.schoolpercent;
+                schoolPercent = closingsModel.schoolPercent;
 
                 txtGB.setText(closingsModel.GBText
                     + "\n" + bundle.getString("CalculateWithoutClosings"));
@@ -318,7 +318,7 @@ public class SnowDayController {
                         + "\n" + bundle.getString("CalculateWithoutWeather"));
             }else{
                 //Set the weather percent
-                weatherpercent = weatherModel.weatherpercent;
+                weatherPercent = weatherModel.weatherPercent;
 
                 Platform.runLater(() -> lblNWS.setText(weatherModel.warningTitles.get(0)));
                 lstWeather.setItems(FXCollections.observableArrayList(weatherModel.warningTitles));
@@ -381,8 +381,8 @@ public class SnowDayController {
 
         lstWeather.getItems().clear();
 
-        schoolpercent = 0;
-        weatherpercent = 0;
+        schoolPercent = 0;
+        weatherPercent = 0;
         percent = 0;
 
         clearSchoolText(txtAtherton, bundle.getString("Atherton"));
@@ -431,10 +431,10 @@ public class SnowDayController {
 
             //Calculate the total percent.
             //Set the percent to the higher percent.
-            if (weatherpercent > schoolpercent) {
-                percent = weatherpercent;
-            } else if (schoolpercent > weatherpercent) {
-                percent = schoolpercent;
+            if (weatherPercent > schoolPercent) {
+                percent = weatherPercent;
+            } else if (schoolPercent > weatherPercent) {
+                percent = schoolPercent;
             }
 
             //Reduce the percent chance by three for every snow day entered.

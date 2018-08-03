@@ -28,7 +28,7 @@ public class ClosingsModel {
     public int tier3 = 0;
     public int tier4 = 0;
 
-    public int schoolpercent;
+    public int schoolPercent;
 
     //Every school this program searches for: true = closed, false = open (default)
     public boolean GBAcademy;

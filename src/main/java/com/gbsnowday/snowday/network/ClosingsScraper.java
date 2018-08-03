@@ -273,25 +273,25 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
                 false,
                 1);
 
-        //Set the schoolpercent
+        //Set the school percent
         if (closingsModel.tier1 > 2) {
             //3+ academies are closed. 20% schoolpercent.
-            closingsModel.schoolpercent = 20;
+            closingsModel.schoolPercent = 20;
         }
         if (closingsModel.tier2 > 2) {
             //3+ schools in nearby counties are closed. 40% schoolpercent.
-            closingsModel.schoolpercent = 40;
+            closingsModel.schoolPercent = 40;
         }
         if (closingsModel.tier3 > 2) {
             //3+ schools in Genesee County are closed. 60% schoolpercent.
-            closingsModel.schoolpercent = 60;
+            closingsModel.schoolPercent = 60;
         }
         if (closingsModel.tier4 > 2) {
             //3+ schools near GB are closed. 80% schoolpercent.
-            closingsModel.schoolpercent = 80;
+            closingsModel.schoolPercent = 80;
             if (closingsModel.Carman) {
                 //Carman is closed along with 2+ close schools. 90% schoolpercent.
-                closingsModel.schoolpercent = 90;
+                closingsModel.schoolPercent = 90;
             }
         }
     }
