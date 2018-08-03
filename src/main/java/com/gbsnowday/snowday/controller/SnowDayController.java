@@ -331,7 +331,7 @@ public class SnowDayController {
                             try {
                                 new WeatherDialog().display(
                                         weatherModel.warningTitles.get(i + 1),
-                                        weatherModel.warningSummaries.get(i - 1),
+                                        weatherModel.warningSummaries.get(i),
                                         weatherModel.warningLinks.get(i + 1));
                             }catch (NullPointerException | IndexOutOfBoundsException e) {
                                 new WeatherDialog().display(null, bundle.getString("WarningParseError"), null);
