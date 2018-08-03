@@ -273,7 +273,9 @@ public class SnowDayController {
                 //Set the school percent.
                 schoolpercent = closingsModel.schoolpercent;
 
-                txtGB.setText(closingsModel.GBText);
+                txtGB.setText(closingsModel.GBText
+                    + "\n" + bundle.getString("CalculateWithoutClosings"));
+
                 if (closingsModel.GB) {
                     txtGB.setStyle("-fx-control-inner-background: orange");
                 }
