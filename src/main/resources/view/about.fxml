@@ -20,19 +20,14 @@ limitations under the License.-->
     <ImageView fitHeight="256.0" fitWidth="256.0" layoutX="14.0" layoutY="39.0" preserveRatio="true">
         <Image url="@/image/icon.png" />
     </ImageView>
+    <Label alignment="CENTER" layoutX="280.0" layoutY="87.0" prefHeight="53.0" prefWidth="320.0" text="%app_name">
+        <font>
+            <Font size="24.0" />
+        </font>
+    </Label>
     <Label alignment="CENTER" layoutX="280.0" layoutY="154.0" prefHeight="27.0" prefWidth="320.0" text="%dev_name">
         <font>
           <Font size="18.0" />
-        </font>
-    </Label>
-    <Label alignment="CENTER" layoutX="280.0" layoutY="87.0" prefHeight="53.0" prefWidth="320.0" text="%app_name">
-        <font>
-          <Font size="35.0" />
-        </font>
-    </Label>
-    <Label alignment="CENTER" layoutX="280.0" layoutY="52.0" prefHeight="35.0" prefWidth="320.0" text="%GBCS">
-        <font>
-          <Font size="22.0" />
         </font>
     </Label>
     <HBox layoutX="283.0" layoutY="220.0" prefHeight="64.0" prefWidth="320.0" spacing="16">
