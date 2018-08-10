@@ -386,12 +386,16 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
                             switch (tier) {
                                 case 1:
                                     tier1++;
+                                    break;
                                 case 2:
                                     tier2++;
+                                    break;
                                 case 3:
                                     tier3++;
+                                    break;
                                 case 4:
                                     tier4++;
+                                    break;
                                 default:
                             }
                             closingModels.get(closingModels.size() - 1).setClosed(true);
