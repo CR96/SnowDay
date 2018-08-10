@@ -7,21 +7,23 @@ import com.gbsnowday.snowday.network.ClosingsScraper;
 import com.gbsnowday.snowday.network.WeatherScraper;
 import com.gbsnowday.snowday.ui.RadarDialog;
 import com.gbsnowday.snowday.ui.WeatherDialog;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.*;
 import javafx.scene.Cursor;
-import javafx.scene.control.*;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -31,7 +33,10 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class SnowDayController {
     /*Copyright 2014-2016 Corey Rowe
@@ -45,29 +50,19 @@ public class SnowDayController {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
-    private ResourceBundle arrayBundle = ResourceBundle
-            .getBundle("bundle.ArrayBundle", new Locale("en", "EN"));
-    private ResourceBundle bundle = ResourceBundle
-            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
-
     //Declare scene controls
     public Button btnCalculate;
     public Button btnRadar;
-    
     public MenuItem itemAbout;
     public Label lblDay;
     public Label lblPercent;
     public Label lblPrev;
-
     public ComboBox<String> lstDays;
     public RadioButton optToday;
     public RadioButton optTomorrow;
-
     public Label lblError;
     public ImageView imgCalculate;
-
     public ScrollPane scrClosings;
-
     public TextArea txtAtherton;
     public TextArea txtBeecher;
     public TextArea txtBendle;
@@ -95,7 +90,6 @@ public class SnowDayController {
     public TextArea txtMorris;
     public Label lblNWS;
     public TextArea txtOwosso;
-
     public TextArea txtSzCreek;
     public TextField txtTier1;
     public TextField txtTier2;
@@ -105,10 +99,14 @@ public class SnowDayController {
     public TextArea txtWPAcademy;
     public ListView<String> lstWeather;
 
+    private final ResourceBundle arrayBundle = ResourceBundle
+            .getBundle("bundle.ArrayBundle", new Locale("en", "EN"));
+    private final ResourceBundle bundle = ResourceBundle
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
     private int days;
     private int dayrun;
 
-    private ArrayList<Integer> daysarray = new ArrayList<>();
+    private final ArrayList<Integer> daysarray = new ArrayList<>();
 
     //Individual components of the calculation
     private int schoolPercent;
@@ -150,16 +148,13 @@ public class SnowDayController {
         if (eventModel.isEventPresent()) {
             txtInfo.setStyle("-fx-text-fill: blue");
         }
-        if (eventModel.isBobcats()) {
-            txtInfo.setStyle("-fx-text-fill: red");
-        }
 
         ArrayList<String> infoList = eventModel.getInfoList();
         //Set the contents of lstInfo
         for (int i = 0; i < infoList.size(); i++) {
             if (i == 0) {
                 txtInfo.setText(infoList.get(i));
-            }else{
+            } else {
                 txtInfo.setText(txtInfo.getText() + "\n" + infoList.get(i));
             }
         }
@@ -168,7 +163,7 @@ public class SnowDayController {
     public void showRadar() {
         new RadarDialog().display();
     }
-    
+
     public void showAboutDialog() throws IOException {
         Stage stage = new Stage();
         stage.setTitle(bundle.getString("action_about"));
@@ -200,9 +195,9 @@ public class SnowDayController {
     public void checkCalculationEnabled() {
         if (lstDays.getSelectionModel().getSelectedIndex() == -1) {
             btnCalculate.setDisable(true);
-        }else if (!optToday.isSelected() && !optTomorrow.isSelected()) {
+        } else if (!optToday.isSelected() && !optTomorrow.isSelected()) {
             btnCalculate.setDisable(true);
-        }else{
+        } else {
             btnCalculate.setDisable(false);
         }
         special();
@@ -215,7 +210,7 @@ public class SnowDayController {
         if (daysarray.toString().equals(Arrays.toString(specialarray1))) {
             txtInfo.setText(txtInfo.getText() + bundle.getString("special1"));
             txtInfo.setStyle("-fx-text-fill: blue");
-        }else if (daysarray.toString().equals(Arrays.toString(specialarray2))) {
+        } else if (daysarray.toString().equals(Arrays.toString(specialarray2))) {
             txtInfo.setText(txtInfo.getText() + bundle.getString("special2"));
             txtInfo.setStyle("-fx-text-fill: blue");
         }
@@ -234,17 +229,17 @@ public class SnowDayController {
     public void Calculate() {
         //Spin the snowflake
         imgCalculate.setVisible(true);
-        
+
         imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_blue.png")));
-        
+
         rt = new RotateTransition(Duration.millis(2000), imgCalculate);
         rt.setByAngle(720);
         rt.setCycleCount(Animation.INDEFINITE);
         rt.setAutoReverse(false);
 
         rt.play();
-        
-        
+
+
         //Call a reset to clear any previous data
         Reset();
 
@@ -281,7 +276,7 @@ public class SnowDayController {
 
                 setSchoolText(txtAtherton, closingModels.get(0));
                 setSchoolText(txtBendle, closingModels.get(1));
-                setSchoolText(txtBentley,closingModels.get(2));
+                setSchoolText(txtBentley, closingModels.get(2));
                 setSchoolText(txtCarman, closingModels.get(3));
                 setSchoolText(txtFlint, closingModels.get(4));
                 setSchoolText(txtGoodrich, closingModels.get(5));
@@ -315,7 +310,7 @@ public class SnowDayController {
                 //Weather scraper has failed.
                 lblNWS.setText(weatherScraper.getError()
                         + "\n" + bundle.getString("CalculateWithoutWeather"));
-            }else{
+            } else {
                 //Set the weather percent
                 weatherPercent = weatherScraper.getWeatherPercent();
 
@@ -342,7 +337,7 @@ public class SnowDayController {
                                         weatherModels.get(i).getWarningReadableTime(),
                                         weatherModels.get(i).getWarningSummary(),
                                         weatherModels.get(i).getWarningLink());
-                            }catch (NullPointerException | IndexOutOfBoundsException e) {
+                            } catch (NullPointerException | IndexOutOfBoundsException e) {
                                 new WeatherDialog().display(
                                         null,
                                         null,
@@ -378,7 +373,7 @@ public class SnowDayController {
     }
 
     private void Reset() {
-        
+
         lblError.setText("");
 
         lblPercent.setVisible(false);
@@ -426,9 +421,9 @@ public class SnowDayController {
         btnCalculate.setDisable(true);
     }
 
-    private class PercentCalculate implements Runnable{
+    private class PercentCalculate implements Runnable {
         @Override
-        public void run(){
+        public void run() {
 
             //Give the scrapers time to act before displaying the percent
 
@@ -465,7 +460,7 @@ public class SnowDayController {
             if (closingsScraper.isGBClosed()) {
                 //WJRTScraper reports Grand Blanc is closed. Override percentage, set to 100%
                 percent = 100;
-            }else if (closingsScraper.isGBOpen()) {
+            } else if (closingsScraper.isGBOpen()) {
                 //GB is false and the time is during or after school hours. 0% chance.
                 percent = 0;
             }
@@ -483,26 +478,26 @@ public class SnowDayController {
                 imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_red.png")));
 
                 rt.stop();
-                
+
                 FadeTransition red_blink = new FadeTransition(Duration.millis(500), imgCalculate);
                 red_blink.setCycleCount(19);
                 red_blink.setFromValue(0.0);
                 red_blink.setToValue(1.0);
                 red_blink.setAutoReverse(true);
-                
+
                 red_blink.play();
                 imgCalculate.setRotate(0.0);
-                
+
                 Platform.runLater(() -> lblPercent.setText(""));
-                
+
                 scrClosings.setDisable(true);
                 lstWeather.setDisable(true);
-                
+
             } else if (closingsScraper.isCancelled() || weatherScraper.isCancelled()) {
                 //Partial failure
                 Platform.runLater(() -> lblError.setText(bundle.getString("NoNetwork")));
                 imgCalculate.setImage(new javafx.scene.image.Image(getClass().getResourceAsStream("/image/snowflake_orange.png")));
-                
+
                 rt.stop();
 
                 FadeTransition orange_blink = new FadeTransition(Duration.millis(500), imgCalculate);
@@ -510,26 +505,29 @@ public class SnowDayController {
                 orange_blink.setFromValue(0.0);
                 orange_blink.setToValue(1.0);
                 orange_blink.setAutoReverse(true);
-                
+
                 orange_blink.play();
                 imgCalculate.setRotate(0.0);
 
                 if (!closingsScraper.isCancelled()) {
                     scrClosings.setDisable(false);
-                }else if (!weatherScraper.isCancelled()) {
+                } else if (!weatherScraper.isCancelled()) {
                     lstWeather.setDisable(false);
                 }
-            }else{
+            } else {
                 try {
                     for (int percentscroll = 0; percentscroll <= percent; percentscroll++) {
                         Thread.sleep(20);
                         if (percentscroll >= 0 && percentscroll <= 20) {
                             lblPercent.setStyle("-fx-text-fill: red");
-                        } if (percentscroll > 20 && percentscroll <= 60) {
+                        }
+                        if (percentscroll > 20 && percentscroll <= 60) {
                             lblPercent.setStyle("-fx-text-fill: orange");
-                        } if (percentscroll > 60 && percentscroll <= 80) {
+                        }
+                        if (percentscroll > 60 && percentscroll <= 80) {
                             lblPercent.setStyle("-fx-text-fill: green");
-                        } if (percentscroll > 80) {
+                        }
+                        if (percentscroll > 80) {
                             lblPercent.setStyle("-fx-text-fill: blue");
                         }
 

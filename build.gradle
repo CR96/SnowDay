@@ -8,13 +8,13 @@ mainClassName = 'com.gbsnowday.snowday.main.Main'
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Grand Blanc Snow Day',
-                    'Implementation-Version': version,
-                    'Specification-Vendor': 'Corey Rowe',
-                    'Main-Class': mainClassName,
-                    'SplashScreen-Image': "image/icon.png"
+                'Implementation-Version': version,
+                'Specification-Vendor': 'Corey Rowe',
+                'Main-Class': mainClassName,
+                'SplashScreen-Image': "image/icon.png"
     }
     baseName = project.name
-    from { configurations.compile.collect {it.isDirectory() ? it : zipTree(it) }}
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 

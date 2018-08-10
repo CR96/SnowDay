@@ -18,11 +18,15 @@ limitations under the License.*/
  * An object containing the status of a single school or organization.
  */
 public class ClosingModel {
-    private String orgName;
-    private String orgStatus;
-    private boolean sectionHeader;
-    private boolean messagePresent;
+    private final String orgName;
+    private final String orgStatus;
     private boolean closed;
+
+    private ClosingModel(ClosingBuilder builder) {
+        orgName = builder.orgName;
+        orgStatus = builder.orgStatus;
+        closed = builder.closed;
+    }
 
     public String getOrgName() {
         return orgName;
@@ -30,14 +34,6 @@ public class ClosingModel {
 
     public String getOrgStatus() {
         return orgStatus;
-    }
-
-    public boolean isSectionHeader() {
-        return sectionHeader;
-    }
-
-    public boolean isMessagePresent() {
-        return messagePresent;
     }
 
     public boolean isClosed() {
@@ -55,9 +51,7 @@ public class ClosingModel {
 
         //Optional
         private String orgStatus = "";
-        private boolean sectionHeader = false;
-        private boolean messagePresent = false;
-        private boolean closed = false;
+        private final boolean closed = false;
 
         public ClosingBuilder(String orgName) {
             this.orgName = orgName;
@@ -68,31 +62,8 @@ public class ClosingModel {
             return this;
         }
 
-        public ClosingBuilder setSectionHeader(boolean b) {
-            sectionHeader = b;
-            return this;
-        }
-
-        public ClosingBuilder setMessagePresent(boolean b) {
-            messagePresent = b;
-            return this;
-        }
-
-        public ClosingBuilder setClosed(boolean b) {
-            closed = b;
-            return this;
-        }
-
         public ClosingModel build() {
             return new ClosingModel(this);
         }
-    }
-
-    private ClosingModel (ClosingBuilder builder) {
-        orgName = builder.orgName;
-        orgStatus = builder.orgStatus;
-        sectionHeader = builder.sectionHeader;
-        messagePresent = builder.messagePresent;
-        closed = builder.closed;
     }
 }

@@ -4,16 +4,15 @@ import com.gbsnowday.snowday.model.WeatherModel;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import javax.swing.SwingWorker;
+
+import javax.swing.*;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /*Copyright 2014-2016 Corey Rowe
 
@@ -30,7 +29,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     /**
@@ -38,7 +37,7 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
      * A WeatherModel is a custom object containing the information needed to display a single warning.
      */
     private List<WeatherModel> weatherModels;
-    private int dayrun;
+    private final int dayrun;
 
     private boolean weatherWarningPresent;
     private int weatherPercent;
@@ -46,10 +45,21 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
     private String error;
 
     // The readable format of warning expiration times as seen by the user
-    private DateTimeFormatter outputFormatter = DateTimeFormatter
+    private final DateTimeFormatter outputFormatter = DateTimeFormatter
             .ofPattern("MMMM dd 'at' h:mm a", Locale.US);
 
-    private AsyncResponse delegate = null;
+    private final AsyncResponse delegate;
+
+    /**
+     * Reads and parses weather warnings from the National Weather Service.
+     *
+     * @param dayrun   Whether the calculation is being run for "today" or "tomorrow" (inputted by user)
+     * @param delegate The interface implementation used to pass the array of weather warnings
+     */
+    public WeatherScraper(int dayrun, AsyncResponse delegate) {
+        this.dayrun = dayrun;
+        this.delegate = delegate;
+    }
 
     public int getWeatherPercent() {
         return weatherPercent;
@@ -63,24 +73,9 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
         return error;
     }
 
-    // This interface serves as a delegate that passes the array of WeatherModel objects
-    // to the UI thread after the worker thread finishes running.
-    public interface AsyncResponse {
-        void processFinish(List<WeatherModel> weatherModels);
-    }
-
-    /**
-     * Reads and parses weather warnings from the National Weather Service.
-     * @param dayrun Whether the calculation is being run for "today" or "tomorrow" (inputted by user)
-     * @param delegate The interface implementation used to pass the array of weather warnings
-     */
-    public WeatherScraper(int dayrun, AsyncResponse delegate) {
-        this.dayrun = dayrun;
-        this.delegate = delegate;
-    }
-
     /**
      * Retrieve and parse the RSS feed asynchronously.
+     *
      * @return the array of {@link WeatherModel} objects
      */
     @SuppressWarnings("ForLoopReplaceableByForEach")
@@ -208,11 +203,11 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
             //Blizzard Warning
             checkWeatherWarning(bundle.getString("BlizzardWarn"), 90);
 
-        }catch (IOException e) {
+        } catch (IOException e) {
             //Connectivity issues
             error = bundle.getString("WeatherConnectionError");
             cancel(true);
-        }catch (NullPointerException | IndexOutOfBoundsException | ParseException e) {
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
             //RSS layout was not recognized.
             error = bundle.getString("WeatherParseError");
             cancel(true);
@@ -220,17 +215,20 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
         return weatherModels;
     }
 
-    /**Check for the presence of weather warnings.
+    /**
+     * Check for the presence of weather warnings.
      * Only the highest weather percent is stored (not cumulative).
      * Calculation is affected based on when the warning expires and the day the user selected.
-     * @param warn The string identifying the warning to search for
+     *
+     * @param warn   The string identifying the warning to search for
      * @param weight The value weatherPercent is set to if the warning is found
-     * @throws ParseException if the RSS.layout is not recognized
      */
-    private void checkWeatherWarning(String warn, int weight) throws ParseException {
+    @SuppressWarnings("ForLoopReplaceableByForEach") // Easier to understand as a plain for loop
+    private void checkWeatherWarning(String warn, int weight) {
         ZonedDateTime warningDate;
         ZonedDateTime today = ZonedDateTime.now();
         ZonedDateTime tomorrow = today.plusDays(1).withHour(0); // Midnight tomorrow
+
         for (int i = 0; i < weatherModels.size(); i++) {
             if (weatherModels.get(i).getWarningTitle().contains(warn)) {
                 warningDate = ZonedDateTime.parse(
@@ -249,5 +247,11 @@ public class WeatherScraper extends SwingWorker<List<WeatherModel>, Void> {
     @Override
     protected void done() {
         delegate.processFinish(weatherModels);
+    }
+
+    // This interface serves as a delegate that passes the array of WeatherModel objects
+    // to the UI thread after the worker thread finishes running.
+    public interface AsyncResponse {
+        void processFinish(List<WeatherModel> weatherModels);
     }
 }

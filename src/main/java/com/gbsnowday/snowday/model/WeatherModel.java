@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 public class WeatherModel {
-    private String warningTitle;
+    private final String warningTitle;
     private String warningExpireTime;
     private String warningReadableTime;
     private String warningSummary;
@@ -23,19 +23,6 @@ public class WeatherModel {
 
     public WeatherModel(String warningTitle) {
         this.warningTitle = warningTitle;
-    }
-
-    public WeatherModel(
-            String warningTitle,
-            String warningExpireTime,
-            String warningReadableTime,
-            String warningSummary,
-            String warningLink) {
-        this.warningTitle = warningTitle;
-        this.warningExpireTime = warningExpireTime;
-        this.warningReadableTime = warningReadableTime;
-        this.warningSummary = warningSummary;
-        this.warningLink = warningLink;
     }
 
     public String getWarningTitle() {

@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -31,19 +31,19 @@ limitations under the License.*/
 
 public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
 
-    private ResourceBundle arrayBundle = ResourceBundle
+    private final ResourceBundle arrayBundle = ResourceBundle
             .getBundle("bundle.ArrayBundle", new Locale("en", "EN"));
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     private List<ClosingModel> closingModels;
 
-    private List<String> orgNames = new ArrayList<>();
-    private List<String> orgStatuses = new ArrayList<>();
+    private final List<String> orgNames = new ArrayList<>();
+    private final List<String> orgStatuses = new ArrayList<>();
 
-    private List<String> GBText = new ArrayList<>();
+    private final List<String> GBText = new ArrayList<>();
 
-    private int dayrun;
+    private final int dayrun;
     private String weekdaytoday;
     private String weekdaytomorrow;
 
@@ -66,7 +66,12 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
 
     private String error;
 
-    private AsyncResponse delegate;
+    private final AsyncResponse delegate;
+
+    public ClosingsScraper(int dayrun, AsyncResponse delegate) {
+        this.dayrun = dayrun;
+        this.delegate = delegate;
+    }
 
     public int getSchoolPercent() {
         return schoolPercent;
@@ -98,15 +103,6 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
         return error;
     }
 
-    public interface AsyncResponse {
-        void processFinish(List<ClosingModel> closingModels);
-    }
-
-    public ClosingsScraper(int dayrun, AsyncResponse delegate) {
-        this.dayrun = dayrun;
-        this.delegate = delegate;
-    }
-
     @Override
     protected List<ClosingModel> doInBackground() {
 
@@ -129,18 +125,18 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
             }
 
             parseClosings();
-        }catch (IOException e) {
+        } catch (IOException e) {
             //Connectivity issues
             error = bundle.getString("WJRTConnectionError");
             cancel(true);
-        }catch (NullPointerException | IndexOutOfBoundsException e) {
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
             /* This shows in place of the table (as plain text)
             if no schools or institutions are closed. */
             if (schools != null && !schools.text().contains("no closings or delays")) {
                 //Webpage layout was not recognized.
                 error = bundle.getString("WJRTParseError");
                 cancel(true);
-            }else{
+            } else {
                 parseClosings();
             }
         }
@@ -165,7 +161,7 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
                 -1);
 
         if (GB) {
-            GBText.add(bundle.getString("SnowDay")  + "\n");
+            GBText.add(bundle.getString("SnowDay") + "\n");
         } else {
             if (dayrun == 0) {
                 if (today.getHour() >= 7 && today.getHour() < 16) {
@@ -350,11 +346,13 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
         }
     }
 
-    /** Checks if a specified school or organization is closed or has a message.
-     * @param checks The array of potential false positives to be checked
-     * @param schoolName The name of the school as present in the array populated by {@link ClosingsScraper}
+    /**
+     * Checks if a specified school or organization is closed or has a message.
+     *
+     * @param checks       The array of potential false positives to be checked
+     * @param schoolName   The name of the school as present in the array populated by {@link ClosingsScraper}
      * @param isGrandBlanc Whether the school is Grand Blanc or another school
-     * @param tier The tier the school belongs to (-1 for Grand Blanc)
+     * @param tier         The tier the school belongs to (-1 for Grand Blanc)
      * @return The status of the school
      */
     private boolean checkClosed(
@@ -376,8 +374,7 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
                     } else {
                         closingModels.add(new ClosingModel.ClosingBuilder(schoolName)
                                 .setOrgStatus(orgStatuses.get(i))
-                                        .setMessagePresent(true)
-                                        .build()
+                                .build()
                         );
                     }
 
@@ -405,12 +402,14 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
                 }
             }
 
-            if (schoolFound) {break;}
+            if (schoolFound) {
+                break;
+            }
         }
 
         if (isGrandBlanc && !schoolFound) {
             GBText.add((schoolName) + ": " + bundle.getString("Open") + "\n");
-        }else if (!schoolFound) {
+        } else if (!schoolFound) {
             closingModels.add(
                     new ClosingModel.ClosingBuilder(schoolName)
                             .setOrgStatus(bundle.getString("Open"))
@@ -440,5 +439,9 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
     @Override
     protected void done() {
         delegate.processFinish(closingModels);
+    }
+
+    public interface AsyncResponse {
+        void processFinish(List<ClosingModel> closingModels);
     }
 }

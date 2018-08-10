@@ -24,19 +24,18 @@ import java.util.ResourceBundle;
 
 public class EventModel {
 
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
-    private ArrayList<String> infoList = new ArrayList<>();
+    private final ArrayList<String> infoList = new ArrayList<>();
     private boolean todayValid = true;
     private boolean tomorrowValid = true;
     private boolean eventPresent;
-    private boolean bobcats;
 
     //Figure out what tomorrow is
     //Saturday = 6, Sunday = 7
-    private LocalDateTime dt = LocalDateTime.now();
-    private int weekday = dt.getDayOfWeek().getValue();
+    private final LocalDateTime dt = LocalDateTime.now();
+    private final int weekday = dt.getDayOfWeek().getValue();
 
     /**
      * Make sure the user doesn't try to run the program on the weekend or on specific dates.
@@ -72,14 +71,7 @@ public class EventModel {
     }
 
     /**
-     * @return whether the program is run on the day of commencement (affects list entry color)
-     **/
-    public boolean isBobcats() {
-        return bobcats;
-    }
-
-    /**
-     * @return the list to be populated in the initial activity's RecyclerView
+     * @return the list to be populated in the main view controller
      **/
     public ArrayList<String> getInfoList() {
         return infoList;

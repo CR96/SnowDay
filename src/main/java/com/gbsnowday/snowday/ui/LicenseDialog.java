@@ -32,9 +32,9 @@ public class LicenseDialog {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
-    
+
     public void display() {
         Stage window = new Stage();
 
@@ -58,26 +58,26 @@ public class LicenseDialog {
 
         lblTitle.setText(bundle.getString("app_name") + bundle.getString("Version"));
         lblTitle.setGraphic(imgIcon);
-        lblTitle.setFont(Font.font ("Verdana", 24));
+        lblTitle.setFont(Font.font("Verdana", 24));
         lblTitle.setWrapText(true);
 
         lblUpdateTitle.setText(bundle.getString("UpdateTitle"));
-        lblUpdateTitle.setFont(Font.font ("Verdana", 18));
+        lblUpdateTitle.setFont(Font.font("Verdana", 18));
         lblUpdates.setText(bundle.getString("Updates"));
 
         lblLicenseTitle.setText(bundle.getString("LicenseTitle"));
-        lblLicenseTitle.setFont(Font.font ("Verdana", 18));
+        lblLicenseTitle.setFont(Font.font("Verdana", 18));
         lblLicense1.setText(bundle.getString("license_1"));
         lblLicenseLink.setText(bundle.getString("license_link"));
         lblLicense2.setText(bundle.getString("license_2"));
-        
+
         lblLicenseLink.setOnAction(event -> {
             try {
                 Desktop.getDesktop().browse(new URI(bundle.getString("license_link")));
             } catch (IOException | URISyntaxException ignored) {
             }
         });
-        
+
         VBox root = new VBox();
         root.setPadding(new Insets(16.0));
         root.setSpacing(16.0);

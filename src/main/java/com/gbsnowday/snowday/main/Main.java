@@ -13,8 +13,14 @@ import java.util.ResourceBundle;
 
 public class Main extends Application {
 
-    private ResourceBundle bundle = ResourceBundle.getBundle("bundle.LangBundle", new Locale("en", "EN"));
-    
+    private final ResourceBundle bundle = ResourceBundle.getBundle("bundle.LangBundle", new Locale("en", "EN"));
+
+    public static void main(String[] args) {
+        //Temporary workaround to fix a hang with Windows 10 / Intel processors.
+        System.setProperty("glass.accessible.force", "false");
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/view/snowday.fxml"), bundle);
@@ -30,11 +36,5 @@ public class Main extends Application {
         }
 
 
-    }
-
-    public static void main(String[] args) {
-        //Temporary workaround to fix a hang with Windows 10 / Intel processors.
-        System.setProperty("glass.accessible.force", "false");
-        launch(args);
     }
 }

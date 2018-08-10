@@ -34,7 +34,7 @@ public class WeatherDialog {
     See the License for the specific language governing permissions and
     limitations under the License.*/
 
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
@@ -57,7 +57,7 @@ public class WeatherDialog {
 
         lblTitle.setText(title);
         lblTitle.setGraphic(imgWeather);
-        lblTitle.setFont(Font.font ("Verdana", 20));
+        lblTitle.setFont(Font.font("Verdana", 20));
         lblTitle.setWrapText(true);
         lblTime.setText(time);
         lblSummary.setText(summary);
@@ -91,7 +91,7 @@ public class WeatherDialog {
         HBox buttons = new HBox(16);
         buttons.getChildren().add(infoButton);
         buttons.setAlignment(Pos.BASELINE_RIGHT);
-        
+
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(16));
         root.setStyle("-fx-background-color: lightblue");

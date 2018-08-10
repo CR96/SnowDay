@@ -24,17 +24,15 @@ public class AboutController {
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.*/
-    
-    @FXML
-    private ResourceBundle bundle = ResourceBundle
-            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     public Button btnTwitter;
     public Button btnEmail;
     public Button btnWeb;
     public Button btnGit;
-
     public Button btnInfo;
+    @FXML
+    private final ResourceBundle bundle = ResourceBundle
+            .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
     public void setCursorHand() {
         btnTwitter.getScene().setCursor(Cursor.HAND);

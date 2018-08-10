@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public class RadarDialog {
 
-    private ResourceBundle bundle = ResourceBundle
+    private final ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
 
@@ -26,12 +26,12 @@ public class RadarDialog {
         window.setResizable(false);
 
         ImageView imgRadar = new ImageView();
-        
+
         imgRadar.setImage(new Image(bundle.getString("radarlink")));
 
         window.setHeight(600);
         window.setWidth(600);
-        
+
         Pane root = new Pane();
         root.getChildren().addAll(imgRadar);
 
