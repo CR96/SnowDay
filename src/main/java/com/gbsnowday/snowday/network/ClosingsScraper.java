@@ -1,6 +1,6 @@
 package com.gbsnowday.snowday.network;
 
-import com.gbsnowday.snowday.model.ClosingsModel;
+import com.gbsnowday.snowday.model.ClosingModel;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -28,36 +29,88 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
+public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
 
     private ResourceBundle arrayBundle = ResourceBundle
             .getBundle("bundle.ArrayBundle", new Locale("en", "EN"));
     private ResourceBundle bundle = ResourceBundle
             .getBundle("bundle.LangBundle", new Locale("en", "EN"));
 
-    private ClosingsModel closingsModel;
+    private List<ClosingModel> closingModels;
 
-    private ArrayList<String> orgNames = new ArrayList<>();
-    private ArrayList<String> orgStatuses = new ArrayList<>();
+    private List<String> orgNames = new ArrayList<>();
+    private List<String> orgStatuses = new ArrayList<>();
+
+    private List<String> GBText = new ArrayList<>();
 
     private int dayrun;
     private String weekdaytoday;
     private String weekdaytomorrow;
 
-    private AsyncResponse delegate = null;
+    // Levels of school closings (near vs. far)
+    private int tier1 = 0;
+    private int tier2 = 0;
+    private int tier3 = 0;
+    private int tier4 = 0;
 
-    public interface AsyncResponse {
-        void processFinish(ClosingsModel closingsModel);
+    private int schoolPercent;
+
+    private boolean GB; // Check for "Grand Blanc Senior Center", "Grand Blanc Academy",
+    // "Grand Blanc Road Montessori", "Grand Blanc Gymnastics Co.", and "Freedom Work Grand Blanc"
+
+    // True if GB is already open (GB = false and time is during or after school hours)
+    private boolean GBOpen;
+
+    // Grand Blanc has a message (e.g. "Early Dismissal") but isn't actually closed.
+    private boolean GBMessage;
+
+    private String error;
+
+    private AsyncResponse delegate;
+
+    public int getSchoolPercent() {
+        return schoolPercent;
     }
 
-    public ClosingsScraper(int i, AsyncResponse delegate) {
-        dayrun = i;
+    public boolean isGBClosed() {
+        return GB;
+    }
+
+    public boolean gbHasMessage() {
+        return GBMessage;
+    }
+
+    public boolean isGBOpen() {
+        return GBOpen;
+    }
+
+    public String getGBText() {
+        StringBuilder result = new StringBuilder();
+
+        for (String aGBText : GBText) {
+            result.append(aGBText);
+        }
+
+        return result.toString();
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public interface AsyncResponse {
+        void processFinish(List<ClosingModel> closingModels);
+    }
+
+    public ClosingsScraper(int dayrun, AsyncResponse delegate) {
+        this.dayrun = dayrun;
         this.delegate = delegate;
     }
 
     @Override
-    protected ClosingsModel doInBackground() throws Exception {
-        closingsModel = new ClosingsModel();
+    protected List<ClosingModel> doInBackground() {
+
+        closingModels = new ArrayList<>();
 
         Document schools = null;
         try {
@@ -74,27 +127,25 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
                 orgNames.add(row.select("td").get(0).text());
                 orgStatuses.add(row.select("td").get(1).text());
             }
+
+            parseClosings();
         }catch (IOException e) {
             //Connectivity issues
-            closingsModel.error = bundle.getString("WJRTConnectionError");
+            error = bundle.getString("WJRTConnectionError");
             cancel(true);
         }catch (NullPointerException | IndexOutOfBoundsException e) {
             /* This shows in place of the table (as plain text)
             if no schools or institutions are closed. */
             if (schools != null && !schools.text().contains("no closings or delays")) {
                 //Webpage layout was not recognized.
-                closingsModel.error = bundle.getString("WJRTParseError");
+                error = bundle.getString("WJRTParseError");
                 cancel(true);
+            }else{
+                parseClosings();
             }
-        }finally{
-            parseClosings();
         }
-        return closingsModel;
-    }
 
-    @Override
-    protected void done() {
-        delegate.processFinish(closingsModel);
+        return closingModels;
     }
 
     private void parseClosings() {
@@ -107,24 +158,24 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
         weekdaytomorrow = today.plusDays(1).getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US);
 
         //Sanity check - make sure Grand Blanc isn't already closed before predicting
-        closingsModel.GB = isClosed(
+        GB = checkClosed(
                 arrayBundle.getString("checks_gb").split(","),
                 bundle.getString("GB"),
                 true,
                 -1);
 
-        if (closingsModel.GB) {
-            closingsModel.GBText += bundle.getString("SnowDay")  + "\n";
+        if (GB) {
+            GBText.add(bundle.getString("SnowDay")  + "\n");
         } else {
             if (dayrun == 0) {
                 if (today.getHour() >= 7 && today.getHour() < 16) {
                     //Time is between 7AM and 4PM. School is already in session.
-                    closingsModel.GBText += bundle.getString("SchoolOpen") + "\n";
-                    closingsModel.GBOpen = true;
+                    GBText.add(bundle.getString("SchoolOpen") + "\n");
+                    GBOpen = true;
                 } else if (today.getHour() >= 16) {
                     //Time is after 4PM. School is already out.
-                    closingsModel.GBText += bundle.getString("Dismissed") + "\n";
-                    closingsModel.GBOpen = true;
+                    GBText.add(bundle.getString("Dismissed") + "\n");
+                    GBOpen = true;
                 }
             }
         }
@@ -136,162 +187,165 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
         String[] tier4schools = arrayBundle.getString("name_t4").split(",");
 
         //Tier 4
-        closingsModel.Atherton = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_atherton").split(","),
                 tier4schools[0],
                 false,
                 4);
-        closingsModel.Bendle = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_bendle").split(","),
                 tier4schools[1],
                 false,
                 4);
-        closingsModel.Bentley = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_bentley").split(","),
                 tier4schools[2],
                 false,
                 4);
-        closingsModel.Carman = isClosed(
+
+        // Special case - Carman-Ainsworth has an additional impact on the calculation
+        boolean carman = checkClosed(
                 arrayBundle.getString("checks_carman").split(","),
                 tier4schools[3],
                 false,
                 4);
-        closingsModel.Flint = isClosed(
+
+        checkClosed(
                 arrayBundle.getString("checks_flint").split(","),
                 tier4schools[4],
                 false,
                 4);
-        closingsModel.Goodrich = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_goodrich").split(","),
                 tier4schools[5],
                 false,
                 4);
 
         //Tier 3
-        closingsModel.Beecher = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_beecher").split(","),
                 tier3schools[0],
                 false,
                 3);
-        closingsModel.Clio = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_clio").split(","),
                 tier3schools[1],
                 false,
                 3);
-        closingsModel.Davison = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_davison").split(","),
                 tier3schools[2],
                 false,
                 3);
-        closingsModel.Fenton = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_fenton").split(","),
                 tier3schools[3],
                 false,
                 3);
-        closingsModel.Flushing = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_flushing").split(","),
                 tier3schools[4],
                 false,
                 3);
-        closingsModel.Genesee = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_genesee").split(","),
                 tier3schools[5],
                 false,
                 3);
-        closingsModel.Kearsley = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_kearsley").split(","),
                 tier3schools[6],
                 false,
                 3);
-        closingsModel.LKFenton = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_lkfenton").split(","),
                 tier3schools[7],
                 false,
                 3);
-        closingsModel.Linden = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_linden").split(","),
                 tier3schools[8],
                 false,
                 3);
-        closingsModel. Montrose = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_montrose").split(","),
                 tier3schools[9],
                 false,
                 3);
-        closingsModel.Morris = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_morris").split(","),
                 tier3schools[10],
                 false,
                 3);
-        closingsModel.SzCreek = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_szcreek").split(","),
                 tier3schools[11],
                 false,
                 3);
 
         //Tier 2
-        closingsModel.Durand = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_durand").split(","),
                 tier2schools[0],
                 false,
                 2);
-        closingsModel.Holly = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_holly").split(","),
                 tier2schools[1],
                 false,
                 2);
-        closingsModel.Lapeer = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_lapeer").split(","),
                 tier2schools[2],
                 false,
                 2);
-        closingsModel.Owosso = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_owosso").split(","),
                 tier2schools[3],
                 false,
                 2);
 
         //Tier 1
-        closingsModel.GBAcademy = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_gbacademy").split(","),
                 tier1schools[0],
                 false,
                 1);
-        closingsModel.GISD = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_gisd").split(","),
                 tier1schools[1],
                 false,
                 1);
-        closingsModel.HolyFamily = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_holyfamily").split(","),
                 tier1schools[2],
                 false,
                 1);
-        closingsModel.WPAcademy = isClosed(
+        checkClosed(
                 arrayBundle.getString("checks_wpacademy").split(","),
                 tier1schools[3],
                 false,
                 1);
 
         //Set the school percent
-        if (closingsModel.tier1 > 2) {
+        if (tier1 > 2) {
             //3+ academies are closed. 20% schoolpercent.
-            closingsModel.schoolPercent = 20;
+            schoolPercent = 20;
         }
-        if (closingsModel.tier2 > 2) {
+        if (tier2 > 2) {
             //3+ schools in nearby counties are closed. 40% schoolpercent.
-            closingsModel.schoolPercent = 40;
+            schoolPercent = 40;
         }
-        if (closingsModel.tier3 > 2) {
+        if (tier3 > 2) {
             //3+ schools in Genesee County are closed. 60% schoolpercent.
-            closingsModel.schoolPercent = 60;
+            schoolPercent = 60;
         }
-        if (closingsModel.tier4 > 2) {
+        if (tier4 > 2) {
             //3+ schools near GB are closed. 80% schoolpercent.
-            closingsModel.schoolPercent = 80;
-            if (closingsModel.Carman) {
+            schoolPercent = 80;
+            if (carman) {
                 //Carman is closed along with 2+ close schools. 90% schoolpercent.
-                closingsModel.schoolPercent = 90;
+                schoolPercent = 90;
             }
         }
     }
@@ -303,7 +357,7 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
      * @param tier The tier the school belongs to (-1 for Grand Blanc)
      * @return The status of the school
      */
-    private boolean isClosed(
+    private boolean checkClosed(
             String[] checks,
             String schoolName,
             boolean isGrandBlanc,
@@ -317,31 +371,30 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
                 if (!isFalsePositive(checks, orgNames.get(i))) {
                     schoolFound = true;
                     if (isGrandBlanc) {
-                        closingsModel.GBMessage = true;
-                        closingsModel.GBText += schoolName + ": " + orgStatuses.get(i) + "\n";
+                        GBMessage = true;
+                        GBText.add(schoolName + ": " + orgStatuses.get(i) + "\n");
                     } else {
-                        closingsModel.displayedOrgNames.add(schoolName);
-                        closingsModel.displayedOrgStatuses.add(orgStatuses.get(i));
+                        closingModels.add(new ClosingModel.ClosingBuilder(schoolName)
+                                .setOrgStatus(orgStatuses.get(i))
+                                        .setMessagePresent(true)
+                                        .build()
+                        );
                     }
 
-                    if (orgStatuses.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
-                            || orgStatuses.get(i).contains("Closed Today") && dayrun == 0
-                            || orgStatuses.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
-                            || orgStatuses.get(i).contains("Closed Tomorrow") && dayrun == 1) {
+                    if (isClosed(orgStatuses, i, dayrun)) {
                         if (isGrandBlanc) {
-                            result = true;
-                        } else {
                             switch (tier) {
                                 case 1:
-                                    closingsModel.tier1++;
+                                    tier1++;
                                 case 2:
-                                    closingsModel.tier2++;
+                                    tier2++;
                                 case 3:
-                                    closingsModel.tier3++;
+                                    tier3++;
                                 case 4:
-                                    closingsModel.tier4++;
+                                    tier4++;
                                 default:
                             }
+                            closingModels.get(closingModels.size() - 1).setClosed(true);
                             result = true;
                         }
                     }
@@ -352,13 +405,22 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
         }
 
         if (isGrandBlanc && !schoolFound) {
-            closingsModel.GBText += (schoolName) + ": " + bundle.getString("Open") + "\n";
-        }else if (!schoolFound){
-            closingsModel.displayedOrgNames.add(schoolName);
-            closingsModel.displayedOrgStatuses.add(bundle.getString("Open"));
+            GBText.add((schoolName) + ": " + bundle.getString("Open") + "\n");
+        }else if (!schoolFound) {
+            closingModels.add(
+                    new ClosingModel.ClosingBuilder(schoolName)
+                            .setOrgStatus(bundle.getString("Open"))
+                            .build());
         }
 
         return result;
+    }
+
+    private boolean isClosed(List<String> orgStatuses, int i, int dayrun) {
+        return (orgStatuses.get(i).contains("Closed " + weekdaytoday) && dayrun == 0
+                || orgStatuses.get(i).contains("Closed Today") && dayrun == 0
+                || orgStatuses.get(i).contains("Closed " + weekdaytomorrow) && dayrun == 1
+                || orgStatuses.get(i).contains("Closed Tomorrow") && dayrun == 1);
     }
 
     private boolean isFalsePositive(String[] checks, String org) {
@@ -369,5 +431,10 @@ public class ClosingsScraper extends SwingWorker<ClosingsModel, Void> {
             }
         }
         return false;
+    }
+
+    @Override
+    protected void done() {
+        delegate.processFinish(closingModels);
     }
 }

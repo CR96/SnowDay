@@ -1,6 +1,6 @@
 package com.gbsnowday.snowday.controller;
 
-import com.gbsnowday.snowday.model.ClosingsModel;
+import com.gbsnowday.snowday.model.ClosingModel;
 import com.gbsnowday.snowday.model.EventModel;
 import com.gbsnowday.snowday.model.WeatherModel;
 import com.gbsnowday.snowday.network.ClosingsScraper;
@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class SnowDayController {
     /*Copyright 2014-2016 Corey Rowe
@@ -120,8 +119,6 @@ public class SnowDayController {
 
     private ClosingsScraper closingsScraper;
     private WeatherScraper weatherScraper;
-
-    private ClosingsModel mClosingsModel;
 
     @FXML
     void initialize() {
@@ -234,7 +231,7 @@ public class SnowDayController {
      * Schools in higher tiers (4 is highest) will increase the snow day chance.
      * Obviously return 100% if GB is already closed.
      */
-    public void Calculate() throws ExecutionException, InterruptedException {
+    public void Calculate() {
         //Spin the snowflake
         imgCalculate.setVisible(true);
         
@@ -265,48 +262,49 @@ public class SnowDayController {
         //Have the user input past snow days
         days = lstDays.getSelectionModel().getSelectedIndex();
 
-        closingsScraper = new ClosingsScraper(dayrun, closingsModel -> {
-            mClosingsModel = closingsModel;
+        closingsScraper = new ClosingsScraper(dayrun, closingModels -> {
             if (closingsScraper.isCancelled()) {
                 //Closings scraper has failed.
-                txtGB.setText(closingsModel.error);
+                txtGB.setText(closingsScraper.getError());
+
+                txtGB.setText(closingsScraper.getGBText()
+                        + bundle.getString("CalculateWithoutClosings"));
             } else {
                 //Set the school percent.
-                schoolPercent = closingsModel.schoolPercent;
+                schoolPercent = closingsScraper.getSchoolPercent();
 
-                txtGB.setText(closingsModel.GBText
-                    + "\n" + bundle.getString("CalculateWithoutClosings"));
+                txtGB.setText(closingsScraper.getGBText());
 
-                if (closingsModel.GB) {
+                if (closingsScraper.isGBClosed() || closingsScraper.gbHasMessage()) {
                     txtGB.setStyle("-fx-control-inner-background: orange");
                 }
 
-                setSchoolText(txtAtherton, 0, closingsModel.Atherton);
-                setSchoolText(txtBendle, 1, closingsModel.Bendle);
-                setSchoolText(txtBentley, 2, closingsModel.Bentley);
-                setSchoolText(txtCarman, 3, closingsModel.Carman);
-                setSchoolText(txtFlint, 4, closingsModel.Flint);
-                setSchoolText(txtGoodrich, 5, closingsModel.Goodrich);
-                setSchoolText(txtBeecher, 6, closingsModel.Beecher);
-                setSchoolText(txtClio, 7, closingsModel.Clio);
-                setSchoolText(txtDavison, 8, closingsModel.Davison);
-                setSchoolText(txtFenton, 9, closingsModel.Fenton);
-                setSchoolText(txtFlushing, 10, closingsModel.Flushing);
-                setSchoolText(txtGenesee, 11, closingsModel.Genesee);
-                setSchoolText(txtKearsley, 12, closingsModel.Kearsley);
-                setSchoolText(txtLKFenton, 13, closingsModel.LKFenton);
-                setSchoolText(txtLinden, 14, closingsModel.Linden);
-                setSchoolText(txtMontrose, 15, closingsModel.Montrose);
-                setSchoolText(txtMorris, 16, closingsModel.Morris);
-                setSchoolText(txtSzCreek, 17, closingsModel.SzCreek);
-                setSchoolText(txtDurand, 18, closingsModel.Durand);
-                setSchoolText(txtHolly, 19, closingsModel.Holly);
-                setSchoolText(txtLapeer, 20, closingsModel.Lapeer);
-                setSchoolText(txtOwosso, 21, closingsModel.Owosso);
-                setSchoolText(txtGBAcademy, 22, closingsModel.GBAcademy);
-                setSchoolText(txtGISD, 23, closingsModel.GISD);
-                setSchoolText(txtHolyFamily, 24, closingsModel.HolyFamily);
-                setSchoolText(txtWPAcademy, 25, closingsModel.WPAcademy);
+                setSchoolText(txtAtherton, closingModels.get(0));
+                setSchoolText(txtBendle, closingModels.get(1));
+                setSchoolText(txtBentley,closingModels.get(2));
+                setSchoolText(txtCarman, closingModels.get(3));
+                setSchoolText(txtFlint, closingModels.get(4));
+                setSchoolText(txtGoodrich, closingModels.get(5));
+                setSchoolText(txtBeecher, closingModels.get(6));
+                setSchoolText(txtClio, closingModels.get(7));
+                setSchoolText(txtDavison, closingModels.get(8));
+                setSchoolText(txtFenton, closingModels.get(9));
+                setSchoolText(txtFlushing, closingModels.get(10));
+                setSchoolText(txtGenesee, closingModels.get(11));
+                setSchoolText(txtKearsley, closingModels.get(12));
+                setSchoolText(txtLKFenton, closingModels.get(13));
+                setSchoolText(txtLinden, closingModels.get(14));
+                setSchoolText(txtMontrose, closingModels.get(15));
+                setSchoolText(txtMorris, closingModels.get(16));
+                setSchoolText(txtSzCreek, closingModels.get(17));
+                setSchoolText(txtDurand, closingModels.get(18));
+                setSchoolText(txtHolly, closingModels.get(19));
+                setSchoolText(txtLapeer, closingModels.get(20));
+                setSchoolText(txtOwosso, closingModels.get(21));
+                setSchoolText(txtGBAcademy, closingModels.get(22));
+                setSchoolText(txtGISD, closingModels.get(23));
+                setSchoolText(txtHolyFamily, closingModels.get(24));
+                setSchoolText(txtWPAcademy, closingModels.get(25));
             }
         });
 
@@ -366,10 +364,10 @@ public class SnowDayController {
     }
 
     //TODO: Redesign the closings portion of the GUI so these arrays can be displayed separately (custom list cells).
-    private void setSchoolText(TextArea textArea, int position, boolean closed) {
-        textArea.setText(mClosingsModel.displayedOrgNames.get(position)
-                + ": " + mClosingsModel.displayedOrgStatuses.get(position));
-        if (closed) {
+    private void setSchoolText(TextArea textArea, ClosingModel closingModel) {
+        textArea.setText(closingModel.getOrgName()
+                + ": " + closingModel.getOrgStatus());
+        if (closingModel.isClosed()) {
             textArea.setStyle("-fx-control-inner-background: orange");
         }
     }
@@ -464,10 +462,10 @@ public class SnowDayController {
             }
 
             //Negate the above results for special cases
-            if (mClosingsModel.GB) {
+            if (closingsScraper.isGBClosed()) {
                 //WJRTScraper reports Grand Blanc is closed. Override percentage, set to 100%
                 percent = 100;
-            }else if (mClosingsModel.GBOpen) {
+            }else if (closingsScraper.isGBOpen()) {
                 //GB is false and the time is during or after school hours. 0% chance.
                 percent = 0;
             }
