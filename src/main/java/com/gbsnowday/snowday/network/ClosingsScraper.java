@@ -396,8 +396,8 @@ public class ClosingsScraper extends SwingWorker<List<ClosingModel>, Void> {
                                 default:
                             }
                             closingModels.get(closingModels.size() - 1).setClosed(true);
-                            result = true;
                         }
+                        result = true;
                     }
                 }
             }
